@@ -24,9 +24,9 @@ if not os.path.exists(logdir):
     os.makedirs(logdir)
 
 
-def getLatestModel():
-    if os.path.exists(models_dir) and len(os.listdir(models_dir)) > 0:
-        models = os.listdir(models_dir)
+def getLatestModel(dir=models_dir):
+    if os.path.exists(dir) and len(os.listdir(dir)) > 0:
+        models = os.listdir(dir)
         # integer sort
         models.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
         return models[-1]
@@ -65,6 +65,31 @@ while model.num_timesteps < MAX_TIMESTEPS:
 # latest_model = getLatestModel()
 # if latest_model is not None:
 #     model = PPO.load(f"{models_dir}/{latest_model}", env=env, verbose=1, tensorboard_log=logdir)
+#     print(f"Testing model at timestep {model.num_timesteps}")
+#     obs = env.reset()
+#     for i in range(1000):
+#         action, _states = model.predict(obs, deterministic=True)
+#         obs, rewards, dones, info = env.step(action)
+#         env.render()
+#         if dones:
+#             break
+#     env.close()
+
+# # Download all models from the bucket
+# blobs = bucket.list_blobs(prefix="lunar_landar/models/PPO_0/")
+# for blob in blobs:
+#     # Get the blob's name
+#     filename = blob.name.split("/")[-1]
+#     # Download the blob to a local file in a new directory models_from_bucket
+#     if not os.path.exists("models_from_bucket"):
+#         os.makedirs("models_from_bucket")
+#     blob.download_to_filename(f"models_from_bucket/{filename}")
+#     print(f"Downloaded {filename} from the bucket")
+#
+# # Test the newest model from the bucket
+# latest_model = getLatestModel("models_from_bucket")
+# if latest_model is not None:
+#     model = PPO.load(f"models_from_bucket/{latest_model}", env=env, verbose=1, tensorboard_log=logdir)
 #     print(f"Testing model at timestep {model.num_timesteps}")
 #     obs = env.reset()
 #     for i in range(1000):
