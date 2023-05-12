@@ -36,7 +36,7 @@ def getLatestModel():
 
 # Start training or continue training at the last model
 TIMESTEPS = 10000
-MAX_TIMESTEPS = 500000
+MAX_TIMESTEPS = 100000
 latest_model = getLatestModel()
 if latest_model is not None:
     model = PPO.load(f"{models_dir}/{latest_model}", env=env, verbose=1, tensorboard_log=logdir)
