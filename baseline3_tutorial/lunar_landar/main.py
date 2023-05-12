@@ -1,6 +1,16 @@
+import os
 import gym
 from stable_baselines3 import PPO
-import os
+from google.cloud import storage
+
+# Define your bucket name
+bucket_name = 'adlr_bucket'
+
+# Initialize a storage client
+storage_client = storage.Client()
+
+# Get the bucket object
+bucket = storage_client.get_bucket(bucket_name)
 
 env = gym.make('LunarLander-v2')
 
@@ -13,14 +23,16 @@ if not os.path.exists(models_dir):
 if not os.path.exists(logdir):
     os.makedirs(logdir)
 
+
 def getLatestModel():
     if os.path.exists(models_dir) and len(os.listdir(models_dir)) > 0:
         models = os.listdir(models_dir)
-        #integer sort
+        # integer sort
         models.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
         return models[-1]
     else:
         return None
+
 
 # Start training or continue training at the last model
 TIMESTEPS = 10000
@@ -34,8 +46,20 @@ else:
     print("Start training from scratch")
 while model.num_timesteps < MAX_TIMESTEPS:
     model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False)
-    model.save(f"{models_dir}/{model.num_timesteps}")
+    model_name = f"{models_dir}/{model.num_timesteps}"
+    model.save(model_name)
 
+    # upload the new model to the bucket
+    blob = bucket.blob(f"lunar_landar/{model_name}.zip")
+    blob.upload_from_filename(f"{model_name}.zip")
+
+    # get the latest log file
+    logs = os.listdir(f"{logdir}/PPO_0")
+    logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+    latest_log = logs[-1]
+    # upload the new log file to the bucket
+    blob = bucket.blob(f"lunar_landar/logs/PPO_0/{latest_log}")
+    blob.upload_from_filename(f"{logdir}/PPO_0/{latest_log}")
 
 # Test the latest model
 # latest_model = getLatestModel()
