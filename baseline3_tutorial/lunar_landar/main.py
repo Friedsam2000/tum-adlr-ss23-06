@@ -102,7 +102,9 @@ while model.num_timesteps < MAX_TIMESTEPS:
 # latest_model = getLatestModel("models_from_bucket")
 # if latest_model is not None:
 #     env = gym.make('LunarLander-v2')
-#     model = PPO.load(f"models_from_bucket/{latest_model}", env=env, verbose=1, tensorboard_log=logdir)
+#     custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0}
+#     model = PPO.load(f"models_from_bucket/{latest_model}", custom_objects=custom_objects, verbose=1)
+#     model.set_env(env)
 #     print(f"Testing model at timestep {model.num_timesteps}")
 #     obs = env.reset()
 #     for i in range(1000):
