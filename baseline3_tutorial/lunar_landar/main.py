@@ -3,6 +3,9 @@ import gym
 from stable_baselines3 import PPO
 from google.cloud import storage
 import torch
+from stable_baselines3.common.vec_env import SubprocVecEnv
+from stable_baselines3.common.env_util import make_vec_env
+
 
 # Check if GPU is available
 print("GPU is available: ")
@@ -19,7 +22,9 @@ storage_client = storage.Client()
 # Get the bucket object
 bucket = storage_client.get_bucket(bucket_name)
 
-env = gym.make('LunarLander-v2')
+num_cpu = 6  # Adjust according to your CPU
+env = make_vec_env('LunarLander-v2', n_envs=num_cpu)
+
 
 models_dir = "models/PPO_0"
 logdir = "logs"
