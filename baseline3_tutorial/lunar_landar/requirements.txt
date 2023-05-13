@@ -22,7 +22,7 @@ google-pasta
 google-resumable-media
 googleapis-common-protos
 grpcio
-gym==0.22.0
+gym==0.20.0
 h5py
 idna
 importlib-metadata
@@ -37,7 +37,6 @@ lit
 Markdown
 MarkupSafe
 matplotlib
-ml-dtypes
 mpmath
 networkx
 numpy
@@ -70,15 +69,15 @@ requests-oauthlib
 rsa
 scipy
 six
-stable-baselines3
+stable-baselines3==1.1.0
 sympy
 tensorboard
 tensorboard-data-server
-tensorflow
+tensorflow==2.4.1
 tensorflow-estimator
 tensorflow-io-gcs-filesystem
 termcolor
-torch
+torch==1.8.1
 triton
 typing_extensions
 tzdata
