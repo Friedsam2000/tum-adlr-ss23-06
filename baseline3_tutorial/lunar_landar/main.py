@@ -22,7 +22,7 @@ storage_client = storage.Client()
 # Get the bucket object
 bucket = storage_client.get_bucket(bucket_name)
 
-num_cpu = 6  # Adjust according to your CPU
+num_cpu = 8  # Adjust according to your CPU
 env = make_vec_env('LunarLander-v2', n_envs=num_cpu)
 
 
