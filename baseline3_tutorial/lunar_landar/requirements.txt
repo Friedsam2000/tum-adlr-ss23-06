@@ -22,7 +22,7 @@ google-pasta
 google-resumable-media
 googleapis-common-protos
 grpcio
-gym
+gym==0.26.0
 h5py
 idna
 importlib-metadata
