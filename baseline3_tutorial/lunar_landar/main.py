@@ -3,7 +3,7 @@ import gym
 from stable_baselines3 import PPO
 from google.cloud import storage
 
-# Define your bucket name
+# Define the bucket name
 bucket_name = 'adlr_bucket'
 
 # Initialize a storage client
