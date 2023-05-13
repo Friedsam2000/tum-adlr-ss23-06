@@ -2,6 +2,13 @@ import os
 import gym
 from stable_baselines3 import PPO
 from google.cloud import storage
+import torch
+
+# Check if GPU is available
+print("GPU is available: ")
+print(torch.cuda.is_available())
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
 
 # Define the bucket name
 bucket_name = 'adlr_bucket'
@@ -42,7 +49,7 @@ if latest_model is not None:
     model = PPO.load(f"{models_dir}/{latest_model}", env=env, verbose=1, tensorboard_log=logdir)
     print(f"Continue training at timestep {model.num_timesteps}")
 else:
-    model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir)
+    model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir, device=device)
     print("Start training from scratch")
 while model.num_timesteps < MAX_TIMESTEPS:
     model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False)
