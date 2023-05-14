@@ -55,7 +55,7 @@ if latest_model is not None:
     env.reset()
     print(f"Continue training at timestep {model.num_timesteps}")
 else:
-    model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir, device=device, n_steps=(2048*4))
+    model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir, device=device, n_steps=2048)
     print("Start training from scratch")
 while model.num_timesteps < MAX_TIMESTEPS:
 
