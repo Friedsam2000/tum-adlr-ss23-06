@@ -22,7 +22,7 @@ storage_client = storage.Client()
 # Get the bucket object
 bucket = storage_client.get_bucket(bucket_name)
 
-num_cpu = 16  # Adjust according to your CPU
+num_cpu = 8  # Adjust according to your CPU
 env = make_vec_env('LunarLander-v2', n_envs=num_cpu)
 
 
@@ -52,11 +52,13 @@ MAX_TIMESTEPS = 1000000
 latest_model = getLatestModel()
 if latest_model is not None:
     model = PPO.load(f"{models_dir}/{latest_model}", env=env, verbose=1, tensorboard_log=logdir)
+    env.reset()
     print(f"Continue training at timestep {model.num_timesteps}")
 else:
     model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir, device=device)
     print("Start training from scratch")
 while model.num_timesteps < MAX_TIMESTEPS:
+
     model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False)
     model_name = f"{models_dir}/{model.num_timesteps}"
     model.save(model_name)
