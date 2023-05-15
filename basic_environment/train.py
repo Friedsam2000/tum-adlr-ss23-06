@@ -11,7 +11,7 @@ models_dir = "models/PPO_0"
 logdir = "logs"
 
 # create the environment
-env = GridEnvironment(grid_size=(10, 10))
+env = GridEnvironment(grid_size=(50, 50))
 
 def getLatestModel(dir=models_dir):
     if os.path.exists(dir) and len(os.listdir(dir)) > 0:
@@ -45,11 +45,10 @@ def getLatestModel(dir=models_dir):
 #     model_name = f"{models_dir}/{model.num_timesteps}"
 #     model.save(model_name)
 
-####### Test the newest model from a folder #######
+###### Test the newest model from a folder #######
 folder = "models/PPO_0"
 latest_model = getLatestModel(folder)
 if latest_model is not None:
-    env = GridEnvironment(grid_size=(10, 10))
     model = PPO.load(f"{folder}/{latest_model}", verbose=1)
     model.set_env(env)
     print(f"Testing model at timestep {model.num_timesteps}")
