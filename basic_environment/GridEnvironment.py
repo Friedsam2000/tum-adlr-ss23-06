@@ -5,7 +5,8 @@ import cv2
 import gym
 from gym import spaces
 
-REMEMBER_NUM_PREV_ACTIONS = 30
+REMEMBER_NUM_PREV_ACTIONS = 0
+DISPLAY_NUM_PREV_BLOCK_POSITIONS = 30
 
 class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
@@ -17,8 +18,8 @@ class CustomEnv(gym.Env):
         # Define action and observation space
         self.action_space = spaces.Discrete(4)
         # Example for using image as input:
-        self.observation_space = spaces.Box(low=0, high=max(*grid_size, 4), shape=(6+REMEMBER_NUM_PREV_ACTIONS,), dtype=np.uint8)
-
+        self.observation_space = spaces.Box(low=-1, high=max(*grid_size, 4), shape=(6 + REMEMBER_NUM_PREV_ACTIONS,),
+                                            dtype=np.float32)
     def reset(self):
         self.done = False
         self.reward = 0
@@ -26,18 +27,19 @@ class CustomEnv(gym.Env):
         self.block_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
         self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
-        self.old_block_positions = deque(maxlen=REMEMBER_NUM_PREV_ACTIONS)
+        self.old_block_positions = deque(maxlen=DISPLAY_NUM_PREV_BLOCK_POSITIONS)
         self.prev_actions = deque(maxlen=REMEMBER_NUM_PREV_ACTIONS)
 
-        for i in range(REMEMBER_NUM_PREV_ACTIONS):
+        for i in range(DISPLAY_NUM_PREV_BLOCK_POSITIONS):
             self.old_block_positions.append((-1, -1))
+        for i in range(REMEMBER_NUM_PREV_ACTIONS):
             self.prev_actions.append(-1)  # -1 represents no action
 
         # define observation
         observation = [self.block_position[1], self.block_position[0], self.goal_position[1],
                        self.goal_position[0], self.grid_size[1], self.grid_size[0]] + list(self.prev_actions)
 
-        return observation
+        return np.array(observation, dtype=np.float32)
 
     def step(self, action):
         # save the old block positions
@@ -65,7 +67,7 @@ class CustomEnv(gym.Env):
         observation = [self.block_position[1], self.block_position[0], self.goal_position[1],
                        self.goal_position[0], self.grid_size[1], self.grid_size[0]] + list(self.prev_actions)
 
-        return observation, self.reward, self.done
+        return np.array(observation, dtype=np.float32), self.reward, self.done, {}
 
     def render(self, mode='human'):
         #... keep the rest as is
@@ -92,6 +94,7 @@ class CustomEnv(gym.Env):
         self.goal_position[0] * block_size:(self.goal_position[0] + 1) * block_size] = goal_color
 
         cv2.imshow('Grid', img)
+        cv2.waitKey(1)  # waits for 1 millisecond
 
     def close(self):
         cv2.destroyAllWindows()

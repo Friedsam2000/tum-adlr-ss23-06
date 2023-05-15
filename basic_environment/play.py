@@ -23,7 +23,7 @@ while True:
         continue
 
     # Apply the action to the environment
-    observation, reward, done = env.step(action)
+    observation, reward, done, info = env.step(action)
     # print(observation)
 
     # display the reward
