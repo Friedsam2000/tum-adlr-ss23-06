@@ -62,12 +62,8 @@ class CustomEnv(gym.Env):
         return np.array(observation, dtype=np.uint8), self.reward, self.done, {}
 
     def render(self, mode='human'):
-        img = self.getImg()
 
-        # scale the grid to 500x500
-        img = cv2.resize(img, (500, 500), interpolation=cv2.INTER_NEAREST)
-
-        cv2.imshow('Grid', img)
+        cv2.imshow('Grid', self.getImg())
         cv2.waitKey(1)  # waits for 1 millisecond
 
     def close(self):
@@ -91,5 +87,10 @@ class CustomEnv(gym.Env):
         # draw the goal block
         img[self.goal_position[1]:(self.goal_position[1] + 1),
         self.goal_position[0]:(self.goal_position[0] + 1)] = goal_color
+
+        # scale the grid to 64x64 pixels
+        img = cv2.resize(img, (64, 64), interpolation=cv2.INTER_NEAREST)
+
+
 
         return img
