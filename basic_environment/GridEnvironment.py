@@ -14,7 +14,7 @@ class CustomEnv(gym.Env):
         # Define action and observation space
         self.action_space = spaces.Discrete(4)
         # Example for using image as input:
-        self.observation_space = spaces.Box(low=0, high=255, shape=(grid_size[0], grid_size[1], 3), dtype=np.uint8)
+        self.observation_space = spaces.Box(low=0, high=255, shape=(36, 36, 3), dtype=np.uint8)
 
     def reset(self):
         self.done = False
@@ -48,7 +48,7 @@ class CustomEnv(gym.Env):
 
         if self.agent_position == self.goal_position:
             # reward the agent for reaching the goal
-            self.reward = 10
+            # self.reward = 100
             self.done = True
         else:
             distance = np.sqrt((self.agent_position[0] - self.goal_position[0]) ** 2 + (
@@ -76,9 +76,9 @@ class CustomEnv(gym.Env):
 
         img = np.zeros((self.grid_size[0], self.grid_size[1], 3), dtype=np.uint8)
 
-        # draw the old agent positions in gray
-        for pos in self.old_agent_position:
-            img[pos[1]:(pos[1] + 1), pos[0]:(pos[0] + 1)] = old_position_color
+        # # draw the old agent positions in gray
+        # for pos in self.old_agent_position:
+        #     img[pos[1]:(pos[1] + 1), pos[0]:(pos[0] + 1)] = old_position_color
 
         # draw the active block (agent)
         img[self.agent_position[1]:(self.agent_position[1] + 1),
@@ -89,7 +89,7 @@ class CustomEnv(gym.Env):
         self.goal_position[0]:(self.goal_position[0] + 1)] = goal_color
 
         # scale the grid to 64x64 pixels
-        img = cv2.resize(img, (64, 64), interpolation=cv2.INTER_NEAREST)
+        img = cv2.resize(img, (36, 36), interpolation=cv2.INTER_NEAREST)
 
 
 
