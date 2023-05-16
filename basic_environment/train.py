@@ -1,87 +1,29 @@
-import os
-import time
-
-import gym
 from stable_baselines3 import PPO
-from GridEnvironment import CustomEnv as GridEnvironment
+from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
+from GridEnvironment import CustomEnv
 
+def make_env(grid_size, rank):
+    def _init():
+        env = CustomEnv(grid_size=grid_size)
+        return env
+    return _init
 
-# Setting local directories
-models_dir = "models/PPO_0"
-logdir = "logs"
+def main():
+    num_cpu = 4  # Number of processes to use
+    grid_size = (8, 8)
 
-# create the environment
-env = GridEnvironment(grid_size=(20, 20))
+    # Create the vectorized environment
+    env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
+    env = VecMonitor(env)
 
-def getLatestModel(dir=models_dir):
-    if os.path.exists(dir) and len(os.listdir(dir)) > 0:
-        models = os.listdir(dir)
-        # integer sort
-        models.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
-        return models[-1]
-    else:
-        return None
+    # Initialize PPO agent with CNN policy
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs")
 
+    # Train agent
+    model.learn(total_timesteps=200000)
 
-####### Only comment in one of the following sections #######
+    # Save the agent
+    model.save("ppo_customenv")
 
-####### Start training or continue training at the last local model #######
-TIMESTEPS = 10000
-MAX_TIMESTEPS = 1000000
-if not os.path.exists(models_dir):
-    os.makedirs(models_dir)
-if not os.path.exists(logdir):
-    os.makedirs(logdir)
-latest_model = getLatestModel()
-if latest_model is not None:
-    model = PPO.load(f"{models_dir}/{latest_model}", env=env, verbose=1, tensorboard_log=logdir)
-    env.reset()
-    print(f"Continue training at timestep {model.num_timesteps}")
-else:
-    model = PPO('CnnPolicy', env, verbose=1, tensorboard_log=logdir)
-    print("Start training from scratch")
-while model.num_timesteps < MAX_TIMESTEPS:
-    model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False)
-    model_name = f"{models_dir}/{model.num_timesteps}"
-    model.save(model_name)
-
-###### Test the newest model from a folder #######
-# folder = "models/PPO_0"
-# latest_model = getLatestModel(folder)
-# if latest_model is not None:
-#     model = PPO.load(f"{folder}/{latest_model}", verbose=1)
-#     model.set_env(env)
-#     print(f"Testing model at timestep {model.num_timesteps}")
-#     for j in range(10):
-#         sum_reward = 0
-#         obs = env.reset()
-#         for i in range(1000):
-#             action, _states = model.predict(obs, deterministic=True)
-#             obs, rewards, done, info = env.step(action)
-#             sum_reward += rewards
-#             env.render()
-#             #wait 100ms
-#             time.sleep(0.1)
-#             if done:
-#                 print(f"Test {j} reward: {sum_reward}")
-#                 break
-#         env.close()"models/PPO_0"
-# latest_model = getLatestModel(folder)
-# if latest_model is not None:
-#     model = PPO.load(f"{folder}/{latest_model}", verbose=1)
-#     model.set_env(env)
-#     print(f"Testing model at timestep {model.num_timesteps}")
-#     for j in range(10):
-#         sum_reward = 0
-#         obs = env.reset()
-#         for i in range(1000):
-#             action, _states = model.predict(obs, deterministic=True)
-#             obs, rewards, done, info = env.step(action)
-#             sum_reward += rewards
-#             env.render()
-#             #wait 100ms
-#             time.sleep(0.1)
-#             if done:
-#                 print(f"Test {j} reward: {sum_reward}")
-#                 break
-#         env.close()
+if __name__ == "__main__":
+    main()

@@ -11,5 +11,5 @@ while True:
     if done:
         obs = env.reset()
     print('reward',reward)
-    print('observation',obs)
+    # print('observation',obs)
     env.render()

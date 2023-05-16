@@ -65,6 +65,11 @@ class CustomEnv(gym.Env):
             self.agent_position[1] - self.goal_position[1])
         self.reward = old_dist - new_dist
 
+        # if the agent is not moving at all, give a negative reward
+        if self.reward == 0:
+            self.reward = -1
+
+
 
         # define observation
         observation = self.getImg()
@@ -75,7 +80,7 @@ class CustomEnv(gym.Env):
         # Render the environment to the screen
         img = self.getImg()
         cv2.imshow('image', img)
-        cv2.waitKey(1)
+        cv2.waitKey(100)
 
     def close(self):
         cv2.destroyAllWindows()
