@@ -1,7 +1,12 @@
+from collections import deque
+
 import numpy as np
 import cv2
 import gym
 from gym import spaces
+
+
+REMEMBER_NUM_OLD_AGENT_POSITIONS = 5
 
 
 class CustomEnv(gym.Env):
@@ -26,7 +31,9 @@ class CustomEnv(gym.Env):
         self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
         # old agent positions
-        self.old_agent_position = []
+        self.old_agent_position = deque(maxlen=REMEMBER_NUM_OLD_AGENT_POSITIONS)
+        for i in range(REMEMBER_NUM_OLD_AGENT_POSITIONS):
+            self.old_agent_position.append([-1, -1]) # -1 means no position
 
         # define observation
         observation = self.getImg()
@@ -35,7 +42,8 @@ class CustomEnv(gym.Env):
 
     def step(self, action):
 
-        # add the current agent position to the old agent positions before making a move
+
+        # save old agent position
         self.old_agent_position.append(self.agent_position.copy())
 
         if action == 0:  # up
