@@ -15,7 +15,7 @@ class CustomEnv(gym.Env):
         # Define action and observation space
         self.action_space = spaces.Discrete(4)
         # Example for using image as input:
-        self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1]), dtype=np.uint8)
+        self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], 3), dtype=np.uint8)
 
     def reset(self):
         self.done = False
@@ -73,21 +73,21 @@ class CustomEnv(gym.Env):
         cv2.destroyAllWindows()
 
     def getImg(self):
-        block_color = 255
-        goal_color = 127
-        old_position_color = 50
+        block_color = (255, 255, 255)
+        goal_color = (0, 255, 0)
+        old_position_color = (100, 100, 100)
 
-        img = np.zeros((self.grid_size[0], self.grid_size[1]), dtype=np.uint8)
+        img = np.zeros((self.grid_size[0], self.grid_size[1], 3), dtype=np.uint8)
 
-        # draw old agent positions
-        # for old_position in self.old_agent_position:
-        #     img[old_position[1], old_position[0]] = old_position_color
+        # draw the old agent positions in gray
+        for old_position in self.old_agent_position:
+            img[old_position[1]:(old_position[1] + 1), old_position[0]:(old_position[0] + 1)] = old_position_color
 
-        # draw agent position
-        img[self.agent_position[1], self.agent_position[0]] = block_color
+        # draw the agent position in white
+        img[self.agent_position[1]:(self.agent_position[1] + 1), self.agent_position[0]:(self.agent_position[0] + 1)] = block_color
 
-        # draw goal position
-        img[self.goal_position[1], self.goal_position[0]] = goal_color
+        # draw the goal position in green
+        img[self.goal_position[1]:(self.goal_position[1] + 1), self.goal_position[0]:(self.goal_position[0] + 1)] = goal_color
 
         # scale the grid to 36x36 pixels
         img = cv2.resize(img, self.img_size, interpolation=cv2.INTER_NEAREST)
