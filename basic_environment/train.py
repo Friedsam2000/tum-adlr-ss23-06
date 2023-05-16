@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
 
 
-    num_cpu = 8  # Number of processes to use
+    num_cpu = 1  # Number of processes to use
     grid_size = (8, 8)
 
     # Create the vectorized environment
@@ -44,42 +44,42 @@ if __name__ == "__main__":
     # add a monitor wrapper
     env = VecMonitor(env)
 
-    # Clear and delete the "logs" directory
-    if os.path.exists("logs"):
-        shutil.rmtree("logs")
 
-    # Clear and delete the "models" directory
-    if os.path.exists("models"):
-        shutil.rmtree("models")
+    # Create logs if not existing
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
 
-    # Recreate the directories
-    os.makedirs("logs")
-    os.makedirs("models")
+    # Create models if not existing
+    if not os.path.exists("models"):
+        os.makedirs("models")
 
-    # remove basic_environment directory from bucket
-    blobs = bucket.list_blobs(prefix="basic_environment/")
-    for blob in blobs:
-        blob.delete()
+    # Check how many folders are in logs
+    logs_folders = os.listdir("logs")
+
 
     # Initialize PPO agent with CNN policy
     model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device)
 
     # Train agent
-    TIMESTEPS_PER_SAVE = 10000
+    TIMESTEPS_PER_SAVE = 5000
     MAX_TIMESTEPS = 300000
     while model.num_timesteps < MAX_TIMESTEPS:
-        model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False)
-        model.save(f"models/{model.num_timesteps}")
+        model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False, tb_log_name=f"PPO_{len(logs_folders)}")
+        # create the folder for the model
+        if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
+            os.makedirs(f"models/PPO_{len(logs_folders)}_0")
+        model.save(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}")
 
         # upload the model to the bucket
-        blob = bucket.blob(f"basic_environment/models/{model.num_timesteps}.zip")
-        blob.upload_from_filename(f"models/{model.num_timesteps}.zip")
+        blob = bucket.blob(f"basic_environment/models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
+        blob.upload_from_filename(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
         print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
+
         # get the latest log file
-        logs = os.listdir("logs/PPO_0")
+        logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
         logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
         latest_log = logs[-1]
         # upload the new log file to the bucket
-        blob = bucket.blob(f"basic_environment/logs/PPO_0/{latest_log}")
-        blob.upload_from_filename(f"logs/PPO_0/{latest_log}")
+        blob = bucket.blob(f"basic_environment/logs/PPO_{len(logs_folders)}_0/{latest_log}")
+        blob.upload_from_filename(f"logs/PPO_{len(logs_folders)}_0/{latest_log}")
