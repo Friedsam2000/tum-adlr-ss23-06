@@ -36,7 +36,8 @@ blob.download_to_filename(f"models_from_bucket/" + model_filename.split("/")[-1]
 print(f"Downloaded {model_filename} from bucket {bucket_name} to models_from_bucket directory")
 
 # Load the model
-model = PPO.load(f"models_from_bucket/" + model_filename.split("/")[-1])
+custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0}
+model = PPO.load(f"models_from_bucket/" + model_filename.split("/")[-1], custom_objects=custom_objects, verbose=1)
 print(f"Loaded {model_filename} from models_from_bucket directory")
 
 # Create the environment
