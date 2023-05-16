@@ -1,14 +1,31 @@
 from stable_baselines3 import PPO
-from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from GridEnvironment import CustomEnv
+import os
+
+
+def getLatestModel(dir="models"):
+    if os.path.exists(dir) and len(os.listdir(dir)) > 0:
+        models = os.listdir(dir)
+        # integer sort
+        models.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+        return models[-1]
+    else:
+        return None
+
 
 def main():
 
     # Create the environment
     env = CustomEnv(grid_size=(8,8))
 
-    # Load the trained model
-    model = PPO.load("ppo_customenv", env=env)
+    # get the latest model
+    models_dir = "models"
+    latest_model = getLatestModel(dir=models_dir)
+    print(f"Loading model {latest_model}")
+
+    # Load the model
+    model = PPO.load(f"{models_dir}/{latest_model}", env=env, verbose=1)
+
 
     # Test the trained model
     obs = env.reset()

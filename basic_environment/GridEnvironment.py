@@ -6,7 +6,7 @@ import gym
 from gym import spaces
 
 
-REMEMBER_NUM_OLD_AGENT_POSITIONS = 5
+REMEMBER_NUM_OLD_AGENT_POSITIONS = 10
 
 
 class CustomEnv(gym.Env):
@@ -24,7 +24,7 @@ class CustomEnv(gym.Env):
 
     def reset(self):
         self.done = False
-        self.reward = 0
+        self.steps_taken = 0
 
         # set the block position to a random position
         self.agent_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
@@ -41,6 +41,8 @@ class CustomEnv(gym.Env):
         return np.array(observation, dtype=np.uint8)
 
     def step(self, action):
+
+        self.steps_taken += 1
 
 
         # save old agent position
@@ -66,9 +68,8 @@ class CustomEnv(gym.Env):
         self.reward = old_dist - new_dist
 
         # if the agent is not moving at all, give a negative reward
-        if self.reward == 0:
+        if old_dist == new_dist:
             self.reward = -1
-
 
 
         # define observation
