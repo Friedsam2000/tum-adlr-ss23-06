@@ -3,6 +3,9 @@ from gym.wrappers import TimeLimit
 from stable_baselines3 import PPO
 from GridEnvironment import CustomEnv
 import os
+import torch
+from google.cloud import storage
+import shutil
 
 
 
@@ -14,8 +17,26 @@ def make_env(grid_size, rank):
         return env
     return _init
 
-def main():
-    num_cpu = 4  # Number of processes to use
+
+if __name__ == "__main__":
+
+    # Set up the GPU or use the CPU
+    print("GPU is available: ")
+    print(torch.cuda.is_available())
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+    # Set up the bucket (google cloud storage)
+    # Define the bucket name
+    bucket_name = 'adlr_bucket'
+    # Initialize a storage client
+    storage_client = storage.Client()
+    # Get the bucket object
+    bucket = storage_client.get_bucket(bucket_name)
+
+
+
+    num_cpu = 8  # Number of processes to use
     grid_size = (8, 8)
 
     # Create the vectorized environment
@@ -23,24 +44,42 @@ def main():
     # add a monitor wrapper
     env = VecMonitor(env)
 
-    # create logs and models directories if they don't exist
-    if not os.path.exists("logs"):
-        os.makedirs("logs")
+    # Clear and delete the "logs" directory
+    if os.path.exists("logs"):
+        shutil.rmtree("logs")
 
-    if not os.path.exists("models"):
-        os.makedirs("models")
+    # Clear and delete the "models" directory
+    if os.path.exists("models"):
+        shutil.rmtree("models")
+
+    # Recreate the directories
+    os.makedirs("logs")
+    os.makedirs("models")
+
+    # remove basic_environment directory from bucket
+    blobs = bucket.list_blobs(prefix="basic_environment/")
+    for blob in blobs:
+        blob.delete()
 
     # Initialize PPO agent with CNN policy
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs")
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device)
 
     # Train agent
-
-    timesteps_per_save = 50000
-    max_timesteps = 300000
-    while model.num_timesteps < max_timesteps:
-        model.learn(total_timesteps=timesteps_per_save, reset_num_timesteps=False)
+    TIMESTEPS_PER_SAVE = 10000
+    MAX_TIMESTEPS = 300000
+    while model.num_timesteps < MAX_TIMESTEPS:
+        model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False)
         model.save(f"models/{model.num_timesteps}")
 
+        # upload the model to the bucket
+        blob = bucket.blob(f"basic_environment/models/{model.num_timesteps}.zip")
+        blob.upload_from_filename(f"models/{model.num_timesteps}.zip")
+        print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
-if __name__ == "__main__":
-    main()
+        # get the latest log file
+        logs = os.listdir("logs/PPO_0")
+        logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+        latest_log = logs[-1]
+        # upload the new log file to the bucket
+        blob = bucket.blob(f"basic_environment/logs/PPO_0/{latest_log}")
+        blob.upload_from_filename(f"logs/PPO_0/{latest_log}")

@@ -63,13 +63,7 @@ while model.num_timesteps < MAX_TIMESTEPS:
     blob = bucket.blob(f"lunar_landar/{model_name}.zip")
     blob.upload_from_filename(f"{model_name}.zip")
 
-    # get the latest log file
-    logs = os.listdir(f"{logdir}/PPO_0")
-    logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
-    latest_log = logs[-1]
-    # upload the new log file to the bucket
-    blob = bucket.blob(f"lunar_landar/logs/PPO_0/{latest_log}")
-    blob.upload_from_filename(f"{logdir}/PPO_0/{latest_log}")
+
 
 ####### Download the newest model from the bucket #######
 # get all filenames in the bucket
