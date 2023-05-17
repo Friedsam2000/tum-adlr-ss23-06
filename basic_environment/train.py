@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
 
 
-    num_cpu = 1  # Number of processes to use
+    num_cpu = 8  # Number of processes to use
     grid_size = (8, 8)
 
     # Create the vectorized environment
