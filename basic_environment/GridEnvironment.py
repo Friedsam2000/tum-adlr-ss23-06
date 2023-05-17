@@ -6,7 +6,7 @@ import gym
 from gym import spaces
 
 
-REMEMBER_NUM_OLD_AGENT_POSITIONS = 10
+REMEMBER_NUM_OLD_AGENT_POSITIONS = 30
 
 
 class CustomEnv(gym.Env):
@@ -70,6 +70,9 @@ class CustomEnv(gym.Env):
         if old_dist == new_dist:
             self.reward += -1
 
+        # if the agent is moving back to the old position, give a negative reward
+        if self.agent_position in self.old_agent_position:
+            self.reward += -1
 
         # define observation
         observation = self.getImg()
