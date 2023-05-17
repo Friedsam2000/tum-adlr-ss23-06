@@ -34,7 +34,7 @@ if __name__ == "__main__":
     bucket = storage_client.get_bucket(bucket_name)
 
     num_cpu = 8  # Number of processes to use
-    grid_size = (8, 8)
+    grid_size = (36, 36)
     img_size = (36, 36)
 
     # Create the vectorized environment
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     # Train agent
     TIMESTEPS_PER_SAVE = 30000
-    MAX_TIMESTEPS = 400000
+    MAX_TIMESTEPS = 500000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
                     tb_log_name=f"PPO_{len(logs_folders)}")
