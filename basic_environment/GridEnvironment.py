@@ -24,7 +24,6 @@ class CustomEnv(gym.Env):
 
     def reset(self):
         self.done = False
-        self.steps_taken = 0
 
         # set the block position to a random position
         self.agent_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
@@ -41,8 +40,6 @@ class CustomEnv(gym.Env):
         return np.array(observation, dtype=np.uint8)
 
     def step(self, action):
-
-        self.steps_taken += 1
 
 
         # save old agent position
@@ -103,7 +100,7 @@ class CustomEnv(gym.Env):
         # draw the goal position in green
         img[self.goal_position[1]:(self.goal_position[1] + 1), self.goal_position[0]:(self.goal_position[0] + 1)] = goal_color
 
-        # scale the grid to 36x36 pixels
+        # scale the grid to img_size
         img = cv2.resize(img, self.img_size, interpolation=cv2.INTER_NEAREST)
 
         return img

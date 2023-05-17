@@ -8,13 +8,13 @@ from google.cloud import storage
 import shutil
 
 
-
-def make_env(grid_size, rank):
+def make_env(grid_size, img_size, rank):
     def _init():
-        env = CustomEnv(grid_size=grid_size)
+        env = CustomEnv(grid_size=grid_size, img_size=img_size)
         # add a TimeLimit wrapper
         env = TimeLimit(env, max_episode_steps=100)
         return env
+
     return _init
 
 
@@ -25,7 +25,6 @@ if __name__ == "__main__":
     print(torch.cuda.is_available())
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-
     # Set up the bucket (google cloud storage)
     # Define the bucket name
     bucket_name = 'adlr_bucket'
@@ -34,16 +33,14 @@ if __name__ == "__main__":
     # Get the bucket object
     bucket = storage_client.get_bucket(bucket_name)
 
-
-
     num_cpu = 8  # Number of processes to use
     grid_size = (8, 8)
+    img_size = (36, 36)
 
     # Create the vectorized environment
-    env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
+    env = SubprocVecEnv([make_env(grid_size, img_size, i) for i in range(num_cpu)])
     # add a monitor wrapper
     env = VecMonitor(env)
-
 
     # Create logs if not existing
     if not os.path.exists("logs"):
@@ -56,15 +53,15 @@ if __name__ == "__main__":
     # Check how many folders are in logs
     logs_folders = os.listdir("logs")
 
-
     # Initialize PPO agent with CNN policy
     model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device)
 
     # Train agent
-    TIMESTEPS_PER_SAVE = 5000
-    MAX_TIMESTEPS = 300000
+    TIMESTEPS_PER_SAVE = 30000
+    MAX_TIMESTEPS = 400000
     while model.num_timesteps < MAX_TIMESTEPS:
-        model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False, tb_log_name=f"PPO_{len(logs_folders)}")
+        model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
+                    tb_log_name=f"PPO_{len(logs_folders)}")
         # create the folder for the model
         if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
             os.makedirs(f"models/PPO_{len(logs_folders)}_0")
@@ -74,7 +71,6 @@ if __name__ == "__main__":
         blob = bucket.blob(f"basic_environment/models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
         blob.upload_from_filename(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
         print(f"Uploaded model {model.num_timesteps}.zip to bucket")
-
 
         # get the latest log file
         logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
