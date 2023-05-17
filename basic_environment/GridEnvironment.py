@@ -41,6 +41,7 @@ class CustomEnv(gym.Env):
 
     def step(self, action):
 
+        self.reward = 0
 
         # save old agent position
         self.old_agent_position.append(self.agent_position.copy())
@@ -55,6 +56,7 @@ class CustomEnv(gym.Env):
             self.agent_position[0] = min(self.grid_size[0] - 1, self.agent_position[0] + 1)
 
         if self.agent_position == self.goal_position:
+            self.reward += 20
             self.done = True
 
         # define reward as the decrease in distance to the goal
@@ -62,11 +64,11 @@ class CustomEnv(gym.Env):
             self.old_agent_position[-1][1] - self.goal_position[1])
         new_dist = abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])
-        self.reward = old_dist - new_dist
+        self.reward += old_dist - new_dist
 
         # if the agent is not moving at all, give a negative reward
         if old_dist == new_dist:
-            self.reward = -1
+            self.reward += -1
 
 
         # define observation
