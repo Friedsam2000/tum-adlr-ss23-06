@@ -68,11 +68,14 @@ class CustomEnv(gym.Env):
 
         # if the agent is not moving at all, give a negative reward
         if old_dist == new_dist:
-            self.reward += -1
+            self.reward += -0.4
 
         # if the agent is moving back to the old position, give a negative reward
         if self.agent_position in self.old_agent_position:
-            self.reward += -1
+            self.reward += -0.2
+
+        # any move is a negative reward
+        self.reward += -0.1
 
         # define observation
         observation = self.getImg()
