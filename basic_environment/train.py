@@ -32,7 +32,7 @@ if __name__ == "__main__":
     bucket = storage_client.get_bucket(bucket_name)
 
     num_cpu = 8  # Number of processes to use
-    grid_size = (18, 18)
+    grid_size = (8, 8)
     img_size = (84, 84)
     draw_num_old_agent_pos = 6
 
