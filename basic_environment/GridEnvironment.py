@@ -6,14 +6,12 @@ import gym
 from gym import spaces
 
 
-REMEMBER_NUM_OLD_AGENT_POSITIONS = 1
-
-
 class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, grid_size, img_size=(36, 36), render_size=(360, 360)):
+    def __init__(self, grid_size, img_size=(36, 36), render_size=(360, 360), draw_num_old_agent_pos=0):
+        self.draw_num_old_agent_pos = draw_num_old_agent_pos
         self.grid_size = grid_size
         self.img_size = img_size
         self.render_size = render_size
@@ -31,9 +29,12 @@ class CustomEnv(gym.Env):
         self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
         # old agent positions
-        self.old_agent_position = deque(maxlen=REMEMBER_NUM_OLD_AGENT_POSITIONS)
-        for i in range(REMEMBER_NUM_OLD_AGENT_POSITIONS):
+        self.old_agent_position = deque(maxlen=self.draw_num_old_agent_pos)
+        for i in range(self.draw_num_old_agent_pos):
             self.old_agent_position.append([-1, -1]) # -1 means no position
+            
+        # define last distance to goal
+        self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
         # define observation
         observation = self.getImg()
@@ -56,23 +57,30 @@ class CustomEnv(gym.Env):
         elif action == 3:  # right
             self.agent_position[0] = min(self.grid_size[0] - 1, self.agent_position[0] + 1)
 
+
+        # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
             self.reward += 10
             self.done = True
+        else:
+            # define new distance to goal
+            new_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
-        # define reward as the decrease in distance to the goal
-        old_dist = abs(self.old_agent_position[-1][0] - self.goal_position[0]) + abs(
-            self.old_agent_position[-1][1] - self.goal_position[1])
-        new_dist = abs(self.agent_position[0] - self.goal_position[0]) + abs(
-            self.agent_position[1] - self.goal_position[1])
-        self.reward += old_dist - new_dist
-
-        # if the agent is moving against a wall, give a negative reward
-        if old_dist == new_dist:
-            self.reward += -0.4
-
-        # any move is a negative reward
-        self.reward += -0.2
+            # if the agent is moving towards the goal, give a positive reward
+            if new_dist < self.old_dist:
+                self.reward += 1
+            else:
+                self.reward += -1
+    
+            # if the agent is moving against a wall, give a negative reward
+            if self.old_dist == new_dist:
+                self.reward += -0.4
+    
+            # any move is a negative reward
+            self.reward += -0.2
+            
+            # set the new distance to the old distance
+            self.old_dist = new_dist
 
         # define observation
         observation = self.getImg()
@@ -97,8 +105,8 @@ class CustomEnv(gym.Env):
         img = np.zeros((self.grid_size[0], self.grid_size[1], 3), dtype=np.uint8)
 
         # draw the old agent positions in gray
-        # for old_position in self.old_agent_position:
-        #     img[old_position[1]:(old_position[1] + 1), old_position[0]:(old_position[0] + 1)] = old_position_color
+        for old_position in self.old_agent_position:
+            img[old_position[1]:(old_position[1] + 1), old_position[0]:(old_position[0] + 1)] = old_position_color
 
         # draw the agent position in white
         img[self.agent_position[1]:(self.agent_position[1] + 1), self.agent_position[0]:(self.agent_position[0] + 1)] = block_color
