@@ -11,8 +11,6 @@ import shutil
 def make_env(grid_size, rank):
     def _init():
         env = CustomEnv(grid_size=grid_size)
-        # add a TimeLimit wrapper
-        env = TimeLimit(env, max_episode_steps=300)
         return env
 
     return _init
@@ -53,10 +51,10 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Initialize PPO agent with CNN policy
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=200)
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=512)
 
     # Train agent
-    TIMESTEPS_PER_SAVE = 30000
+    TIMESTEPS_PER_SAVE = 40000
     MAX_TIMESTEPS = 1000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
