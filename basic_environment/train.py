@@ -8,9 +8,9 @@ from google.cloud import storage
 import shutil
 
 
-def make_env(grid_size, rank):
+def make_env(grid_size, rank, draw_num_old_agent_pos):
     def _init():
-        env = CustomEnv(grid_size=grid_size)
+        env = CustomEnv(grid_size=grid_size, draw_num_old_agent_pos=draw_num_old_agent_pos)
         return env
 
     return _init
@@ -33,9 +33,10 @@ if __name__ == "__main__":
 
     num_cpu = 8  # Number of processes to use
     grid_size = (8, 8)
+    draw_num_old_agent_pos = 3
 
     # Create the vectorized environment
-    env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
+    env = SubprocVecEnv([make_env(grid_size, i, draw_num_old_agent_pos) for i in range(num_cpu)])
     # add a monitor wrapper
     env = VecMonitor(env)
 
