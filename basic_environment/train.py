@@ -32,7 +32,7 @@ if __name__ == "__main__":
     bucket = storage_client.get_bucket(bucket_name)
 
     num_cpu = 8  # Number of processes to use
-    grid_size = (8, 8)
+    grid_size = (18, 18)
     draw_num_old_agent_pos = 3
 
     # Create the vectorized environment
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Initialize PPO agent with CNN policy
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=2048)
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=512)
 
     # Train agent
     TIMESTEPS_PER_SAVE = 40000
