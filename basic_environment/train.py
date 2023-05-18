@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # Get the bucket object
     bucket = storage_client.get_bucket(bucket_name)
 
-    num_cpu = 1  # Number of processes to use
+    num_cpu = 8  # Number of processes to use
     grid_size = (18, 18)
     img_size = (84, 84)
     draw_num_old_agent_pos = 6
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, learning_rate=0.00003)
 
     # Train agent
-    TIMESTEPS_PER_SAVE = 5000
+    TIMESTEPS_PER_SAVE = 40000
     MAX_TIMESTEPS = 600000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
@@ -66,11 +66,7 @@ if __name__ == "__main__":
             os.makedirs(f"models/PPO_{len(logs_folders)}_0")
         model.save(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}")
 
-        # Create directory structure on the bucket
-        blob_dir = bucket.blob(f"basic_environment/models/PPO_{len(logs_folders)}_0/")
-        blob_dir.upload_from_string('')
-
-        # Then, upload the model to the bucket
+        # upload the model to the bucket
         blob = bucket.blob(f"basic_environment/models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
         blob.upload_from_filename(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
         print(f"Uploaded model {model.num_timesteps}.zip to bucket")
