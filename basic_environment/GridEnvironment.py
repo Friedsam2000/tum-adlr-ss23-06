@@ -6,7 +6,7 @@ import gym
 from gym import spaces
 
 
-REMEMBER_NUM_OLD_AGENT_POSITIONS = 30
+REMEMBER_NUM_OLD_AGENT_POSITIONS = 1
 
 
 class CustomEnv(gym.Env):
@@ -67,16 +67,12 @@ class CustomEnv(gym.Env):
             self.agent_position[1] - self.goal_position[1])
         self.reward += old_dist - new_dist
 
-        # if the agent is not moving at all, give a negative reward
+        # if the agent is moving against a wall, give a negative reward
         if old_dist == new_dist:
             self.reward += -0.4
 
-        # if the agent is moving back to the old position, give a negative reward
-        if self.agent_position in self.old_agent_position:
-            self.reward += -0.2
-
         # any move is a negative reward
-        self.reward += -0.1
+        self.reward += -0.02
 
         # define observation
         observation = self.getImg()
@@ -101,8 +97,8 @@ class CustomEnv(gym.Env):
         img = np.zeros((self.grid_size[0], self.grid_size[1], 3), dtype=np.uint8)
 
         # draw the old agent positions in gray
-        for old_position in self.old_agent_position:
-            img[old_position[1]:(old_position[1] + 1), old_position[0]:(old_position[0] + 1)] = old_position_color
+        # for old_position in self.old_agent_position:
+        #     img[old_position[1]:(old_position[1] + 1), old_position[0]:(old_position[0] + 1)] = old_position_color
 
         # draw the agent position in white
         img[self.agent_position[1]:(self.agent_position[1] + 1), self.agent_position[0]:(self.agent_position[0] + 1)] = block_color
