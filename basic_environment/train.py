@@ -33,7 +33,8 @@ if __name__ == "__main__":
 
     num_cpu = 8  # Number of processes to use
     grid_size = (18, 18)
-    draw_num_old_agent_pos = 3
+    img_size = (84, 84)
+    draw_num_old_agent_pos = 6
 
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(grid_size, i, draw_num_old_agent_pos) for i in range(num_cpu)])
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Initialize PPO agent with CNN policy
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=512)
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, learning_rate=0.00003)
 
     # Train agent
     TIMESTEPS_PER_SAVE = 40000
