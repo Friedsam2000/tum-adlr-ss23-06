@@ -12,7 +12,7 @@ def make_env(grid_size, img_size, rank):
     def _init():
         env = CustomEnv(grid_size=grid_size, img_size=img_size)
         # add a TimeLimit wrapper
-        env = TimeLimit(env, max_episode_steps=100)
+        env = TimeLimit(env, max_episode_steps=300)
         return env
 
     return _init
@@ -34,11 +34,10 @@ if __name__ == "__main__":
     bucket = storage_client.get_bucket(bucket_name)
 
     num_cpu = 8  # Number of processes to use
-    grid_size = (36, 36)
-    img_size = (36, 36)
+    grid_size = (8, 8)
 
     # Create the vectorized environment
-    env = SubprocVecEnv([make_env(grid_size, img_size, i) for i in range(num_cpu)])
+    env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
     # add a monitor wrapper
     env = VecMonitor(env)
 
@@ -54,7 +53,7 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Initialize PPO agent with CNN policy
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device)
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=200)
 
     # Train agent
     TIMESTEPS_PER_SAVE = 30000

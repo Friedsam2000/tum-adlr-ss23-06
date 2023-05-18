@@ -13,9 +13,10 @@ class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, grid_size, img_size=(36, 36)):
+    def __init__(self, grid_size, img_size=(36, 36), render_size=(360, 360)):
         self.grid_size = grid_size
         self.img_size = img_size
+        self.render_size = render_size
         super(CustomEnv, self).__init__()
         # Define action and observation space
         self.action_space = spaces.Discrete(4)
@@ -84,9 +85,10 @@ class CustomEnv(gym.Env):
 
     def render(self, mode='human'):
         # Render the environment to the screen
-        img = self.getImg()
+        img = cv2.resize(self.getImg(), self.render_size, interpolation=cv2.INTER_NEAREST)
         cv2.imshow('image', img)
         cv2.waitKey(100)
+
 
     def close(self):
         cv2.destroyAllWindows()
