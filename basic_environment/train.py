@@ -8,9 +8,9 @@ from google.cloud import storage
 import shutil
 
 
-def make_env(grid_size, img_size, rank):
+def make_env(grid_size, rank):
     def _init():
-        env = CustomEnv(grid_size=grid_size, img_size=img_size)
+        env = CustomEnv(grid_size=grid_size)
         # add a TimeLimit wrapper
         env = TimeLimit(env, max_episode_steps=300)
         return env
