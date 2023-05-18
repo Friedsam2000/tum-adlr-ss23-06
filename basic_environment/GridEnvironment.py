@@ -57,7 +57,7 @@ class CustomEnv(gym.Env):
             self.agent_position[0] = min(self.grid_size[0] - 1, self.agent_position[0] + 1)
 
         if self.agent_position == self.goal_position:
-            self.reward += 20
+            self.reward += 10
             self.done = True
 
         # define reward as the decrease in distance to the goal
@@ -72,7 +72,7 @@ class CustomEnv(gym.Env):
             self.reward += -0.4
 
         # any move is a negative reward
-        self.reward += -0.02
+        self.reward += -0.2
 
         # define observation
         observation = self.getImg()
