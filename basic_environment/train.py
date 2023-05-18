@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     # Train agent
     TIMESTEPS_PER_SAVE = 40000
-    MAX_TIMESTEPS = 400000
+    MAX_TIMESTEPS = 600000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
                     tb_log_name=f"PPO_{len(logs_folders)}")
