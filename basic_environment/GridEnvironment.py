@@ -10,7 +10,7 @@ class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, grid_size, img_size=(84, 84), render_size=(360, 360), draw_num_old_agent_pos=0):
+    def __init__(self, grid_size, img_size=(36, 36), render_size=(360, 360), draw_num_old_agent_pos=0):
         self.draw_num_old_agent_pos = draw_num_old_agent_pos
         self.grid_size = grid_size
         self.img_size = img_size

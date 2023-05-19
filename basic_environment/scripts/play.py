@@ -1,8 +1,7 @@
 from GridEnvironment import CustomEnv as GridEnvironment
 import cv2
 
-env = GridEnvironment(grid_size=(8, 8), draw_num_old_agent_pos=6)
-
+env = GridEnvironment(grid_size=(12, 12), render_size= (36, 36), draw_num_old_agent_pos=0)
 # Display the image in a window
 observation = env.reset()
 # print(observation)
