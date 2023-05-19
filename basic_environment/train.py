@@ -32,7 +32,7 @@ if __name__ == "__main__":
     bucket = storage_client.get_bucket(bucket_name)
 
     num_cpu = 16  # Number of processes to use
-    grid_size = (12, 12)
+    grid_size = (16, 16)
     draw_num_old_agent_pos = 0
 
     # Create the vectorized environment
