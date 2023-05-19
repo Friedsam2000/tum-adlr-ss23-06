@@ -44,7 +44,7 @@ class CustomEnv(gym.Env):
         # define step counter and timeout
         self.steps = 0
         self.timeout = 4 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
-            self.agent_position[1] - self.goal_position[1]))
+            self.agent_position[1] - self.goal_position[1])) + 1
 
         # define observation
         observation = self.getImg()
