@@ -7,7 +7,7 @@ observation = env.reset()
 # print(observation)
 env.render()
 
-# Event loop
+# Event looop
 while True:
     key = cv2.waitKey(0)
     if key == 82:  # up
