@@ -5,7 +5,6 @@ from GridEnvironment import CustomEnv
 import os
 import torch
 from google.cloud import storage
-import shutil
 
 
 def make_env(grid_size, rank, draw_num_old_agent_pos):
@@ -52,7 +51,7 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Initialize PPO agent with CNN policy
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=2048)
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=1000)
 
     # Train agent
     TIMESTEPS_PER_SAVE = 20000
