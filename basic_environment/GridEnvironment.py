@@ -10,7 +10,7 @@ class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, grid_size, img_size=(84, 84), render_size=(360, 360), draw_num_old_agent_pos=0):
+    def __init__(self, grid_size, img_size=(36, 36), render_size=(360, 360), draw_num_old_agent_pos=0):
 
         # assert that the grid size is smaller than the image size
         assert grid_size[0] <= img_size[0] and grid_size[1] <= img_size[
