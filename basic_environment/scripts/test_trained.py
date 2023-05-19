@@ -42,7 +42,7 @@ model = PPO.load(f"models_from_bucket/" + model_filename.split("/")[-1], custom_
 print(f"Loaded {model_filename} from models_from_bucket directory")
 
 # Create the environment
-env = CustomEnv(grid_size=(18, 18), draw_num_old_agent_pos=3)
+env = CustomEnv(grid_size=(8, 8), draw_num_old_agent_pos=0)
 
 # Test the model
 obs = env.reset()
