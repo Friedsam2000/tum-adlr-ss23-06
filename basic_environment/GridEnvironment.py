@@ -43,9 +43,9 @@ class CustomEnv(gym.Env):
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
-        # define step counter and timeout
+        # define step counter and timeout as 4 times the manhattan distance between agent and goal
         self.steps = 0
-        self.timeout = 8 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
+        self.timeout = 4 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # define observation
@@ -76,6 +76,10 @@ class CustomEnv(gym.Env):
         # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
             self.reward = 20
+
+            #give a bonus reward for taking less steps
+            self.reward += (self.timeout - self.steps) / self.timeout * 20
+
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
 
@@ -89,13 +93,13 @@ class CustomEnv(gym.Env):
         # define new distance to goal
         new_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
-        # if the agent is moving towards the goal, give a positive reward
+        # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 1
-        elif new_dist == self.old_dist:
+            self.reward = 0.5
+        elif new_dist == self.old_dist: #wall hit
             self.reward = -0.5
         else:
-            self.reward = -1
+            self.reward = -0.5
 
 
         # set the new distance to the old distance
