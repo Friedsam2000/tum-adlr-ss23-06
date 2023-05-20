@@ -69,20 +69,20 @@ class CustomEnv(gym.Env):
 
         # check if the agent hit an obstacle
         if self.agent_position in self.obstacle_positions:
-            self.reward = -10
+            self.reward = -20
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
 
         # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
-            self.reward = 10 * (self.timeout - self.steps)/self.timeout
+            self.reward = 20
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
 
 
         # check if timeout
         if self.steps >= self.timeout:
-            self.reward = -10
+            self.reward = -5
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
 
@@ -91,11 +91,11 @@ class CustomEnv(gym.Env):
 
         # if the agent is moving towards the goal, give a positive reward
         if new_dist < self.old_dist:
-            self.reward = 2
+            self.reward = 1
         elif new_dist == self.old_dist:
-            self.reward = -1
+            self.reward = -0.5
         else:
-            self.reward = -2
+            self.reward = -1
 
 
         # set the new distance to the old distance
