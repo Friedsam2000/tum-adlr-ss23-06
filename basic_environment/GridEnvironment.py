@@ -32,6 +32,11 @@ class CustomEnv(gym.Env):
         self.agent_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
         self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
+        # spawn random obstacles
+        self.obstacle_positions = []
+        for i in range(np.random.randint(0, 10)):
+            self.obstacle_positions.append([np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])])
+
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
@@ -59,6 +64,12 @@ class CustomEnv(gym.Env):
         elif action == 3:  # right
             self.agent_position[0] = min(self.grid_size[0] - 1, self.agent_position[0] + 1)
 
+        # check if the agent hit an obstacle
+        if self.agent_position in self.obstacle_positions:
+            self.reward = -5
+            self.done = True
+            return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
+
         # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
             self.reward = 10 * (self.timeout - self.steps)/self.timeout
@@ -84,8 +95,6 @@ class CustomEnv(gym.Env):
             self.reward = -2
 
 
-
-
         # set the new distance to the old distance
         self.old_dist = new_dist
 
@@ -107,6 +116,7 @@ class CustomEnv(gym.Env):
         block_color = (255, 255, 255)
         goal_color = (0, 255, 0)
         old_position_color = (100, 100, 100)
+        obstacle_color = (0, 0, 255)
 
         img = np.zeros((self.grid_size[0], self.grid_size[1], 3), dtype=np.uint8)
 
@@ -117,6 +127,11 @@ class CustomEnv(gym.Env):
         # draw the goal position in green
         img[self.goal_position[1]:(self.goal_position[1] + 1),
         self.goal_position[0]:(self.goal_position[0] + 1)] = goal_color
+
+        # draw the obstacle positions in red
+        for obstacle_position in self.obstacle_positions:
+            img[obstacle_position[1]:(obstacle_position[1] + 1),
+            obstacle_position[0]:(obstacle_position[0] + 1)] = obstacle_color
 
         # scale the grid to img_size
         img = cv2.resize(img, self.img_size, interpolation=cv2.INTER_NEAREST)
