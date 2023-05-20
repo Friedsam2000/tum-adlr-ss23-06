@@ -45,7 +45,7 @@ class CustomEnv(gym.Env):
 
         # define step counter and timeout as 4 times the manhattan distance between agent and goal
         self.steps = 0
-        self.timeout = 10 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
+        self.timeout = 6 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # define observation
