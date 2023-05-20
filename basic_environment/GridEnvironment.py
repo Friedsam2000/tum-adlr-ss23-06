@@ -32,10 +32,13 @@ class CustomEnv(gym.Env):
         self.agent_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
         self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
-        # spawn random obstacles
+        # spawn random obstacles not on goal or agent position
         self.obstacle_positions = []
         for i in range(np.random.randint(0, 10)):
-            self.obstacle_positions.append([np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])])
+            obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
+            while obstacle_position == self.agent_position or obstacle_position == self.goal_position:
+                obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
+            self.obstacle_positions.append(obstacle_position)
 
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
@@ -66,7 +69,7 @@ class CustomEnv(gym.Env):
 
         # check if the agent hit an obstacle
         if self.agent_position in self.obstacle_positions:
-            self.reward = -5
+            self.reward = -10
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
 
@@ -79,7 +82,7 @@ class CustomEnv(gym.Env):
 
         # check if timeout
         if self.steps >= self.timeout:
-            self.reward = -5
+            self.reward = -10
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
 
