@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     num_cpu = 16  # Number of processes to use
     grid_size = (16, 16)
-    draw_num_old_agent_pos = 3
+    draw_num_old_agent_pos = 0
 
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(grid_size, i, draw_num_old_agent_pos) for i in range(num_cpu)])

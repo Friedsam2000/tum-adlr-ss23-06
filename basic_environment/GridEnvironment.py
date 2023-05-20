@@ -75,7 +75,7 @@ class CustomEnv(gym.Env):
         else:
             # check if timeout
             if self.steps >= self.timeout:
-                self.reward -= 1
+                self.reward -= 10
                 self.done = True
             else:
                 # define new distance to goal
