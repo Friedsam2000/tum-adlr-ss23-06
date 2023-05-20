@@ -10,13 +10,12 @@ class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, grid_size, img_size=(84, 84), render_size=(360, 360), draw_num_old_agent_pos=0):
+    def __init__(self, grid_size, img_size=(84, 84), render_size=(360, 360)):
 
         # assert that the grid size is smaller than the image size
         assert grid_size[0] <= img_size[0] and grid_size[1] <= img_size[
             1], "The grid size must be smaller than the image size"
 
-        self.draw_num_old_agent_pos = draw_num_old_agent_pos
         self.grid_size = grid_size
         self.img_size = img_size
         self.render_size = render_size
@@ -32,11 +31,6 @@ class CustomEnv(gym.Env):
         # set the block position to a random position
         self.agent_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
         self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
-
-        # old agent positions
-        self.old_agent_position = deque(maxlen=self.draw_num_old_agent_pos)
-        for i in range(self.draw_num_old_agent_pos):
-            self.old_agent_position.append([-1, -1])  # -1 means no position
 
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
@@ -56,9 +50,6 @@ class CustomEnv(gym.Env):
         self.reward = 0
         self.steps += 1
 
-        # save old agent position
-        self.old_agent_position.append(self.agent_position.copy())
-
         if action == 0:  # up
             self.agent_position[1] = max(0, self.agent_position[1] - 1)
         elif action == 1:  # down
@@ -70,36 +61,29 @@ class CustomEnv(gym.Env):
 
         # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
-            self.reward += 10
+            self.reward = 50 + 50 * (self.timeout - self.steps)/self.timeout
             self.done = True
+            return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
+
+
+        # check if timeout
+        if self.steps >= self.timeout:
+            self.reward = -50
+            self.done = True
+            return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
+
+        # define new distance to goal
+        new_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
+
+        # if the agent is moving towards the goal, give a positive reward
+        if new_dist < self.old_dist:
+            self.reward = 2
         else:
-            # check if timeout
-            if self.steps >= self.timeout:
-                self.reward -= 10
-                self.done = True
-            else:
-                # define new distance to goal
-                new_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
+            self.reward = -2
 
-                # if the agent is moving towards the goal, give a positive reward
-                if new_dist < self.old_dist:
-                    self.reward += 1
-                else:
-                    self.reward += -1
 
-                # if the agent is moving against a wall, give a negative reward
-                if self.old_dist == new_dist:
-                    self.reward += -0.4
-
-                # any move is a negative reward
-                self.reward += -0.2
-
-                # punish the agent for revisiting old positions
-                if self.agent_position in self.old_agent_position:
-                    self.reward += -0.3
-
-                # set the new distance to the old distance
-                self.old_dist = new_dist
+        # set the new distance to the old distance
+        self.old_dist = new_dist
 
         # define observation
         observation = self.getImg()
@@ -121,10 +105,6 @@ class CustomEnv(gym.Env):
         old_position_color = (100, 100, 100)
 
         img = np.zeros((self.grid_size[0], self.grid_size[1], 3), dtype=np.uint8)
-
-        # draw the old agent positions in gray
-        for old_position in self.old_agent_position:
-            img[old_position[1]:(old_position[1] + 1), old_position[0]:(old_position[0] + 1)] = old_position_color
 
         # draw the agent position in white
         img[self.agent_position[1]:(self.agent_position[1] + 1),
