@@ -7,9 +7,9 @@ import torch
 from google.cloud import storage
 
 
-def make_env(grid_size, rank, draw_num_old_agent_pos):
+def make_env(grid_size, rank):
     def _init():
-        env = CustomEnv(grid_size=grid_size, draw_num_old_agent_pos=draw_num_old_agent_pos)
+        env = CustomEnv(grid_size=grid_size)
         return env
 
     return _init
@@ -32,10 +32,9 @@ if __name__ == "__main__":
 
     num_cpu = 16  # Number of processes to use
     grid_size = (16, 16)
-    draw_num_old_agent_pos = 0
 
     # Create the vectorized environment
-    env = SubprocVecEnv([make_env(grid_size, i, draw_num_old_agent_pos) for i in range(num_cpu)])
+    env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
     # add a monitor wrapper
     env = VecMonitor(env)
 
