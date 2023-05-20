@@ -99,7 +99,7 @@ class CustomEnv(gym.Env):
         elif new_dist == self.old_dist: #wall hit
             self.reward = -0.5
         else:
-            self.reward = -1
+            self.reward = -2
 
 
         # set the new distance to the old distance
