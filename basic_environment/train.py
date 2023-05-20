@@ -50,7 +50,7 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Initialize PPO agent with CNN policy
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=500)
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device)
 
     # Train agent
     TIMESTEPS_PER_SAVE = 50000
