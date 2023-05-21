@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import gym
 from gym import spaces
+from CheckGoalReachable import a_star_search
 
 
 class CustomEnv(gym.Env):
@@ -40,11 +41,14 @@ class CustomEnv(gym.Env):
 
         # spawn random obstacles not on goal or agent position
         self.obstacle_positions = []
-        for i in range(np.random.randint(0, 10)):
-            obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
-            while obstacle_position == self.agent_position or obstacle_position == self.goal_position:
+        goal_is_reachable = False
+        while not goal_is_reachable:
+            for i in range(np.random.randint(0, 10)):
                 obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
-            self.obstacle_positions.append(obstacle_position)
+                while obstacle_position == self.agent_position or obstacle_position == self.goal_position:
+                    obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
+                self.obstacle_positions.append(obstacle_position)
+            goal_is_reachable = self.check_goal_reachable(self.goal_position, self.agent_position, self.obstacle_positions)
 
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
@@ -160,3 +164,11 @@ class CustomEnv(gym.Env):
         img = cv2.resize(img, self.img_size, interpolation=cv2.INTER_NEAREST)
 
         return img
+
+    def check_goal_reachable(self, goal_position, agent_position, obstacle_positions):
+        obstacle_positions = set(tuple(pos) for pos in obstacle_positions)
+        check_goal_reachable = a_star_search(agent_position, goal_position, obstacle_positions, self.grid_size)
+        if not check_goal_reachable:
+            print("Goal is not reachable, resetting environment")
+        return check_goal_reachable
+
