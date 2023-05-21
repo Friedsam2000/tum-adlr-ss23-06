@@ -6,7 +6,6 @@ from GridEnvironment import CustomEnv
 import os
 import torch
 from google.cloud import storage
-from stable_baselines3.common.monitor import Monitor
 
 
 
@@ -33,13 +32,13 @@ if __name__ == "__main__":
     # Get the bucket object
     bucket = storage_client.get_bucket(bucket_name)
 
-    num_cpu = 16  # Number of processes to use
+    num_cpu = 4  # Number of processes to use
     grid_size = (8, 8)
 
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
     # add a monitor wrapper
-    env = Monitor(VecMonitor(env), filename=None, allow_early_resets=True)
+    env = VecMonitor(env)
 
     # Create logs if not existing
     if not os.path.exists("logs"):
@@ -53,7 +52,7 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Initialize PPO agent with CNN policy
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device)
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps = 1500)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
@@ -62,13 +61,14 @@ if __name__ == "__main__":
     best_reward = -1000
 
     # Train agent
-    TIMESTEPS_PER_SAVE = 30000
+    TIMESTEPS_PER_SAVE = 5000
     MAX_TIMESTEPS = 3000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
                     tb_log_name=f"PPO_{len(logs_folders)}")
 
-        reward_mean = np.mean(env.get_episode_rewards())
+        # get the mean reward of the last 100 episodes
+        reward_mean = np.mean([ep['r'] for ep in list(model.ep_info_buffer)[-100:]])
 
         # if the reward mean is better than the best reward, save the model
         if reward_mean > best_reward:
