@@ -79,16 +79,16 @@ class CustomEnv(gym.Env):
 
         # check if the agent hit an obstacle
         if self.agent_position in self.obstacle_positions:
-            self.reward = -10
+            self.reward = -1
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
 
         # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
-            self.reward = 10
+            self.reward = 1
 
             #give a bonus reward for taking less steps
-            self.reward += ((self.timeout - self.steps) / self.timeout) * 10
+            self.reward += ((self.timeout - self.steps) / self.timeout) * 1
 
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
@@ -96,7 +96,7 @@ class CustomEnv(gym.Env):
 
         # check if timeout
         if self.steps >= self.timeout:
-            self.reward = -15
+            self.reward = -1
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
 
@@ -105,15 +105,15 @@ class CustomEnv(gym.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 2
+            self.reward = 0.1
         elif new_dist == self.old_dist: #wall hit
-            self.reward = -2
+            self.reward = -0.2
         else:
-            self.reward = -1
+            self.reward = -0.1
 
         # punish the agent for revisiting old positions
         if self.agent_position in self.last_agent_positions:
-            self.reward -= 1
+            self.reward -= 0.1
 
 
         # set the new distance to the old distance
