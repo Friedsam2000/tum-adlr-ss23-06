@@ -80,21 +80,23 @@ class CustomEnv(gym.Env):
         if self.agent_position in self.obstacle_positions:
             self.reward = -1
             self.done = True
-            return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
+            return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {"goal": False, "obstacle": True}
 
         # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
             self.reward = 1
 
             self.done = True
-            return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
+            # return info that goal was reached
+            return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {"goal": True, "obstacle": False}
+
 
 
         # check if timeout
         if self.steps >= self.timeout:
             self.reward = -1
             self.done = True
-            return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
+            return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {"goal": False, "obstacle": False}
 
         # define new distance to goal
         new_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
@@ -115,10 +117,7 @@ class CustomEnv(gym.Env):
         # set the new distance to the old distance
         self.old_dist = new_dist
 
-        # define observation
-        observation = self.getImg()
-
-        return np.array(observation, dtype=np.uint8), self.reward, self.done, {}
+        return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
 
     def render(self, mode='human'):
         # Render the environment to the screen
