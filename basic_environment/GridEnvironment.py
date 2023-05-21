@@ -10,12 +10,13 @@ class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, grid_size, img_size=(84, 84), render_size=(360, 360)):
+    def __init__(self, grid_size, img_size=(84, 84), render_size=(360, 360), num_last_agent_pos=2):
 
         # assert that the grid size is smaller than the image size
         assert grid_size[0] <= img_size[0] and grid_size[1] <= img_size[
             1], "The grid size must be smaller than the image size"
 
+        self.num_last_agent_pos = num_last_agent_pos
         self.grid_size = grid_size
         self.img_size = img_size
         self.render_size = render_size
@@ -27,6 +28,12 @@ class CustomEnv(gym.Env):
 
     def reset(self):
         self.done = False
+
+        # create a deque to store the last agent positions
+        self.last_agent_positions = deque(maxlen=self.num_last_agent_pos)
+        # create history of agent positions and set to -1
+        for i in range(self.num_last_agent_pos):
+            self.last_agent_positions.append([-1, -1])
 
         # set the block position to a random position
         self.agent_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
@@ -58,6 +65,9 @@ class CustomEnv(gym.Env):
         self.reward = 0
         self.steps += 1
 
+        # append the current agent position to the last agent positions
+        self.last_agent_positions.append(self.agent_position.copy())
+
         if action == 0:  # up
             self.agent_position[1] = max(0, self.agent_position[1] - 1)
         elif action == 1:  # down
@@ -78,7 +88,7 @@ class CustomEnv(gym.Env):
             self.reward = 10
 
             #give a bonus reward for taking less steps
-            self.reward += ((self.timeout - self.steps) / self.timeout) * 5
+            self.reward += ((self.timeout - self.steps) / self.timeout) * 10
 
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
@@ -86,7 +96,7 @@ class CustomEnv(gym.Env):
 
         # check if timeout
         if self.steps >= self.timeout:
-            self.reward = -10
+            self.reward = -15
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
 
@@ -95,11 +105,15 @@ class CustomEnv(gym.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 1
+            self.reward = 2
         elif new_dist == self.old_dist: #wall hit
-            self.reward = -0.5
-        else:
             self.reward = -2
+        else:
+            self.reward = -1
+
+        # punish the agent for revisiting old positions
+        if self.agent_position in self.last_agent_positions:
+            self.reward -= 1
 
 
         # set the new distance to the old distance
@@ -122,10 +136,17 @@ class CustomEnv(gym.Env):
     def getImg(self):
         block_color = (255, 255, 255)
         goal_color = (0, 255, 0)
-        old_position_color = (100, 100, 100)
         obstacle_color = (0, 0, 255)
+        old_agent_color = (255, 192, 203)
+
 
         img = np.zeros((self.grid_size[0], self.grid_size[1], 3), dtype=np.uint8)
+
+        # draw the last agent positions in light pink if not -1
+        for position in self.last_agent_positions:
+            if position != [-1, -1]:
+                img[position[1]:(position[1] + 1),
+                position[0]:(position[0] + 1)] = old_agent_color
 
         # draw the agent position in white
         img[self.agent_position[1]:(self.agent_position[1] + 1),

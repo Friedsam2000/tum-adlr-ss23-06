@@ -30,7 +30,7 @@ while True:
 
     # Check if the episode is done
     if done:
-        print('Goal reached')
+        print('Episode finished')
         observation = env.reset()
 
     env.render()
