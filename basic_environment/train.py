@@ -52,21 +52,32 @@ if __name__ == "__main__":
     # Initialize PPO agent with CNN policy
     model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device)
 
+    # create the folder for the model
+    if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
+        os.makedirs(f"models/PPO_{len(logs_folders)}_0")
+
+    best_reward = -1000
+
     # Train agent
-    TIMESTEPS_PER_SAVE = 50000
+    TIMESTEPS_PER_SAVE = 30000
     MAX_TIMESTEPS = 3000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
                     tb_log_name=f"PPO_{len(logs_folders)}")
-        # create the folder for the model
-        if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
-            os.makedirs(f"models/PPO_{len(logs_folders)}_0")
-        model.save(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}")
 
-        # upload the model to the bucket
-        blob = bucket.blob(f"basic_environment/models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
-        blob.upload_from_filename(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
-        print(f"Uploaded model {model.num_timesteps}.zip to bucket")
+        # get the reward mean
+        reward_mean = model.ep_info_buffer.mean_reward
+
+        # if the reward mean is better than the best reward, save the model
+        if reward_mean > best_reward:
+            best_reward = reward_mean
+            print(f"Saving model with new best reward mean {reward_mean}")
+            model.save(f"models/PPO_{len(logs_folders)}_0/{reward_mean}")
+
+            # upload the model to the bucket
+            blob = bucket.blob(f"basic_environment/models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
+            blob.upload_from_filename(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
+            print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
         # get the latest log file
         logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
