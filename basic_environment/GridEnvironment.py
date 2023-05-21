@@ -1,5 +1,4 @@
 from collections import deque
-
 import numpy as np
 import cv2
 import gym
@@ -14,7 +13,7 @@ class CustomEnv(gym.Env):
 
         # assert that the grid size is smaller than the image size
         assert grid_size[0] <= img_size[0] and grid_size[1] <= img_size[
-            1], "The grid size must be smaller than the image size"
+            1], "The grid size must be smaller than the image size or important information will be lost."
 
         self.num_last_agent_pos = num_last_agent_pos
         self.grid_size = grid_size

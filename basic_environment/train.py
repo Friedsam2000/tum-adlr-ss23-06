@@ -1,6 +1,5 @@
 import numpy as np
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
-from gym.wrappers import TimeLimit
 from stable_baselines3 import PPO
 from GridEnvironment import CustomEnv
 import os
