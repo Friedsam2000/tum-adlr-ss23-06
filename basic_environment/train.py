@@ -1,3 +1,4 @@
+import numpy as np
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from gym.wrappers import TimeLimit
 from stable_baselines3 import PPO
@@ -5,6 +6,8 @@ from GridEnvironment import CustomEnv
 import os
 import torch
 from google.cloud import storage
+from stable_baselines3.common.monitor import Monitor
+
 
 
 def make_env(grid_size, rank):
@@ -36,7 +39,7 @@ if __name__ == "__main__":
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
     # add a monitor wrapper
-    env = VecMonitor(env)
+    env = Monitor(VecMonitor(env), filename=None, allow_early_resets=True)
 
     # Create logs if not existing
     if not os.path.exists("logs"):
@@ -65,8 +68,7 @@ if __name__ == "__main__":
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
                     tb_log_name=f"PPO_{len(logs_folders)}")
 
-        # get the reward mean
-        reward_mean = model.ep_info_buffer.mean_reward
+        reward_mean = np.mean(env.get_episode_rewards())
 
         # if the reward mean is better than the best reward, save the model
         if reward_mean > best_reward:
