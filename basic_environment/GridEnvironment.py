@@ -40,15 +40,17 @@ class CustomEnv(gym.Env):
         self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
         # spawn random obstacles not on goal or agent position
-        self.obstacle_positions = []
         goal_is_reachable = False
         while not goal_is_reachable:
+            self.obstacle_positions = []  # Clear the old obstacles
             for i in range(np.random.randint(0, 10)):
                 obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
                 while obstacle_position == self.agent_position or obstacle_position == self.goal_position:
-                    obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
+                    obstacle_position = [np.random.randint(0, self.grid_size[0]),
+                                         np.random.randint(0, self.grid_size[1])]
                 self.obstacle_positions.append(obstacle_position)
-            goal_is_reachable = self.check_goal_reachable(self.goal_position, self.agent_position, self.obstacle_positions)
+            goal_is_reachable = self.check_goal_reachable(self.goal_position, self.agent_position,
+                                                          self.obstacle_positions)
 
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
