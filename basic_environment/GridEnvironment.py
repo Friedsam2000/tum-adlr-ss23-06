@@ -43,7 +43,7 @@ class CustomEnv(gym.Env):
         goal_is_reachable = False
         while not goal_is_reachable:
             self.obstacle_positions = []  # Clear the old obstacles
-            for i in range(np.random.randint(0, 10)):
+            for i in range(self.grid_size[0]): # add obstacles to the grid equal to the side length of the grid
                 obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
                 while obstacle_position == self.agent_position or obstacle_position == self.goal_position:
                     obstacle_position = [np.random.randint(0, self.grid_size[0]),
