@@ -52,16 +52,17 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Initialize PPO agent with CNN policy
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device)
+    n_steps = 2048
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
         os.makedirs(f"models/PPO_{len(logs_folders)}_0")
 
-    best_reward = -1000
+    best_reward = -np.inf
 
     # Train agent
-    TIMESTEPS_PER_SAVE = 30000
+    TIMESTEPS_PER_SAVE = n_steps*num_cpu
     MAX_TIMESTEPS = 3000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
