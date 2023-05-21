@@ -32,7 +32,7 @@ if __name__ == "__main__":
     bucket = storage_client.get_bucket(bucket_name)
 
     num_cpu = 16  # Number of processes to use
-    grid_size = (8, 8)
+    grid_size = (16, 16)
 
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
@@ -51,8 +51,8 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Initialize PPO agent with CNN policy
-    n_steps = 1024
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps, learning_rate=0.0001)
+    n_steps = 256
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):

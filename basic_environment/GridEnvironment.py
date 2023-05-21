@@ -35,15 +35,17 @@ class CustomEnv(gym.Env):
         for i in range(self.num_last_agent_pos):
             self.last_agent_positions.append([-1, -1])
 
-        # set the block position to a random position
-        self.agent_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
-        self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
+        # set the agent position to top left corner
+        self.agent_position = [0 + self.grid_size[0]//5, 0 + self.grid_size[1]//5]
+
+        # set the goal position to bottom right corner
+        self.goal_position = [self.grid_size[0] - self.grid_size[0]//5, self.grid_size[1] - self.grid_size[1]//5]
 
         # spawn random obstacles not on goal or agent position
         goal_is_reachable = False
         while not goal_is_reachable:
             self.obstacle_positions = []  # Clear the old obstacles
-            for i in range(self.grid_size[0]): # add obstacles to the grid equal to the side length of the grid
+            for i in range(self.grid_size[0]*2): # add obstacles to the grid equal to the side length of the grid
                 obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
                 while obstacle_position == self.agent_position or obstacle_position == self.goal_position:
                     obstacle_position = [np.random.randint(0, self.grid_size[0]),
@@ -109,15 +111,15 @@ class CustomEnv(gym.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 0.05
+            self.reward = 0.025
         elif new_dist == self.old_dist: #wall hit
-            self.reward = -0.1
-        else:
             self.reward = -0.05
+        else:
+            self.reward = -0.025
 
         # punish the agent for revisiting old positions
         if self.agent_position in self.last_agent_positions:
-            self.reward -= 0.05
+            self.reward -= 0.025
 
 
         # set the new distance to the old distance
