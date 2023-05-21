@@ -74,7 +74,7 @@ if __name__ == "__main__":
         if reward_mean > best_reward:
             best_reward = reward_mean
             print(f"Saving model with new best reward mean {reward_mean}")
-            model.save(f"models/PPO_{len(logs_folders)}_0/{reward_mean}")
+            model.save(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}")
 
             # upload the model to the bucket
             blob = bucket.blob(f"basic_environment/models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
