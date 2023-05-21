@@ -128,7 +128,7 @@ class CustomEnv(gym.Env):
         # Render the environment to the screen
         img = cv2.resize(self.getImg(), self.render_size, interpolation=cv2.INTER_NEAREST)
         cv2.imshow('image', img)
-        cv2.waitKey(300)
+        cv2.waitKey(100)
 
     def close(self):
         cv2.destroyAllWindows()
