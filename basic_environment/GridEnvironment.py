@@ -170,5 +170,7 @@ class CustomEnv(gym.Env):
         check_goal_reachable = a_star_search(agent_position, goal_position, obstacle_positions, self.grid_size)
         if not check_goal_reachable:
             print("Goal is not reachable, resetting environment")
+        if check_goal_reachable:
+            print("Goal is reachable")
         return check_goal_reachable
 
