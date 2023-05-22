@@ -8,7 +8,6 @@ from google.cloud import storage
 import shutil
 
 
-
 def make_env(grid_size, rank):
     def _init():
         env = ModifiedCustomEnv(grid_size=grid_size)
@@ -75,7 +74,8 @@ if __name__ == "__main__":
     # Load the model
     custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0}
     env.reset()
-    model = PPO.load(f"models_to_modify/" + model_filename.split("/")[-1], env=env, custom_objects=custom_objects, verbose=1)
+    model = PPO.load(f"models_to_modify/" + model_filename.split("/")[-1], env=env, custom_objects=custom_objects,
+                     verbose=1)
     # set new tensorboard log directory
     model.tensorboard_log = "logs_modified"
     print(f"Loaded {model_filename} from models_to_modify directory")
@@ -86,6 +86,10 @@ if __name__ == "__main__":
 
     best_reward = -np.inf
 
+    # remove last _0 from PPO_0_0
+    if len(PPO_Iteration) > 5:
+        PPO_Iteration = PPO_Iteration[:-2]
+
     # Continue training
     TIMESTEPS_PER_SAVE = model.n_steps * num_cpu
     MAX_TIMESTEPS = 3000000
@@ -94,6 +98,8 @@ if __name__ == "__main__":
 
         # get the mean reward of the last 100 episodes
         reward_mean = np.mean([ep['r'] for ep in list(model.ep_info_buffer)[-100:]])
+
+
 
         # if the reward mean is better than the best reward, save the model
         if reward_mean > best_reward:
@@ -107,9 +113,6 @@ if __name__ == "__main__":
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
         # get the latest log file
-        #remove last _0 from PPO_0_0
-        if len(PPO_Iteration) > 5:
-            PPO_Iteration = PPO_Iteration[:-2]
 
         logs = os.listdir(f"logs_modified/{PPO_Iteration}")
         logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
