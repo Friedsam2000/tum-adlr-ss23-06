@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import gym
 from gym import spaces
-from ..utility.CheckGoalReachable import a_star_search
+from utility.CheckGoalReachable import a_star_search
 
 
 class ModifiedCustomEnv(gym.Env):
