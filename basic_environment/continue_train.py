@@ -82,6 +82,10 @@ if __name__ == "__main__":
 
     best_reward = -np.inf
 
+    # remove last _0 from PPO_0_0
+    if len(PPO_Iteration) > 5:
+        PPO_Iteration = PPO_Iteration[:-2]
+
     # Continue training
     TIMESTEPS_PER_SAVE = model.n_steps * num_cpu
     MAX_TIMESTEPS = 3000000
