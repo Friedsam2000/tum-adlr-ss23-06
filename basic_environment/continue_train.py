@@ -107,6 +107,9 @@ if __name__ == "__main__":
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
         # get the latest log file
+        #remove last _0 from PPO_0_0
+        PPO_Iteration = PPO_Iteration[:-2]
+
         logs = os.listdir(f"logs_modified/{PPO_Iteration}")
         logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
         latest_log = logs[-1]
