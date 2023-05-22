@@ -72,9 +72,14 @@ if __name__ == "__main__":
     print(f"Downloaded {model_filename} from bucket {bucket_name} to models_to_modify directory")
 
     # Load the model
-    # custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0}
     env.reset()
     model = PPO.load(f"models_to_modify/" + model_filename.split("/")[-1], env=env, verbose=1)
+
+    # Decrease the learning rate and epsilon by an order of magnitude
+    model.learning_rate = model.learning_rate / 10.0
+    model.clip_range = model.clip_range / 10.0
+    model.n_steps = model.n_steps * 4
+
     # set new tensorboard log directory
     model.tensorboard_log = "logs_modified"
     print(f"Loaded {model_filename} from models_to_modify directory")
@@ -115,3 +120,4 @@ if __name__ == "__main__":
         # upload the new log file to the bucket
         blob = bucket.blob(f"basic_environment/logs/{PPO_Iteration}_modified/{latest_log}")
         blob.upload_from_filename(f"logs_modified/{PPO_Iteration}/{latest_log}")
+        print(f"Uploaded log {latest_log} to bucket")
