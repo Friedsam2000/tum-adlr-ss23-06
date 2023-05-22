@@ -107,9 +107,9 @@ if __name__ == "__main__":
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
         # get the latest log file
-        logs = os.listdir(f"logs_modified/PPO_{len(logs_folders)}")
+        logs = os.listdir(f"logs_modified/{PPO_Iteration}")
         logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
         latest_log = logs[-1]
         # upload the new log file to the bucket
         blob = bucket.blob(f"basic_environment/logs/{PPO_Iteration}_modified/{latest_log}")
-        blob.upload_from_filename(f"logs_modified/PPO_{PPO_Iteration}/{latest_log}")
+        blob.upload_from_filename(f"logs_modified/{PPO_Iteration}/{latest_log}")
