@@ -3,8 +3,7 @@ import numpy as np
 import cv2
 import gym
 from gym import spaces
-from CheckGoalReachable import a_star_search
-
+from utility.CheckGoalReachable import a_star_search
 
 class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""

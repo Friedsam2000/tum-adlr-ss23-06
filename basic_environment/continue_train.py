@@ -1,7 +1,7 @@
 import numpy as np
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from stable_baselines3 import PPO
-from ModifiedGridEnvironment import ModifiedCustomEnv
+from environments.ModifiedGridEnvironment import ModifiedCustomEnv
 import os
 import torch
 from google.cloud import storage

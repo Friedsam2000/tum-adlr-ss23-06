@@ -1,4 +1,6 @@
-from GridEnvironment import CustomEnv as GridEnvironment
+import sys
+sys.path.insert(0, 'environments')
+from environments.GridEnvironment import CustomEnv as GridEnvironment
 import cv2
 
 env = GridEnvironment(grid_size=(16, 16))

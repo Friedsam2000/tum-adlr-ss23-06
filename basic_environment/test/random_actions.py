@@ -1,6 +1,6 @@
-from GridEnvironment import CustomEnv as GridEnvironment
+from environments.GridEnvironment import CustomEnv as GridEnvironment
 
-env = GridEnvironment([10,10])
+env = GridEnvironment([16,16])
 
 done = False
 obs = env.reset()
