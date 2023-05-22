@@ -103,7 +103,7 @@ if __name__ == "__main__":
 
             # upload the model to the bucket
             blob = bucket.blob(f"basic_environment/models/{PPO_Iteration}_modified/{model.num_timesteps}.zip")
-            blob.upload_from_filename(f"models_modified/PPO_{PPO_Iteration}/{model.num_timesteps}.zip")
+            blob.upload_from_filename(f"models_modified/{PPO_Iteration}/{model.num_timesteps}.zip")
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
         # get the latest log file
