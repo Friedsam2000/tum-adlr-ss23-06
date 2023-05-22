@@ -72,10 +72,9 @@ if __name__ == "__main__":
     print(f"Downloaded {model_filename} from bucket {bucket_name} to models_to_modify directory")
 
     # Load the model
-    custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0}
+    # custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0}
     env.reset()
-    model = PPO.load(f"models_to_modify/" + model_filename.split("/")[-1], env=env, custom_objects=custom_objects,
-                     verbose=1)
+    model = PPO.load(f"models_to_modify/" + model_filename.split("/")[-1], env=env, verbose=1)
     # set new tensorboard log directory
     model.tensorboard_log = "logs_modified"
     print(f"Loaded {model_filename} from models_to_modify directory")
