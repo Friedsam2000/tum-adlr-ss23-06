@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     # Decrease the learning rate and epsilon by an order of magnitude
     model.learning_rate = model.learning_rate / 10.0
-    model.clip_range = model.clip_range / 10.0
+    # model.clip_range = model.clip_range / 10.0
     model.n_steps = model.n_steps * 4
 
     # set new tensorboard log directory
