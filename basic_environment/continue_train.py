@@ -80,15 +80,7 @@ if __name__ == "__main__":
     model.tensorboard_log = "logs_modified"
     print(f"Loaded {model_filename} from models_to_modify directory")
 
-    # create the folder for the model
-    if not os.path.exists(f"models_modified/{PPO_Iteration}"):
-        os.makedirs(f"models_modified/{PPO_Iteration}")
-
     best_reward = -np.inf
-
-    # remove last _0 from PPO_0_0
-    if len(PPO_Iteration) > 5:
-        PPO_Iteration = PPO_Iteration[:-2]
 
     # Continue training
     TIMESTEPS_PER_SAVE = model.n_steps * num_cpu
