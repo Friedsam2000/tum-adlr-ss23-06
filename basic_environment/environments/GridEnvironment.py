@@ -26,7 +26,7 @@ class CustomEnv(gym.Env):
         self.img_size = img_size
         self.render_size = render_size
         super(CustomEnv, self).__init__()
-        # Define action and obserrestructured projectvation space
+        # Define action and observation space
         self.action_space = spaces.Discrete(4)
         # Example for using image as input:
         self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], 3), dtype=np.uint8)
