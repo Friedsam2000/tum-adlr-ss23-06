@@ -81,8 +81,8 @@ if __name__ == "__main__":
     print(f"Loaded {model_filename} from models_to_modify directory")
 
     # create the folder for the model
-    if not os.path.exists(f"models_modified/{PPO_Iteration}"):
-        os.makedirs(f"models_modified/{PPO_Iteration}")
+    if not os.path.exists(f"models_modified/PPO_{len(logs_folders)}"):
+        os.makedirs(f"models_modified/PPO_{len(logs_folders)}")
 
     best_reward = -np.inf
 
@@ -99,17 +99,17 @@ if __name__ == "__main__":
         if reward_mean > best_reward:
             best_reward = reward_mean
             print(f"Saving model with new best reward mean {reward_mean}")
-            model.save(f"models_modified/{PPO_Iteration}/{model.num_timesteps}")
+            model.save(f"models_modified/PPO_{len(logs_folders)}/{model.num_timesteps}")
 
             # upload the model to the bucket
-            blob = bucket.blob(f"basic_environment/models/{PPO_Iteration}_modified/{model.num_timesteps}.zip")
-            blob.upload_from_filename(f"models_modified/{PPO_Iteration}/{model.num_timesteps}.zip")
+            blob = bucket.blob(f"basic_environment/models/PPO_{len(logs_folders)}_0_modified/{model.num_timesteps}.zip")
+            blob.upload_from_filename(f"models_modified/PPO_{len(logs_folders)}/{model.num_timesteps}.zip")
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
         # get the latest log file
-        logs = os.listdir(f"logs_modified/{PPO_Iteration}")
+        logs = os.listdir(f"logs_modified/PPO_{len(logs_folders)}")
         logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
         latest_log = logs[-1]
         # upload the new log file to the bucket
-        blob = bucket.blob(f"basic_environment/logs/{PPO_Iteration}_modified/{latest_log}")
-        blob.upload_from_filename(f"logs_modified/{PPO_Iteration}/{latest_log}")
+        blob = bucket.blob(f"basic_environment/logs/PPO_{len(logs_folders)}_0_modified/{latest_log}")
+        blob.upload_from_filename(f"logs_modified/PPO_{len(logs_folders)}/{latest_log}")
