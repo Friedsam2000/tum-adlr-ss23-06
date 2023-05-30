@@ -5,6 +5,7 @@ import gym
 from gym import spaces
 from utility.CheckGoalReachable import a_star_search
 
+
 class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
@@ -49,13 +50,12 @@ class CustomEnv(gym.Env):
         while self.goal_position == self.agent_position:
             self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
-
         # spawn random obstacles not on goal or agent position
         goal_is_reachable = False
         while not goal_is_reachable:
             self.obstacle_positions = []  # Clear the old obstacles
             # add random number of obstacles
-            for i in range(np.random.randint(0, self.grid_size[1]*6)):
+            for i in range(np.random.randint(0, self.grid_size[1] * 6)):
                 obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
                 while obstacle_position == self.agent_position or obstacle_position == self.goal_position:
                     obstacle_position = [np.random.randint(0, self.grid_size[0]),
@@ -67,7 +67,7 @@ class CustomEnv(gym.Env):
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
-        # define step counter and timeout as 4 times the manhattan distance between agent and goal
+        # define step counter and timeout as 6 times the manhattan distance between agent and goal
         self.steps = 0
         self.timeout = 6 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
@@ -109,7 +109,6 @@ class CustomEnv(gym.Env):
             # return info that goal was reached
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {"goal": True, "obstacle": False}
 
-
         # check if timeout is reached
         if self.steps >= self.timeout:
             self.reward = -1
@@ -134,7 +133,6 @@ class CustomEnv(gym.Env):
         # punish for every step
         self.reward -= 0.025
 
-
         # set the new distance to the old distance
         self.old_dist = new_dist
 
@@ -144,7 +142,7 @@ class CustomEnv(gym.Env):
         # Render the environment to the screen
         img = cv2.resize(self.getImg(), self.render_size, interpolation=cv2.INTER_NEAREST)
         cv2.imshow('image', img)
-        cv2.waitKey(200)
+        cv2.waitKey(100)
 
     def close(self):
         cv2.destroyAllWindows()
@@ -154,7 +152,6 @@ class CustomEnv(gym.Env):
         goal_color = (0, 255, 0)
         obstacle_color = (0, 0, 255)
         old_agent_color = (255, 192, 203)
-
 
         img = np.zeros((self.grid_size[0], self.grid_size[1], 3), dtype=np.uint8)
 
@@ -188,6 +185,5 @@ class CustomEnv(gym.Env):
         if not check_goal_reachable:
             print("Goal is not reachable, resetting environment")
         # if check_goal_reachable:
-            # print("Goal is reachable")
+        # print("Goal is reachable")
         return check_goal_reachable
-
