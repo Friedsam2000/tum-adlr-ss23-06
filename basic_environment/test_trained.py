@@ -15,7 +15,7 @@ storage_client = google.cloud.storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Get all model filenames from the bucket
-PPO_Iteration = "PPO_CNN_0"
+PPO_Iteration = "PPO_CNN_1"
 blobs = bucket.list_blobs(prefix=f"data_Matthias/models/{PPO_Iteration}")
 model_filenames = []
 for blob in blobs:
@@ -43,8 +43,8 @@ model = PPO.load(f"models_from_bucket/" + model_filename.split("/")[-1], custom_
 print(f"Loaded {model_filename} from models_from_bucket directory")
 
 # Create the environment
-#env = CustomEnv(grid_size=(16, 16))
-env = CustomEnv_rc(grid_size=(16, 16))
+env = CustomEnv(grid_size=(16, 16))
+#env = CustomEnv_rc(grid_size=(16, 16))
 
 # Test the model
 obs = env.reset()
