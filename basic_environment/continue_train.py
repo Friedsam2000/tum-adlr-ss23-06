@@ -59,6 +59,9 @@ if __name__ == "__main__":
 
     # Integer sort the model filenames
     print(model_filenames)
+    # Filter out directories
+    model_filenames = [name for name in model_filenames if not name.endswith('/')]
+
     model_filenames = sorted(model_filenames, key=lambda x: int(x.split("/")[-1].split(".")[0]))
 
     # Empty or create the models_from_bucket directory using shutil
