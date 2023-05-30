@@ -5,7 +5,6 @@ import gym
 from gym import spaces
 from utility.CheckGoalReachable import a_star_search
 
-
 class ModifiedCustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
@@ -41,17 +40,22 @@ class ModifiedCustomEnv(gym.Env):
         for i in range(self.num_last_agent_pos):
             self.last_agent_positions.append([-1, -1])
 
-        # set the agent position to top left corner
-        self.agent_position = [0 + self.grid_size[0]//5, 0 + self.grid_size[1]//5]
+        # set the agent position to a random position
+        self.agent_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
+        # set the goal position to a random position
+        self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
-        # set the goal position to bottom right corner
-        self.goal_position = [self.grid_size[0] - self.grid_size[0]//5, self.grid_size[1] - self.grid_size[1]//5]
+        # make sure that the goal position is not the same as the agent position
+        while self.goal_position == self.agent_position:
+            self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
+
 
         # spawn random obstacles not on goal or agent position
         goal_is_reachable = False
         while not goal_is_reachable:
             self.obstacle_positions = []  # Clear the old obstacles
-            for i in range(self.grid_size[0]*4): # add obstacles to the grid equal to the side length of the grid
+            # add random number of obstacles
+            for i in range(np.random.randint(0, self.grid_size[1]*6)):
                 obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
                 while obstacle_position == self.agent_position or obstacle_position == self.goal_position:
                     obstacle_position = [np.random.randint(0, self.grid_size[0]),
@@ -98,7 +102,7 @@ class ModifiedCustomEnv(gym.Env):
 
         # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
-            self.reward = 1
+            self.reward = 0.5
 
             self.done = True
             # return info that goal was reached
