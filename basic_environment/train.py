@@ -10,7 +10,7 @@ from google.cloud import storage
 
 def make_env(grid_size, rank):
     def _init():
-        env = CustomEnv(grid_size=grid_size)
+        env = CustomEnv(grid_size=grid_size, num_last_agent_pos=100)
         return env
 
     return _init
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
 
-        if log_save_counter%10 == 0:
+        if log_save_counter%20 == 0:
             # get the latest log file
             logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
             logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
