@@ -5,7 +5,7 @@ import os
 from google.cloud import storage
 from stable_baselines3 import PPO
 import torch
-import networks.CustomFeatureExtractor as CustomFeatureExtractor
+from networks.CustomFeatureExtractor import CustomFeatureExtractor
 
 
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     # Define the policy kwargs
     policy_kwargs = dict(
-        features_extractor_class="networks.CustomFeatureExtractor.CustomFeatureExtractor",
+        features_extractor_class=CustomFeatureExtractor,
         features_extractor_kwargs=dict(features_dim=64),
     )
 
