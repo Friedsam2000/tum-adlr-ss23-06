@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     # Initialize PPO agent with CNN policy
     n_steps = 256
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps)
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps, learning_rate=3e-4)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     best_reward = -np.inf
 
     # Train agent
-    TIMESTEPS_PER_SAVE = 16000
+    TIMESTEPS_PER_SAVE = 16384*4
     MAX_TIMESTEPS = 100000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
