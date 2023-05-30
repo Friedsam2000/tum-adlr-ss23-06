@@ -51,7 +51,7 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs_modified")
 
     # Get all model filenames from the bucket
-    PPO_Iteration = "PPO_1_0"
+    PPO_Iteration = "PPO_1_modified"
     blobs = bucket.list_blobs(prefix=f"basic_environment/models/{PPO_Iteration}")
     model_filenames = []
     for blob in blobs:

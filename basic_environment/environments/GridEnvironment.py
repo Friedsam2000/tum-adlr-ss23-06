@@ -69,7 +69,7 @@ class CustomEnv(gym.Env):
 
         # define step counter and timeout as 4 times the manhattan distance between agent and goal
         self.steps = 0
-        self.timeout = 6 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
+        self.timeout = 4 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # define observation
@@ -102,7 +102,7 @@ class CustomEnv(gym.Env):
 
         # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
-            self.reward = 0.5
+            self.reward = 1
 
             self.done = True
             # return info that goal was reached
@@ -121,15 +121,15 @@ class CustomEnv(gym.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 0.025
+            self.reward = 0.025 * 0.1
         elif new_dist == self.old_dist: #wall hit
-            self.reward = -0.05
+            self.reward = -0.05* 0.1
         else:
-            self.reward = -0.025
+            self.reward = -0.025* 0.1
 
         # punish the agent for revisiting old positions
         if self.agent_position in self.last_agent_positions:
-            self.reward -= 0.025
+            self.reward -= 0.025* 0.1
 
 
         # set the new distance to the old distance
