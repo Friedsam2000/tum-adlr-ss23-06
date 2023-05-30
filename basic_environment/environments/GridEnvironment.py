@@ -45,6 +45,10 @@ class CustomEnv(gym.Env):
         # set the goal position to a random position
         self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
+        # make sure that the goal position is not the same as the agent position
+        while self.goal_position == self.agent_position:
+            self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
+
 
         # spawn random obstacles not on goal or agent position
         goal_is_reachable = False
@@ -92,7 +96,7 @@ class CustomEnv(gym.Env):
 
         # check if the agent hit an obstacle
         if self.agent_position in self.obstacle_positions:
-            self.reward = -1
+            self.reward = -5
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {"goal": False, "obstacle": True}
 
