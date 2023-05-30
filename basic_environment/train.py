@@ -9,10 +9,7 @@ import networks.CustomFeatureExtractor as CustomFeatureExtractor
 
 
 
-policy_kwargs = dict(
-    features_extractor_class=CustomFeatureExtractor,
-    features_extractor_kwargs=dict(features_dim=256),
-)
+
 
 def make_env(grid_size, rank):
     def _init():
@@ -55,6 +52,12 @@ if __name__ == "__main__":
 
     # Check how many folders are in logs
     logs_folders = os.listdir("logs")
+
+    # Define the policy kwargs
+    policy_kwargs = dict(
+        features_extractor_class="networks.CustomFeatureExtractor.CustomFeatureExtractor",
+        features_extractor_kwargs=dict(features_dim=64),
+    )
 
     # Initialize PPO agent with CNN policy
     n_steps = 64

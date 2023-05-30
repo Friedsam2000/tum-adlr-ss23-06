@@ -3,6 +3,8 @@ from environments.GridEnvironment import CustomEnv
 import os
 import google.cloud.storage
 import shutil
+import networks.CustomFeatureExtractor as CustomFeatureExtractor
+import importlib
 
 
 # Set up the Bucket (google cloud storage)
@@ -14,7 +16,7 @@ storage_client = google.cloud.storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Get all model filenames from the bucket
-PPO_Iteration = "PPO_17_0"
+PPO_Iteration = "PPO_2_0"
 blobs = bucket.list_blobs(prefix=f"basic_environment/models/{PPO_Iteration}")
 model_filenames = []
 for blob in blobs:
@@ -23,23 +25,35 @@ for blob in blobs:
 # Integer sort the model filenames
 model_filenames = sorted(model_filenames, key=lambda x: int(x.split("/")[-1].split(".")[0]))
 
-# Empy or create the models_from_bucket directory using shutil
+
+# Check if the models_from_bucket directory exists
 if os.path.exists("models_from_bucket"):
-    shutil.rmtree("models_from_bucket")
-os.makedirs("models_from_bucket")
-
-
-
-# Download the model with the highest number of steps in the models_from_bucket directory
-model_filename = model_filenames[-1]
-blob = bucket.blob(model_filename)
-blob.download_to_filename(f"models_from_bucket/" + model_filename.split("/")[-1])
-print(f"Downloaded {model_filename} from bucket {bucket_name} to models_from_bucket directory")
+    # Check if the model is downloaded
+    if not os.path.exists(f"models_from_bucket/{model_filenames[-1].split('/')[-1]}"):
+        print(f"Downloading {model_filenames[-1]} from bucket {bucket_name} to models_from_bucket directory")
+        # Download the model with the highest number of steps in the models_from_bucket directory
+        model_filename = model_filenames[-1]
+        blob = bucket.blob(model_filename)
+        blob.download_to_filename(f"models_from_bucket/" + model_filename.split("/")[-1])
+        print(f"Downloaded {model_filename} from bucket {bucket_name} to models_from_bucket directory")
+    else:
+        print(f"Model {model_filenames[-1]} already exists in models_from_bucket directory")
+        model_filename = model_filenames[-1]
 
 # Load the model
-custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0}
+custom_objects = {"lr_schedule": lambda _: 0.0,
+                  "clip_range": lambda _: 0.0}
+
+# Get the class from the string
+class_path = "networks.CustomFeatureExtractor.CustomFeatureExtractor"
+module_path, class_name = class_path.rsplit(".", 1)
+module = importlib.import_module(module_path)
+custom_class = getattr(module, class_name)
+
+custom_objects["features_extractor_class"] = custom_class
+
 model = PPO.load(f"models_from_bucket/" + model_filename.split("/")[-1], custom_objects=custom_objects, verbose=1)
-print(f"Loaded {model_filename} from models_from_bucket directory")
+
 
 # Create the environment
 env = CustomEnv(grid_size=(16, 16), num_last_agent_pos=100)
@@ -53,7 +67,7 @@ while episodes < 500:
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, done, info = env.step(action)
 
-    # env.render()
+    env.render()
     if done:
         episodes += 1
         if info["goal"]:
