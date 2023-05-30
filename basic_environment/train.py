@@ -55,17 +55,17 @@ if __name__ == "__main__":
     model = PPO("MlpPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps, batch_size=512*8)
 
     # create the folder for the model
-    if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
-        os.makedirs(f"models/PPO_{len(logs_folders)}_0")
+    if not os.path.exists(f"models/PPO_MLP_0"):
+        os.makedirs(f"models/PPO_MLP_0")
 
     best_reward = -np.inf
 
     # Train agent
     TIMESTEPS_PER_SAVE = n_steps*num_cpu
-    MAX_TIMESTEPS = 5000000
+    MAX_TIMESTEPS = 7500000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
-                    tb_log_name=f"PPO_{len(logs_folders)}")
+                    tb_log_name=f"PPO_MLP_0}")
 
         # get the mean reward of the last 100 episodes
         reward_mean = np.mean([ep['r'] for ep in list(model.ep_info_buffer)[-100:]])
@@ -74,17 +74,17 @@ if __name__ == "__main__":
         if reward_mean > best_reward:
             best_reward = reward_mean
             print(f"Saving model with new best reward mean {reward_mean}")
-            model.save(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}")
+            model.save(f"models/PPO_MLP_0/{model.num_timesteps}")
 
             # upload the model to the bucket
-            blob = bucket.blob(f"basic_environment/models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
-            blob.upload_from_filename(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
+            blob = bucket.blob(f"data_Matthias/models/PPO_MLP_0/{model.num_timesteps}.zip")
+            blob.upload_from_filename(f"models/PPO_MLP_0/{model.num_timesteps}.zip")
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
         # get the latest log file
-        logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
+        logs = os.listdir(f"logs/PPO_MLP_0")
         logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
         latest_log = logs[-1]
         # upload the new log file to the bucket
-        blob = bucket.blob(f"basic_environment/logs/PPO_{len(logs_folders)}_0/{latest_log}")
-        blob.upload_from_filename(f"logs/PPO_{len(logs_folders)}_0/{latest_log}")
+        blob = bucket.blob(f"data_matthias/logs/PPO_MLP_0/{latest_log}")
+        blob.upload_from_filename(f"logs/PPO_MLP_0/{latest_log}")

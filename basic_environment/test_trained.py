@@ -1,5 +1,6 @@
 from stable_baselines3 import PPO
 from environments.GridEnvironment import CustomEnv
+from environments.GridEnvironment import CustomEnv_rc
 import os
 import google.cloud.storage
 import shutil
@@ -14,7 +15,7 @@ storage_client = google.cloud.storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Get all model filenames from the bucket
-PPO_Iteration = "PPO_0_0"
+PPO_Iteration = "PPO_6_0"
 blobs = bucket.list_blobs(prefix=f"basic_environment/models/{PPO_Iteration}")
 model_filenames = []
 for blob in blobs:
@@ -43,6 +44,7 @@ print(f"Loaded {model_filename} from models_from_bucket directory")
 
 # Create the environment
 env = CustomEnv(grid_size=(16, 16))
+#env = CustomEnv_rc(grid_size=(16, 16))
 
 # Test the model
 obs = env.reset()
@@ -53,7 +55,7 @@ while episodes < 100:
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, done, info = env.step(action)
 
-    # env.render()
+    #env.render()
     if done:
         episodes += 1
         if info["goal"]:
