@@ -3,9 +3,7 @@ from environments.GridEnvironment import CustomEnv
 import os
 import google.cloud.storage
 import shutil
-import networks.CustomFeatureExtractor as CustomFeatureExtractor
-import importlib
-
+from networks.CustomFeatureExtractor import CustomFeatureExtractor
 
 # Set up the Bucket (google cloud storage)
 # Define the bucket name
@@ -16,7 +14,7 @@ storage_client = google.cloud.storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Get all model filenames from the bucket
-PPO_Iteration = "PPO_2_0"
+PPO_Iteration = "PPO_3_0"
 blobs = bucket.list_blobs(prefix=f"basic_environment/models/{PPO_Iteration}")
 model_filenames = []
 for blob in blobs:
@@ -24,7 +22,6 @@ for blob in blobs:
 
 # Integer sort the model filenames
 model_filenames = sorted(model_filenames, key=lambda x: int(x.split("/")[-1].split(".")[0]))
-
 
 # Check if the models_from_bucket directory exists
 if os.path.exists("models_from_bucket"):
@@ -41,19 +38,8 @@ if os.path.exists("models_from_bucket"):
         model_filename = model_filenames[-1]
 
 # Load the model
-custom_objects = {"lr_schedule": lambda _: 0.0,
-                  "clip_range": lambda _: 0.0}
-
-# Get the class from the string
-class_path = "networks.CustomFeatureExtractor.CustomFeatureExtractor"
-module_path, class_name = class_path.rsplit(".", 1)
-module = importlib.import_module(module_path)
-custom_class = getattr(module, class_name)
-
-custom_objects["features_extractor_class"] = custom_class
-
+custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0, "features_extractor_class": CustomFeatureExtractor}
 model = PPO.load(f"models_from_bucket/" + model_filename.split("/")[-1], custom_objects=custom_objects, verbose=1)
-
 
 # Create the environment
 env = CustomEnv(grid_size=(16, 16), num_last_agent_pos=100)
@@ -76,7 +62,6 @@ while episodes < 500:
             obstacles_hit += 1
 
         obs = env.reset()
-
 
 print(f"Succes rate: {goals_reached / episodes}")
 print(f"Obstacles hit: {obstacles_hit / episodes}")
