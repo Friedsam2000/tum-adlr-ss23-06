@@ -2,6 +2,7 @@ import numpy as np
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from stable_baselines3 import PPO
 from environments.GridEnvironment import CustomEnv
+from environments.GridEnvironment import CustomEnv_rc
 import os
 import torch
 from google.cloud import storage
@@ -10,7 +11,7 @@ from google.cloud import storage
 
 def make_env(grid_size, rank):
     def _init():
-        env = CustomEnv(grid_size=grid_size)
+        env = CustomEnv_rc(grid_size=grid_size)
         return env
 
     return _init
@@ -55,8 +56,8 @@ if __name__ == "__main__":
     model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps, batch_size=512*8)
 
     # create the folder for the model
-    if not os.path.exists(f"models/PPO_CNN_0"):
-        os.makedirs(f"models/PPO_CNN_0")
+    if not os.path.exists(f"models/PPO_CNN_1"):
+        os.makedirs(f"models/PPO_CNN_1")
 
     best_reward = -np.inf
     log_save_counter = 0
@@ -75,19 +76,19 @@ if __name__ == "__main__":
         if reward_mean > best_reward:
             best_reward = reward_mean
             print(f"Saving model with new best reward mean {reward_mean}")
-            model.save(f"models/PPO_CNN_0/{model.num_timesteps}")
+            model.save(f"models/PPO_CNN_1/{model.num_timesteps}")
 
             # upload the model to the bucket
-            blob = bucket.blob(f"data_Matthias/models/PPO_CNN_0/{model.num_timesteps}.zip")
-            blob.upload_from_filename(f"models/PPO_CNN_0/{model.num_timesteps}.zip")
+            blob = bucket.blob(f"data_Matthias/models/PPO_CNN_1/{model.num_timesteps}.zip")
+            blob.upload_from_filename(f"models/PPO_CNN_1/{model.num_timesteps}.zip")
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
-        if log_save_counter%20 == 0:
+        if log_save_counter%40 == 0:
             # get the latest log file
-            logs = os.listdir(f"logs/PPO_CNN_0")
+            logs = os.listdir(f"logs/PPO_CNN_1")
             logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
             latest_log = logs[-1]
             # upload the new log file to the bucket
-            blob = bucket.blob(f"data_Matthias/logs/PPO_CNN_0/{latest_log}")
-            blob.upload_from_filename(f"logs/PPO_CNN_0/{latest_log}")
+            blob = bucket.blob(f"data_Matthias/logs/PPO_CNN_1/{latest_log}")
+            blob.upload_from_filename(f"logs/PPO_CNN_1/{latest_log}")
         
         log_save_counter = log_save_counter + 1
