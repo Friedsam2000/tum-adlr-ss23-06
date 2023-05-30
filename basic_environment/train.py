@@ -89,6 +89,6 @@ if __name__ == "__main__":
             latest_log = logs[-1]
             # upload the new log file to the bucket
             blob = bucket.blob(f"data_Matthias/logs/PPO_CNN_1/{latest_log}")
-            blob.upload_from_filename(f"logs/PPO_CNN_1/{latest_log}")
+            blob.upload_from_filename(f"logs/PPO_CNN_0/{latest_log}")
         
         log_save_counter = log_save_counter + 1
