@@ -58,6 +58,7 @@ if __name__ == "__main__":
         model_filenames.append(blob.name)
 
     # Integer sort the model filenames
+    print(model_filenames)
     model_filenames = sorted(model_filenames, key=lambda x: int(x.split("/")[-1].split(".")[0]))
 
     # Empty or create the models_from_bucket directory using shutil
