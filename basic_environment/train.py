@@ -65,7 +65,7 @@ if __name__ == "__main__":
     MAX_TIMESTEPS = 7500000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
-                    tb_log_name=f"PPO_MLP_0")
+                    tb_log_name=f"PPO_MLP")
 
         # get the mean reward of the last 100 episodes
         reward_mean = np.mean([ep['r'] for ep in list(model.ep_info_buffer)[-100:]])
