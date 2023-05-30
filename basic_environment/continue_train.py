@@ -75,8 +75,6 @@ if __name__ == "__main__":
     env.reset()
     model = PPO.load(f"models_to_modify/" + model_filename.split("/")[-1], env=env, verbose=1)
 
-    # Decrease the learning rate and epsilon by an order of magnitude
-    model.learning_rate = model.learning_rate / 10.0
 
     # set new tensorboard log directory
     model.tensorboard_log = "logs_modified"
@@ -91,6 +89,7 @@ if __name__ == "__main__":
     # Continue training
     TIMESTEPS_PER_SAVE = model.n_steps * num_cpu
     MAX_TIMESTEPS = 100000000
+    logs_counter = 0
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False)
 
@@ -112,10 +111,13 @@ if __name__ == "__main__":
 
         # get the latest log file
 
-        logs = os.listdir(f"logs_modified/{PPO_Iteration}")
-        logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
-        latest_log = logs[-1]
-        # upload the new log file to the bucket
-        blob = bucket.blob(f"basic_environment/logs/{PPO_Iteration}_modified/{latest_log}")
-        blob.upload_from_filename(f"logs_modified/{PPO_Iteration}/{latest_log}")
-        print(f"Uploaded log {latest_log} to bucket")
+        if logs_counter % 10 == 0:
+            logs = os.listdir(f"logs_modified/{PPO_Iteration}")
+            logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+            latest_log = logs[-1]
+            # upload the new log file to the bucket
+            blob = bucket.blob(f"basic_environment/logs/{PPO_Iteration}_modified/{latest_log}")
+            blob.upload_from_filename(f"logs_modified/{PPO_Iteration}/{latest_log}")
+            print(f"Uploaded log {latest_log} to bucket")
+
+    logs_counter += 1
