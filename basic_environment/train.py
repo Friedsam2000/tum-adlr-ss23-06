@@ -91,3 +91,5 @@ if __name__ == "__main__":
             # upload the new log file to the bucket
             blob = bucket.blob(f"basic_environment/logs/PPO_{len(logs_folders)}_0/{latest_log}")
             blob.upload_from_filename(f"logs/PPO_{len(logs_folders)}_0/{latest_log}")
+
+        log_save_counter += 1
