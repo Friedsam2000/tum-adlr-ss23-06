@@ -129,7 +129,7 @@ class CustomEnv(gym.Env):
 
         # punish the agent for revisiting old positions
         if self.agent_position in self.last_agent_positions:
-            self.reward -= 0.025* 0.1
+            self.reward -= 0.025* 0.5
 
 
         # set the new distance to the old distance
