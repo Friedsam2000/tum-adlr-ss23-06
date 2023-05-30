@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     # Initialize PPO agent with CNN policy
     n_steps = 512
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps, batch_size=512*16, learning_rate=1e-4)
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps, batch_size=512*4)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
 
-        if log_save_counter%20 == 0:
+        if log_save_counter%10 == 0:
             # get the latest log file
             logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
             logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
