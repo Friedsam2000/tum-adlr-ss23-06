@@ -121,11 +121,11 @@ class CustomEnv(gym.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 0.025 * 0.1
+            self.reward = 0.025 * 0.5
         elif new_dist == self.old_dist: #wall hit
-            self.reward = -0.05* 0.1
+            self.reward = -0.05* 0.5
         else:
-            self.reward = -0.025* 0.1
+            self.reward = -0.025* 0.5
 
         # punish the agent for revisiting old positions
         if self.agent_position in self.last_agent_positions:
