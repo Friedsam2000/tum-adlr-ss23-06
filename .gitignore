@@ -1,3 +1,4 @@
 .idea
 venv/
-
+models_from_bucket/
+__pycache__/
