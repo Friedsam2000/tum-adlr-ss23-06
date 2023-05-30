@@ -40,11 +40,11 @@ class CustomEnv(gym.Env):
         for i in range(self.num_last_agent_pos):
             self.last_agent_positions.append([-1, -1])
 
-        # set the agent position to top left corner
-        self.agent_position = [0 + self.grid_size[0]//5, 0 + self.grid_size[1]//5]
+        # set the agent position to a random position
+        self.agent_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
+        # set the goal position to a random position
+        self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
-        # set the goal position to bottom right corner
-        self.goal_position = [self.grid_size[0] - self.grid_size[0]//5, self.grid_size[1] - self.grid_size[1]//5]
 
         # spawn random obstacles not on goal or agent position
         goal_is_reachable = False
