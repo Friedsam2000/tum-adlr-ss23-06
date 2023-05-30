@@ -69,7 +69,7 @@ class CustomEnv(gym.Env):
 
         # define step counter and timeout as 4 times the manhattan distance between agent and goal
         self.steps = 0
-        self.timeout = 4 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
+        self.timeout = 6 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # define observation
@@ -127,12 +127,8 @@ class CustomEnv(gym.Env):
         else:
             self.reward = -0.025* 0.5
 
-
-        # punish the agent for revisiting old positions
-        if self.agent_position in self.last_agent_positions:
-            self.reward -= 0.025* 0.5
-        else:
-            # reward the agent for exploring new positions (should only be used when num_last_agent_pos >=10)
+        # reward the agent for exploring new positions (should only be used when num_last_agent_pos >=10)
+        if self.agent_position not in self.last_agent_positions:
             self.reward += 0.025* 0.5
 
 

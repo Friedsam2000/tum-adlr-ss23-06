@@ -3,7 +3,7 @@ sys.path.insert(0, 'environments')
 from environments.GridEnvironment import CustomEnv as GridEnvironment
 import cv2
 
-env = GridEnvironment(grid_size=(16, 16))
+env = GridEnvironment(grid_size=(16, 16), num_last_agent_pos=100)
 # Display the image in a window
 observation = env.reset()
 # print(observation)
