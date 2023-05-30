@@ -59,6 +59,7 @@ if __name__ == "__main__":
         os.makedirs(f"models/PPO_MLP_0")
 
     best_reward = -np.inf
+    log_save_counter = 0
 
     # Train agent
     TIMESTEPS_PER_SAVE = n_steps*num_cpu
@@ -80,11 +81,13 @@ if __name__ == "__main__":
             blob = bucket.blob(f"data_Matthias/models/PPO_MLP_0/{model.num_timesteps}.zip")
             blob.upload_from_filename(f"models/PPO_MLP_0/{model.num_timesteps}.zip")
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
-
-        # get the latest log file
-        logs = os.listdir(f"logs/PPO_MLP_0")
-        logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
-        latest_log = logs[-1]
-        # upload the new log file to the bucket
-        blob = bucket.blob(f"data_matthias/logs/PPO_MLP_0/{latest_log}")
-        blob.upload_from_filename(f"logs/PPO_MLP_0/{latest_log}")
+        if log_save_counter%20 == 0:
+            # get the latest log file
+            logs = os.listdir(f"logs/PPO_MLP_0")
+            logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+            latest_log = logs[-1]
+            # upload the new log file to the bucket
+            blob = bucket.blob(f"data_Matthias/logs/PPO_MLP_0/{latest_log}")
+            blob.upload_from_filename(f"logs/PPO_MLP_0/{latest_log}")
+        
+        log_save_counter = log_save_counter + 1
