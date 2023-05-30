@@ -51,8 +51,8 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Initialize PPO agent with CNN policy
-    n_steps = 2048
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps, batch_size=2048*2)
+    n_steps = 512
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps, batch_size=n_steps * num_cpu // 8, learning_rate=0.0001, clip_range=0.2, n_epochs=4, gae_lambda=0.95, gamma=0.99, ent_coef=0.0, vf_coef=0.5, max_grad_norm=0.5, use_sde=False, sde_sample_freq=-1, target_kl=None)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
