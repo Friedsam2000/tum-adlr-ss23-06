@@ -5,6 +5,43 @@ from environments.GridEnvironment import CustomEnv
 import os
 import torch
 from google.cloud import storage
+import torch.nn as nn
+from stable_baselines3 import PPO
+from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
+
+
+class CustomCnn(BaseFeaturesExtractor):
+    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 256):
+        super(CustomCnn, self).__init__(observation_space, features_dim)
+
+        # Assume input has shape (48, 48, 3)
+        self.cnn = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Flatten(),
+        )
+
+        # Compute shape by doing one forward pass
+        with torch.no_grad():
+            n_flatten = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape[1]
+
+        self.linear = nn.Sequential(
+            nn.Linear(n_flatten, features_dim),
+            nn.ReLU(),
+        )
+
+    def forward(self, observations: torch.Tensor) -> torch.Tensor:
+        return self.linear(self.cnn(observations))
+
+
+policy_kwargs = dict(
+    features_extractor_class=CustomCnn,
+    features_extractor_kwargs=dict(features_dim=256),
+)
 
 
 
@@ -52,7 +89,8 @@ if __name__ == "__main__":
 
     # Initialize PPO agent with CNN policy
     n_steps = 64
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps, learning_rate=1e-4)
+    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
+                n_steps=n_steps)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
