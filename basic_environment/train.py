@@ -61,8 +61,7 @@ if __name__ == "__main__":
     best_reward = -np.inf
 
     # Train agent
-    log_save_counter = 0
-    TIMESTEPS_PER_SAVE = n_steps*num_cpu
+    TIMESTEPS_PER_SAVE = n_steps*num_cpu*10
     MAX_TIMESTEPS = 100000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
@@ -83,13 +82,11 @@ if __name__ == "__main__":
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
 
-        if log_save_counter%20 == 0:
-            # get the latest log file
-            logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
-            logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
-            latest_log = logs[-1]
-            # upload the new log file to the bucket
-            blob = bucket.blob(f"basic_environment/logs/PPO_{len(logs_folders)}_0/{latest_log}")
-            blob.upload_from_filename(f"logs/PPO_{len(logs_folders)}_0/{latest_log}")
+        # get the latest log file
+        logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
+        logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+        latest_log = logs[-1]
+        # upload the new log file to the bucket
+        blob = bucket.blob(f"basic_environment/logs/PPO_{len(logs_folders)}_0/{latest_log}")
+        blob.upload_from_filename(f"logs/PPO_{len(logs_folders)}_0/{latest_log}")
 
-        log_save_counter += 1
