@@ -7,7 +7,6 @@ import torch
 from google.cloud import storage
 
 
-
 def make_env(grid_size, rank):
     def _init():
         env = CustomEnv(grid_size=grid_size, num_last_agent_pos=100)
@@ -31,7 +30,7 @@ if __name__ == "__main__":
     # Get the bucket object
     bucket = storage_client.get_bucket(bucket_name)
 
-    num_cpu = 16  # Number of processes to use
+    num_cpu = 8  # Number of processes to use
     grid_size = (16, 16)
 
     # Create the vectorized environment
@@ -51,8 +50,10 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Initialize PPO agent with CNN policy
-    n_steps = 64
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps, batch_size=64, learning_rate=1e-5)
+    n_steps = 128
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, n_steps=n_steps,
+                batch_size=n_steps * num_cpu // 4, learning_rate=lambda f: f * 2.5e-4, ent_coef=0.01, gae_lambda=0.95,
+                gamma=0.99, n_epochs=4, clip_range=0.1)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     best_reward = -np.inf
 
     # Train agent
-    TIMESTEPS_PER_SAVE = 16000
+    TIMESTEPS_PER_SAVE = 20000
     MAX_TIMESTEPS = 100000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
@@ -81,7 +82,6 @@ if __name__ == "__main__":
             blob.upload_from_filename(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
-
         # get the latest log file
         logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
         logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
@@ -89,4 +89,3 @@ if __name__ == "__main__":
         # upload the new log file to the bucket
         blob = bucket.blob(f"basic_environment/logs/PPO_{len(logs_folders)}_0/{latest_log}")
         blob.upload_from_filename(f"logs/PPO_{len(logs_folders)}_0/{latest_log}")
-
