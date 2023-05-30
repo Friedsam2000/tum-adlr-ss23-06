@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
     # Continue training
     TIMESTEPS_PER_SAVE = model.n_steps * num_cpu
-    MAX_TIMESTEPS = 10000000
+    MAX_TIMESTEPS = 100000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False)
 
