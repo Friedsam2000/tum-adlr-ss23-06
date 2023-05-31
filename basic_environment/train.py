@@ -3,6 +3,7 @@ from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from stable_baselines3 import PPO
 from environments.GridEnvironment import CustomEnv
 from environments.GridEnvironment import CustomEnv_rc
+from environments.GridEnvironment import CustomEnv__sr_fp
 import os
 import torch
 from google.cloud import storage
@@ -11,7 +12,7 @@ from google.cloud import storage
 
 def make_env(grid_size, rank):
     def _init():
-        env = CustomEnv_rc(grid_size=grid_size)
+        env = CustomEnv__sr_fp(grid_size=grid_size)
         return env
 
     return _init
@@ -19,7 +20,7 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    PPO_Iteration = "CNN_2"
+    PPO_Iteration = "CNN_3"
     PPO_Policy = "CNN"
     print(PPO_Iteration)
     # Set up the GPU or use the CPU
