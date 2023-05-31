@@ -91,6 +91,10 @@ if __name__ == "__main__":
             blob.upload_from_filename(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
+            #delete the model locally
+            os.remove(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
+
+
 
         # get the latest log file
         logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
