@@ -660,10 +660,6 @@ class CustomEnv_sr_fp(gym.Env):
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {"goal": False, "obstacle": False}
 
-
-        # set the new distance to the old distance
-        self.old_dist = new_dist
-
         return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {}
 
     def render(self, mode='human'):
