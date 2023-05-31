@@ -87,7 +87,7 @@ if __name__ == "__main__":
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
         if log_save_counter%10 == 0:
             # get the latest log file
-            logs = os.listdir(f"logs/PPO_MLP_0")
+            logs = os.listdir(f"logs/PPO_{PPO_Policy}_0")
             logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
             latest_log = logs[-1]
             # upload the new log file to the bucket
