@@ -330,7 +330,8 @@ class CustomEnv_rc(gym.Env):
     def getImg(self):
         block_color = (255, 255, 255)
         goal_color = (0, 255, 0)
-        obstacle_color = self.obstacles_color
+        #obstacle_color = self.obstacles_color
+        obstacle_color = (0, 0, 255)
         old_agent_color = (255, 192, 203)
 
 
