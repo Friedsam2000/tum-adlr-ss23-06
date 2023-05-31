@@ -56,11 +56,11 @@ if __name__ == "__main__":
     # Define the policy kwargs
     policy_kwargs = dict(
         features_extractor_class=CustomFeatureExtractor,
-        features_extractor_kwargs=dict(features_dim=128),
+        features_extractor_kwargs=dict(features_dim=64),
     )
 
     # Initialize PPO agent with CNN policy
-    n_steps = 64
+    n_steps = 32
     model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
                 n_steps=n_steps)
 
