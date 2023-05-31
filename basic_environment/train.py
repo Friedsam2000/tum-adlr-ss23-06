@@ -85,7 +85,7 @@ if __name__ == "__main__":
             blob = bucket.blob(f"data_Matthias/models/PPO_{PPO_Iteration}/{model.num_timesteps}.zip")
             blob.upload_from_filename(f"models/PPO_{PPO_Iteration}/{model.num_timesteps}.zip")
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
-        if log_save_counter%40 == 0:
+        if log_save_counter%10 == 0:
             # get the latest log file
             logs = os.listdir(f"logs/PPO_MLP_0")
             logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
