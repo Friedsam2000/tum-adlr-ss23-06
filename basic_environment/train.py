@@ -60,7 +60,7 @@ if __name__ == "__main__":
     )
 
     # Initialize PPO agent with CNN policy
-    n_steps = 128
+    n_steps = 512
     model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
                 n_steps=n_steps)
 
