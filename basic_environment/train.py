@@ -3,7 +3,7 @@ from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from stable_baselines3 import PPO
 from environments.GridEnvironment import CustomEnv
 from environments.GridEnvironment import CustomEnv_rc
-from environments.GridEnvironment import CustomEnv__sr_fp
+from environments.GridEnvironment import CustomEnv_sr_fp
 import os
 import torch
 from google.cloud import storage
@@ -12,7 +12,7 @@ from google.cloud import storage
 
 def make_env(grid_size, rank):
     def _init():
-        env = CustomEnv__sr_fp(grid_size=grid_size)
+        env = CustomEnv_sr_fp(grid_size=grid_size)
         return env
 
     return _init
