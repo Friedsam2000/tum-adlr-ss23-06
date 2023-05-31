@@ -12,7 +12,7 @@ from google.cloud import storage
 
 def make_env(grid_size, rank):
     def _init():
-        env = CustomEnv_sr_fp(grid_size=grid_size)
+        env = CustomEnv_rc(grid_size=grid_size)
         return env
 
     return _init
