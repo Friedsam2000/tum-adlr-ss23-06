@@ -1,7 +1,7 @@
 from stable_baselines3.common.env_checker import check_env
-from environments.ContinousEnvironment import CustomEnv as ConEnv
+from environments.GridEnvironment import CustomEnv as GridEnvironment
 
 
-env = ConEnv()
+env = GridEnvironment([16,16])
 # It will check your custom environment and output additional warnings if needed
 check_env(env)
