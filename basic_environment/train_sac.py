@@ -38,9 +38,11 @@ if __name__ == "__main__":
     grid_size = (16, 16)
 
     # Create the vectorized environment
-    env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
+    #env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
     # add a monitor wrapper
-    env = VecMonitor(env)
+    #env = VecMonitor(env)
+
+    env = ConEnv(grid_size=grid_size)
 
     # Create logs if not existing
     if not os.path.exists("logs"):
