@@ -79,7 +79,6 @@ if __name__ == "__main__":
     env.reset()
     model = PPO.load(f"models_to_modify/" + model_filename.split("/")[-1], env=env, verbose=1)
 
-
     # set new tensorboard log directory
     model.tensorboard_log = "logs_modified"
     print(f"Loaded {model_filename} from models_to_modify directory")
@@ -99,8 +98,6 @@ if __name__ == "__main__":
 
         # get the mean reward of the last 100 episodes
         reward_mean = np.mean([ep['r'] for ep in list(model.ep_info_buffer)[-100:]])
-
-
 
         # if the reward mean is better than the best reward, save the model
         if reward_mean > best_reward:

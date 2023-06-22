@@ -8,9 +8,6 @@ import torch
 from networks.CustomFeatureExtractor import CustomFeatureExtractor
 
 
-
-
-
 def make_env(grid_size, rank):
     def _init():
         env = CustomEnv(grid_size=grid_size, num_last_agent_pos=100)
@@ -89,10 +86,8 @@ if __name__ == "__main__":
             blob.upload_from_filename(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
-            #delete the model locally
+            # delete the model locally
             os.remove(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
-
-
 
         # get the latest log file
         logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
@@ -101,4 +96,3 @@ if __name__ == "__main__":
         # upload the new log file to the bucket
         blob = bucket.blob(f"basic_environment/logs/PPO_{len(logs_folders)}_0/{latest_log}")
         blob.upload_from_filename(f"logs/PPO_{len(logs_folders)}_0/{latest_log}")
-
