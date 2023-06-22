@@ -72,7 +72,7 @@ class CustomEnv(gym.Env):
 
         # compute distance
         new_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
-
+        delta = abs(new_dist - self.old_dist)
         # check if the agent is at the goal position
         if new_dist < self.goal_size:
             self.reward = 1
@@ -94,11 +94,9 @@ class CustomEnv(gym.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 0.025
-        elif new_dist == self.old_dist: #wall hit
-            self.reward = -0.05
+            self.reward = 0.025 * delta
         else:
-            self.reward = -0.025
+            self.reward = -0.025 * delta
 
         # set the new distance to the old distance
         self.old_dist = new_dist
