@@ -11,6 +11,7 @@ source venv/bin/activate
 # Ensure that pip, setuptools, and wheel are up-to-date
 pip install --upgrade wheel
 pip install setuptools==65.5.0 pip==21
+pip install importlib-metadata==4.13.0
 
 # Install Python dependencies
 pip install -r requirements.txt
