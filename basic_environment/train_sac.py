@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     # Initialize SAC agent with MLP Policy
     n_steps = 256
-    model = SAC("MlpPolicy", env, verbose=1, tensorboard_log="logs", device=device, batch_size=256)
+    model = SAC("MlpPolicy", env, verbose=1, tensorboard_log="logs", device=device, batch_size=512)
 
     # create the folder for the model
     if not os.path.exists(f"models/SAC_{SAC_Iteration}"):
