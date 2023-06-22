@@ -41,13 +41,20 @@ class CustomEnv(gym.Env):
         self.done = False
 
         # set the agent position to top left corner
-        self.agent_position = np.array([0 + self.grid_size[0]//5, 0 + self.grid_size[1]//5], dtype=np.single)
+        self.agent_position = np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
 
         # set the goal position to bottom right corner
-        self.goal_position =np.array( [self.grid_size[0] - self.grid_size[0]//5, self.grid_size[1] - self.grid_size[1]//5], dtype=np.single)
+        self.goal_position =np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
 
         # define last distance to goal
         self.initial_dist = np.linalg.norm(self.agent_position - self.goal_position)
+
+        # ensure that goal and start position are sufficiently far apart
+        while self.initial_dist < 6 * (self.goal_size + self.agent_size):
+            self.goal_position = np.array(
+                [np.random.uniform(0, self.grid_size[0]), np.random.uniform(0, self.grid_size[1])], dtype=np.single)
+            self.initial_dist = np.linalg.norm(self.agent_position - self.goal_position)
+
         self.old_dist = self.initial_dist
 
         # define step counter and timeout as 6 times the time it takes to travel from start to goal

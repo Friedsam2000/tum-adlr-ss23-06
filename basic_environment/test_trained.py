@@ -58,7 +58,7 @@ while episodes < 100:
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, done, info = env.step(action)
 
-    env.render()
+    #env.render()
     if done:
         episodes += 1
         if info["goal"]:
