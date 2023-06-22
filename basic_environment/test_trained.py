@@ -1,6 +1,8 @@
 from stable_baselines3 import PPO
+from stable_baselines3 import SAC
 from environments.GridEnvironment import CustomEnv
 from environments.GridEnvironment import CustomEnv_rc
+from environments.ContinousEnvironment import CustomEnv as ConEnv
 import os
 import google.cloud.storage
 import shutil
@@ -15,7 +17,7 @@ storage_client = google.cloud.storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Get all model filenames from the bucket
-PPO_Iteration = "PPO_CNN_2"
+PPO_Iteration = "SAC_MLP_0"
 blobs = bucket.list_blobs(prefix=f"data_Matthias/models/{PPO_Iteration}")
 model_filenames = []
 for blob in blobs:
@@ -39,12 +41,13 @@ print(f"Downloaded {model_filename} from bucket {bucket_name} to models_from_buc
 
 # Load the model
 custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0}
-model = PPO.load(f"models_from_bucket/" + model_filename.split("/")[-1], custom_objects=custom_objects, verbose=1)
+model = SAC.load(f"models_from_bucket/" + model_filename.split("/")[-1], custom_objects=custom_objects, verbose=1)
 print(f"Loaded {model_filename} from models_from_bucket directory")
 
 # Create the environment
-env = CustomEnv(grid_size=(16, 16))
+#env = CustomEnv(grid_size=(16, 16))
 #env = CustomEnv_rc(grid_size=(16, 16))
+env = ConEnv(grid_size=(16, 16))
 
 # Test the model
 obs = env.reset()
@@ -55,7 +58,7 @@ while episodes < 100:
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, done, info = env.step(action)
 
-    #env.render()
+    env.render()
     if done:
         episodes += 1
         if info["goal"]:

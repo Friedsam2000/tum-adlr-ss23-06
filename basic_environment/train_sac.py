@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     # Initialize SAC agent with MLP Policy
     n_steps = 256
-    model = SAC("MlpPolicy", env, verbose=1, tensorboard_log="logs", device=device, batch_size=512*8)
+    model = SAC("MlpPolicy", env, verbose=1, tensorboard_log="logs", device=device, batch_size=256)
 
     # create the folder for the model
     if not os.path.exists(f"models/SAC_{SAC_Iteration}"):
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     log_save_counter = 0
 
     # Train agent
-    TIMESTEPS_PER_SAVE = n_steps*num_cpu*20
+    TIMESTEPS_PER_SAVE = n_steps*num_cpu*10
     MAX_TIMESTEPS = 7500000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False, tb_log_name=f"SAC_{SAC_Policy}")

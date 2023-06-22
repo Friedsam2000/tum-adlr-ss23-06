@@ -85,6 +85,11 @@ class CustomEnv(gym.Env):
             # return info that goal was reached
             return observation, self.reward, self.done, {"goal": True, "obstacle": False}
 
+        if (self.agent_position[0] == 0.0) or (self.agent_position[1] == 0.0):
+            self.reward = -1
+            self.done = False
+            return observation, self.reward, self.done, {"goal": False, "obstacle": True}
+
         # check if timeout
         if self.steps >= self.timeout:
             self.reward = -1
