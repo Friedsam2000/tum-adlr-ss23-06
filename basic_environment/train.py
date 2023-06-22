@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # Get the bucket object
     bucket = storage_client.get_bucket(bucket_name)
 
-    num_cpu = 16  # Number of processes to use
+    num_cpu = 16*4  # Number of processes to use
     grid_size = (16, 16)
 
     # Create the vectorized environment
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     )
 
     # Initialize PPO agent with CNN policy
-    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device)
+    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, n_steps=2048//4)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
