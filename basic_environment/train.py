@@ -54,13 +54,13 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Define the policy kwargs
-    # policy_kwargs = dict(
-    #     features_extractor_class=CustomFeatureExtractor,
-    #     features_extractor_kwargs=dict(features_dim=128),
-    # )
+    policy_kwargs = dict(
+        features_extractor_class=CustomFeatureExtractor,
+        features_extractor_kwargs=dict(features_dim=128),
+    )
 
     # Initialize PPO agent with CNN policy
-    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device)
+    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
