@@ -33,7 +33,7 @@ class CustomEnv(gym.Env):
         self.scaling = ( render_size[0]/ grid_size[0], render_size[1]/ grid_size[1])
 
         # Define action and observation space
-        self.action_space = spaces.Box(low=-1, high=1, shape=(1,2), dtype=np.single)
+        self.action_space = spaces.Box(low=-1, high=1, shape=(2,), dtype=np.single)
         # Example for using image as input:
         self.observation_space = spaces.Box(low=0, high=grid_size[0], shape=(6,1), dtype=np.single)
 
@@ -41,10 +41,10 @@ class CustomEnv(gym.Env):
         self.done = False
 
         # set the agent position to top left corner
-        self.agent_position = np.array([0 + self.grid_size[0]//5, 0 + self.grid_size[1]//5])
+        self.agent_position = np.array([0 + self.grid_size[0]//5, 0 + self.grid_size[1]//5], dtype=np.single)
 
         # set the goal position to bottom right corner
-        self.goal_position =np.array( [self.grid_size[0] - self.grid_size[0]//5, self.grid_size[1] - self.grid_size[1]//5])
+        self.goal_position =np.array( [self.grid_size[0] - self.grid_size[0]//5, self.grid_size[1] - self.grid_size[1]//5], dtype=np.single)
 
         # define last distance to goal
         self.initial_dist = np.linalg.norm(self.agent_position - self.goal_position)
@@ -63,17 +63,13 @@ class CustomEnv(gym.Env):
         self.reward = 0
         self.steps += 1
 
-        # apply action
-        if action.shape[0] == 1:
-            self.agent_position[0] = self.agent_position[0] + action[0,0]
-            self.agent_position[1] = self.agent_position[1] + action[0,1]
-        else:
-            self.agent_position[0] = self.agent_position[0] + action[0]
-            self.agent_position[1] = self.agent_position[1] + action[1]
+
+        self.agent_position[0] = self.agent_position[0] + action[0]
+        self.agent_position[1] = self.agent_position[1] + action[1]
 
         # observation
         observation = self.get_observation()
-        
+
         # compute distance
         new_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
