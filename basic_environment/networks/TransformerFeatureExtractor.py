@@ -6,7 +6,7 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 
 
 class TransformerFeatureExtractor(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 128):
+    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 256):
         super(TransformerFeatureExtractor, self).__init__(observation_space, features_dim)
 
         self.encoder_layer = TransformerEncoderLayer(d_model=features_dim, nhead=4)
