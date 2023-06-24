@@ -53,7 +53,7 @@ if __name__ == "__main__":
     # Define the policy kwargs
     policy_kwargs = dict(
         features_extractor_class=CustomFeatureExtractor,
-        features_extractor_kwargs=dict(features_dim=128),
+        features_extractor_kwargs=dict(features_dim=128*2),
     )
 
     # Initialize PPO agent with CNN policy
