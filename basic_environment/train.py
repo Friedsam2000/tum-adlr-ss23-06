@@ -6,7 +6,7 @@ from google.cloud import storage
 from stable_baselines3 import PPO
 import torch
 from networks.CustomFeatureExtractor import CustomFeatureExtractor
-
+from networks.TransformerFeatureExtractor import TransformerFeatureExtractor
 
 def make_env(grid_size, rank):
     def _init():
@@ -52,14 +52,12 @@ if __name__ == "__main__":
 
     # Define the policy kwargs
     policy_kwargs = dict(
-        net_arch=[128, 128, 128],  # This specifies 3 layers with 128 neurons each
-        features_extractor_class=CustomFeatureExtractor,
+        features_extractor_class=TransformerFeatureExtractor,
         features_extractor_kwargs=dict(features_dim=128),
     )
 
     # Initialize PPO agent with new policy architecture
-    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
-                n_steps=1024)
+    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
