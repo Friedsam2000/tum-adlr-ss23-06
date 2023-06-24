@@ -52,12 +52,14 @@ if __name__ == "__main__":
 
     # Define the policy kwargs
     policy_kwargs = dict(
+        net_arch=[128, 128, 128],  # This specifies 3 layers with 128 neurons each
         features_extractor_class=CustomFeatureExtractor,
-        features_extractor_kwargs=dict(features_dim=128*2),
+        features_extractor_kwargs=dict(features_dim=128),
     )
 
-    # Initialize PPO agent with CNN policy
-    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, n_steps=1024)
+    # Initialize PPO agent with new policy architecture
+    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
+                n_steps=1024)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
