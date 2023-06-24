@@ -4,7 +4,7 @@ import gym
 import torch
 
 class CustomFeatureExtractor(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 2048):
+    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 1024):
         super(CustomFeatureExtractor, self).__init__(observation_space, features_dim)
 
         # Assume input has shape (48, 48, 3)
@@ -42,12 +42,6 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
 
         self.linear = nn.Sequential(
             nn.Linear(n_flatten, features_dim),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(features_dim, features_dim),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(features_dim, features_dim),
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Linear(features_dim, features_dim),
