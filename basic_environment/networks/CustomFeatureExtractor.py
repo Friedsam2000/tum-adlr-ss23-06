@@ -52,6 +52,9 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
             nn.Dropout(0.1),
             nn.Linear(features_dim, features_dim),
             nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(features_dim, features_dim),
+            nn.ReLU(),
         )
 
     def forward(self, observations: torch.Tensor) -> torch.Tensor:
