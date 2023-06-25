@@ -96,14 +96,14 @@ class CustomEnv(gym.Env):
 
         # check if the agent hit an obstacle
         if self.agent_position in self.obstacle_positions:
-            self.reward = -3
+            self.reward = -1
             self.done = True
 
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {"goal": False, "obstacle": True}
 
         # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
-            self.reward = 3
+            self.reward = 1
 
             self.done = True
             # return info that goal was reached
