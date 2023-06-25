@@ -9,13 +9,7 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
 
         # Assume input has shape (48, 48, 3)
         self.cnn = nn.Sequential(
-            nn.Conv2d(3, 128, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(0.1),
-
-            nn.Conv2d(128, 256, kernel_size=2, stride=1, padding=1),
+            nn.Conv2d(3, 256, kernel_size=2, stride=1, padding=1),
             nn.BatchNorm2d(256),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
@@ -27,14 +21,20 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
-            nn.Conv2d(512, 512, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(512),
+            nn.Conv2d(512, 1024, kernel_size=2, stride=1, padding=1),
+            nn.BatchNorm2d(1024),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
-            nn.Conv2d(512, 512, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(512),
+            nn.Conv2d(1024, 1024, kernel_size=2, stride=1, padding=1),
+            nn.BatchNorm2d(1024),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout(0.1),
+
+            nn.Conv2d(1024, 1024, kernel_size=2, stride=1, padding=1),
+            nn.BatchNorm2d(1024),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
@@ -47,13 +47,16 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
             n_flatten = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape[1]
 
         self.linear = nn.Sequential(
-            nn.Linear(n_flatten, features_dim),
+            nn.Linear(n_flatten, features_dim*4),
             nn.ReLU(),
             nn.Dropout(0.1),
-            nn.Linear(features_dim, features_dim),
+            nn.Linear(features_dim*4, features_dim*2),
             nn.ReLU(),
             nn.Dropout(0.1),
-            nn.Linear(features_dim, features_dim),
+            nn.Linear(features_dim*2, features_dim*2),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(features_dim*2, features_dim),
             nn.ReLU(),
         )
 
