@@ -49,12 +49,13 @@ class ModifiedCustomEnv(gym.Env):
         while self.goal_position == self.agent_position:
             self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
+
         # spawn random obstacles not on goal or agent position
         goal_is_reachable = False
         while not goal_is_reachable:
             self.obstacle_positions = []  # Clear the old obstacles
             # add random number of obstacles
-            for i in range(np.random.randint(0, self.grid_size[1] * 6)):
+            for i in range(np.random.randint(0, self.grid_size[1]*6)):
                 obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
                 while obstacle_position == self.agent_position or obstacle_position == self.goal_position:
                     obstacle_position = [np.random.randint(0, self.grid_size[0]),
@@ -66,7 +67,7 @@ class ModifiedCustomEnv(gym.Env):
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
-        # define step counter and timeout as 6 times the manhattan distance between agent and goal
+        # define step counter and timeout as 4 times the manhattan distance between agent and goal
         self.steps = 0
         self.timeout = 4 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
@@ -97,20 +98,21 @@ class ModifiedCustomEnv(gym.Env):
         if self.agent_position in self.obstacle_positions:
             self.reward = -1
             self.done = True
-
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {"goal": False, "obstacle": True}
 
         # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
-            self.reward = 1*0.5
+            self.reward = 1
 
             self.done = True
             # return info that goal was reached
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {"goal": True, "obstacle": False}
 
-        # check if timeout is reached
+
+
+        # check if timeout
         if self.steps >= self.timeout:
-            self.reward = -1*0.5
+            self.reward = -1
             self.done = True
             return np.array(self.getImg(), dtype=np.uint8), self.reward, self.done, {"goal": False, "obstacle": False}
 
@@ -119,15 +121,15 @@ class ModifiedCustomEnv(gym.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 0.025 * 0.25
+            self.reward = 0.025 * 0.5
         elif new_dist == self.old_dist: #wall hit
-            self.reward = -0.05* 0.25
+            self.reward = -0.05* 0.5
         else:
-            self.reward = -0.025* 0.25
+            self.reward = -0.025* 0.5
 
         # punish the agent for revisiting old positions
         if self.agent_position in self.last_agent_positions:
-            self.reward -= 0.025* 0.25
+            self.reward -= 0.025* 0.5
 
 
         # set the new distance to the old distance
