@@ -6,4 +6,3 @@ google-cloud-storage
 tensorboard
 opencv-python
 numpy
-shimmy
