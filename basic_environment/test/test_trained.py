@@ -24,18 +24,20 @@ for blob in blobs:
 model_filenames = sorted(model_filenames, key=lambda x: int(x.split("/")[-1].split(".")[0]))
 
 # Check if the models_from_bucket directory exists
-if os.path.exists("models_from_bucket"):
-    # Check if the model is downloaded
-    if not os.path.exists(f"models_from_bucket/{model_filenames[-1].split('/')[-1]}"):
-        print(f"Downloading {model_filenames[-1]} from bucket {bucket_name} to models_from_bucket directory")
-        # Download the model with the highest number of steps in the models_from_bucket directory
-        model_filename = model_filenames[-1]
-        blob = bucket.blob(model_filename)
-        blob.download_to_filename(f"models_from_bucket/" + model_filename.split("/")[-1])
-        print(f"Downloaded {model_filename} from bucket {bucket_name} to models_from_bucket directory")
-    else:
-        print(f"Model {model_filenames[-1]} already exists in models_from_bucket directory")
-        model_filename = model_filenames[-1]
+if not os.path.exists("models_from_bucket"):
+    os.makedirs("models_from_bucket")
+
+# Check if the model is downloaded
+if not os.path.exists(f"models_from_bucket/{model_filenames[-1].split('/')[-1]}"):
+    print(f"Downloading {model_filenames[-1]} from bucket {bucket_name} to models_from_bucket directory")
+    # Download the model with the highest number of steps in the models_from_bucket directory
+    model_filename = model_filenames[-1]
+    blob = bucket.blob(model_filename)
+    blob.download_to_filename(f"models_from_bucket/" + model_filename.split("/")[-1])
+    print(f"Downloaded {model_filename} from bucket {bucket_name} to models_from_bucket directory")
+else:
+    print(f"Model {model_filenames[-1]} already exists in models_from_bucket directory")
+    model_filename = model_filenames[-1]
 
 # Load the model
 custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0, "features_extractor_class": CustomFeatureExtractor}
@@ -49,11 +51,11 @@ obs = env.reset()
 goals_reached = 0
 obstacles_hit = 0
 episodes = 0
-while episodes < 100:
+while episodes < 500:
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, done, info = env.step(action)
 
-    env.render()
+    # env.render()
     if done:
         episodes += 1
         if info["goal"]:
