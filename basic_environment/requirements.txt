@@ -1,7 +1,7 @@
 stable-baselines3==2.0.0
 gym
 torch
-tensorflow==2.11.0
+tensorflow
 google-cloud-storage
 tensorboard
 opencv-python
