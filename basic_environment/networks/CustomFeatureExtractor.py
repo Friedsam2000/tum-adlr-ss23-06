@@ -47,8 +47,7 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
             n_flatten = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape[1]
 
         self.linear = nn.Sequential(
-
-            nn.Linear(features_dim, features_dim),
+            nn.Linear(n_flatten, features_dim),
             nn.ReLU(),
         )
 
