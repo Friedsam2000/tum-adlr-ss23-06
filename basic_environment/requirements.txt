@@ -1,6 +1,5 @@
 stable-baselines3==2.0.0
 gym
-torch
 tensorflow
 google-cloud-storage
 tensorboard
