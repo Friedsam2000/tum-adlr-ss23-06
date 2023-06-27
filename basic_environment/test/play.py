@@ -1,9 +1,9 @@
 import sys
 sys.path.insert(0, 'environments')
-from environments.GridEnvironment import CustomEnv as GridEnvironment
+from environments.GridEnvironmentMoving import CustomEnv as GridEnvironment
 import cv2
 
-env = GridEnvironment(grid_size=(16, 16), num_last_agent_pos=100)
+env = GridEnvironment(grid_size=(16, 16))
 # Display the image in a window
 observation = env.reset()
 # print(observation)
@@ -24,14 +24,14 @@ while True:
         continue
 
     # Apply the action to the environment
-    observation, reward, done, info = env.step(action)
+    obs, reward, terminated, truncated, info = env.step(action)
     # print(observation)
 
     # display the reward
     print(f"Reward = {reward}")
 
     # Check if the episode is done
-    if done:
+    if terminated:
         print('Episode finished')
         observation = env.reset()
 

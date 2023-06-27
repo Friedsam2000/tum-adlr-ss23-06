@@ -1,6 +1,6 @@
 import numpy as np
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
-from environments.GridEnvironment import CustomEnv
+from environments.GridEnvironmentMoving import CustomEnv
 import os
 from google.cloud import storage
 from stable_baselines3 import PPO

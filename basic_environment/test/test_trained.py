@@ -1,5 +1,5 @@
 from stable_baselines3 import PPO
-from environments.GridEnvironment import CustomEnv
+from environments.GridEnvironmentMoving import CustomEnv
 import os
 import google.cloud.storage
 import shutil
