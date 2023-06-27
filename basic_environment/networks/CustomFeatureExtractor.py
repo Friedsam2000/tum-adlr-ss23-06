@@ -10,13 +10,7 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
 
         # Assume input has shape (16, 16, 3*num_frames_to_stack)
         self.cnn = nn.Sequential(
-            nn.Conv2d(observation_space.shape[0], 32, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(0.1),
-
-            nn.Conv2d(32, 64, kernel_size=2, stride=1, padding=1),
+            nn.Conv2d(observation_space.shape[0], 64, kernel_size=2, stride=1, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
@@ -40,14 +34,8 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
-            nn.Conv2d(512, 512, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(512),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(0.1),
-
-            nn.Conv2d(512, 512, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(512),
+            nn.Conv2d(512, 1024, kernel_size=2, stride=1, padding=1),
+            nn.BatchNorm2d(1024),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
