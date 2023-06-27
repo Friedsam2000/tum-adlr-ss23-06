@@ -1,7 +1,5 @@
 stable-baselines3==2.0.0
-gym
 tensorflow
 google-cloud-storage
-tensorboard
 opencv-python
 numpy
