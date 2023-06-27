@@ -8,9 +8,9 @@ import torch
 from networks.CustomFeatureExtractor import CustomFeatureExtractor
 
 
-def make_env(grid_size, rank):
+def make_env(rank):
     def _init():
-        env = CustomEnv(grid_size=grid_size)
+        env = CustomEnv()
         return env
 
     return _init
@@ -32,10 +32,9 @@ if __name__ == "__main__":
     bucket = storage_client.get_bucket(bucket_name)
 
     num_cpu = 16  # Number of processes to use
-    grid_size = (16, 16)
 
     # Create the vectorized environment
-    env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
+    env = SubprocVecEnv([make_env(i) for i in range(num_cpu)])
     # add a monitor wrapper
     env = VecMonitor(env)
 
