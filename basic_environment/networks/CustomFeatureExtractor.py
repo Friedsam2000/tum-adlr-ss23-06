@@ -17,25 +17,25 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
             # nn.Dropout(0.1),
 
             nn.Conv2d(4, 16, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(8),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(0.1),
-
-            nn.Conv2d(16, 64, kernel_size=2, stride=1, padding=1),
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
+            nn.Conv2d(16, 64, kernel_size=2, stride=1, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout(0.1),
+
             nn.Conv2d(64, 256, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(32),
+            nn.BatchNorm2d(256),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
             nn.Conv2d(256, 512, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(1024),
+            nn.BatchNorm2d(512),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
