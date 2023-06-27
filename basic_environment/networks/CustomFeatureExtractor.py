@@ -1,6 +1,6 @@
 import torch.nn as nn
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
-import gym
+import gymnasium as gym
 import torch
 
 
