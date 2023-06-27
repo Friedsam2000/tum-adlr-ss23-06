@@ -13,6 +13,7 @@ class CustomEnv(gymnasium.Env):
 
     def __init__(self, grid_size, img_size=(48, 48), render_size=(480, 480), num_last_agent_pos=0, num_frames_to_stack=2):
         super().__init__()
+        self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
         self._assert_sizes(grid_size, img_size, render_size)
 
@@ -21,7 +22,7 @@ class CustomEnv(gymnasium.Env):
         self.img_size = img_size
         self.render_size = render_size
 
-        self.observation_space = spaces.Box(low=0, high=255, shape=(num_frames_to_stack, img_size[0], img_size[1], 3), dtype=np.uint8)
+        self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], 3*num_frames_to_stack), dtype=np.uint8)
 
     def reset(self, seed=None):
         # Reset the environment and optionally set the random seed
@@ -41,10 +42,10 @@ class CustomEnv(gymnasium.Env):
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # Reset the frame stack with four identical frames
-        for _ in range(4):
-            self.getImg()
+        for _ in range(self.num_frames_to_stack):
+            stacked_frames = self.getImg()
 
-        initial_observation = np.array(self.frame_stack, dtype=np.uint8)
+        initial_observation = np.array(stacked_frames, dtype=np.uint8)
         info = {}  # Add any relevant info here
 
         return initial_observation, info
@@ -54,8 +55,8 @@ class CustomEnv(gymnasium.Env):
         self.steps += 1
         self._move_agent(action)
         self._evaluate_reward()
-        self._check_obstacle_collision()
         self._check_goal()
+        self._check_obstacle_collision()
         self._timeout_check()
 
         # Determine the value of terminated and truncated
@@ -69,11 +70,16 @@ class CustomEnv(gymnasium.Env):
 
     def render(self, mode='human'):
         # Get the last frame from the deque
-        img = self.getImg()[-1]
-        # print("Image shape: ", img.shape)
-        # print("Render size: ", self.render_size)
-        img = cv2.resize(img, self.render_size, interpolation=cv2.INTER_NEAREST)
-        cv2.imshow('image', img)
+        img = self.getImg()
+
+        # Use the newest 3 channels for displaying
+        display_img = img[:, :, -3:]
+
+        # Resize the image for better visualization
+        display_img = cv2.resize(display_img, self.render_size, interpolation=cv2.INTER_NEAREST)
+
+        # Display the image
+        cv2.imshow('image', display_img)
         cv2.waitKey(100)
 
     def close(self):
@@ -97,15 +103,16 @@ class CustomEnv(gymnasium.Env):
             base_image[obstacle.position[0], obstacle.position[1]] = [0, 0, 255]  # Blue for obstacles
 
         # Scale the image up for easier viewing (optional)
-        scale_factor = 10  # Adjust as needed
-        scaled_image = cv2.resize(base_image, (self.img_size[0], self.img_size[1]),
-                                  interpolation=cv2.INTER_AREA)
+        scaled_image = cv2.resize(base_image, (self.img_size[0], self.img_size[1]), interpolation=cv2.INTER_AREA)
 
         # Add the new frame to the stack
         self.frame_stack.append(scaled_image)
 
-        # Return a copy of the stack as a numpy array
-        return np.array(self.frame_stack)
+        # Concatenate the frames along the channel dimension
+        stacked_frames = np.concatenate(self.frame_stack, axis=-1)
+
+        # Return the stacked frames as a numpy array
+        return stacked_frames
 
     def _assert_sizes(self, grid_size, img_size, render_size):
         # assert that the grid size is smaller than the image size
