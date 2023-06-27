@@ -5,7 +5,7 @@ import torch
 
 
 class CustomFeatureExtractor(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 128):
+    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 256):
         super(CustomFeatureExtractor, self).__init__(observation_space, features_dim)
 
         # Assume input has shape (16, 16, 3*num_frames_to_stack)
@@ -47,8 +47,14 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
-            nn.Conv2d(128, 128, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(128),
+            nn.Conv2d(128, 256, kernel_size=2, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout(0.1),
+
+            nn.Conv2d(256, 256, kernel_size=2, stride=1, padding=1),
+            nn.BatchNorm2d(256),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
