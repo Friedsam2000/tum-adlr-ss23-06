@@ -8,8 +8,7 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
     def __init__(self, observation_space: gym.spaces.Box, num_frames_to_stack: int, features_dim: int = 256):
         super(CustomFeatureExtractor, self).__init__(observation_space, features_dim)
 
-        self.num_frames_to_stack = num_frames_to_stack
-
+        # Assume input has shape (48, 48, 3)
         self.cnn = nn.Sequential(
             nn.Conv2d(num_frames_to_stack * 3, 32, kernel_size=2, stride=1, padding=1),
             nn.BatchNorm2d(32),
