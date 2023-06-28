@@ -80,7 +80,7 @@ class CustomEnv(gymnasium.Env):
 
         # Display the image
         cv2.imshow('image', display_img)
-        cv2.waitKey(100)
+        cv2.waitKey(200)
 
     def close(self):
         cv2.destroyAllWindows()
