@@ -5,13 +5,17 @@ import gymnasium
 from gymnasium import spaces
 from utility.CheckGoalReachable import a_star_search
 from .Obstacle import Obstacle
+import random
+
+
+
 
 class CustomEnv(gymnasium.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(16,16), img_size=(48, 48), render_size=(480, 480), num_last_agent_pos=0, num_frames_to_stack=2):
+    def __init__(self, grid_size=(24,24), img_size=(48, 48), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=2):
         super().__init__()
         self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
@@ -36,9 +40,9 @@ class CustomEnv(gymnasium.Env):
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
-        # define step counter and timeout as 6 times the manhattan distance between agent and goal
+        # define step counter and timeout as 8 times the manhattan distance between agent and goal
         self.steps = 0
-        self.timeout = 6 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
+        self.timeout = 8 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # Reset the frame stack with four identical frames
@@ -54,9 +58,10 @@ class CustomEnv(gymnasium.Env):
         self.reward = 0
         self.steps += 1
         self._move_agent(action)
+        self._move_obstacles()  # Move obstacles here
         self._evaluate_reward()
-        self._check_goal()
         self._check_obstacle_collision()
+        self._check_goal()
         self._timeout_check()
 
         # Determine the value of terminated and truncated
@@ -70,7 +75,25 @@ class CustomEnv(gymnasium.Env):
 
     def render(self, mode='human'):
         # Get the last frame from the deque
-        img = self.getImg()
+        img = self.getImg().copy()  # Create a copy of the image to avoid modifying the original
+
+        # Get the current agent position
+        current_pos = [int(self.agent_position[0] * self.img_size[0] / self.grid_size[0]),
+                       int(self.agent_position[1] * self.img_size[1] / self.grid_size[1])]
+
+        # Draw the old agent positions on the copied image
+        for old_pos in self.last_agent_positions:
+            if old_pos[0] != -1 and old_pos[1] != -1:  # only draw if it's not the initial [-1, -1]
+                scaled_old_pos = [int(old_pos[0] * self.img_size[0] / self.grid_size[0]),
+                                  int(old_pos[1] * self.img_size[1] / self.grid_size[1])]
+
+                # Check if the old position is not the current position
+                if scaled_old_pos != current_pos:
+                    # Create a 2x2 kernel filled with the desired color
+                    color_kernel = np.ones((2, 2, 3)) * np.array([255, 255, 0])
+                    # Replace the corresponding area in the image with the color kernel
+                    img[scaled_old_pos[0]:scaled_old_pos[0] + 2, scaled_old_pos[1]:scaled_old_pos[1] + 2,
+                    -3:] = color_kernel
 
         # Use the newest 3 channels for displaying
         display_img = img[:, :, -3:]
@@ -89,20 +112,20 @@ class CustomEnv(gymnasium.Env):
         # Create a base image to represent the grid
         base_image = np.zeros((self.grid_size[0], self.grid_size[1], 3))
 
-
-        # Draw the old agent positions
-        for old_pos in self.last_agent_positions:
-            if old_pos[0] != -1 and old_pos[1] != -1:  # only draw if it's not the initial [-1, -1]
-                base_image[old_pos[0], old_pos[1]] = [255, 255, 0]  # Yellow for old agent positions
+        # Draw the old agent positions in the observation
+        # for old_pos in self.last_agent_positions:
+        #     if old_pos[0] != -1 and old_pos[1] != -1:  # only draw if it's not the initial [-1, -1]
+        #         base_image[old_pos[0], old_pos[1]] = [255, 255, 0]  # Yellow for old agent positions
 
         # Draw the agent, goal and obstacles on the base image
         # assuming the agent, goal and obstacles are represented as different colors in RGB
         base_image[self.agent_position[0], self.agent_position[1]] = [255, 0, 0]  # Red for agent
         base_image[self.goal_position[0], self.goal_position[1]] = [0, 255, 0]  # Green for goal
         for obstacle in self.obstacles:
-            base_image[obstacle.position[0], obstacle.position[1]] = [0, 0, 255]  # Blue for obstacles
+            for pos in obstacle.positions:
+                base_image[pos[0], pos[1]] = [0, 0, 255]  # Blue for obstacles
 
-        # Scale the image up for easier viewing (optional)
+        # Scale the image up for the network
         scaled_image = cv2.resize(base_image, (self.img_size[0], self.img_size[1]), interpolation=cv2.INTER_AREA)
 
         # Add the new frame to the stack
@@ -142,29 +165,73 @@ class CustomEnv(gymnasium.Env):
             self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
     def _spawn_obstacles(self):
-        # Spawn random obstacles not on goal or agent position
+        # Define your shapes here
+        shapes = [
+            np.array([[1, 1], [1, 0]]),  # L shape
+            np.array([[1]]),  # Single cell
+            np.array([[1, 1, 1, 1]]),  # Straight line in x direction
+            np.array([[1], [1], [1], [1]]),  # Straight line in y direction
+            np.array([[1, 1], [1, 1]]),  # 2x2 square
+            np.array([[1, 0, 1], [0, 1, 0], [1, 0, 1]]),  # Diamond shape
+            np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])  # Diagonal line
+        ]
+
         goal_is_reachable = False
         while not goal_is_reachable:
             self.obstacles = []  # Clear the old obstacles
-            for _ in range(10):
-                obstacle_position = self._generate_obstacle_position()
+
+            # Choose a random number of obstacles to generate
+            num_obstacles = 10
+
+            for _ in range(num_obstacles):
+                # Choose a random shape
+                shape = random.choice(shapes)  # use random.choice here instead
+                obstacle_positions = self._generate_obstacle_block(shape)
                 # Determine whether this obstacle will be moving, and in what direction
                 is_moving = True
                 direction = np.random.choice([0, 1, 2, 3])
-                self.obstacles.append(Obstacle(obstacle_position, is_moving, direction))
+                self.obstacles.append(Obstacle(obstacle_positions, shape, is_moving, direction))
 
-            self.obstacle_positions = [obstacle.position for obstacle in self.obstacles]
-            goal_is_reachable = self._check_goal_reachable(self.goal_position, self.agent_position, self.obstacle_positions)
+            self.obstacle_positions = [position for obstacle in self.obstacles for position in obstacle.positions]
+            goal_is_reachable = self._check_goal_reachable(self.goal_position, self.agent_position,
+                                                           self.obstacle_positions)
 
-    def _generate_obstacle_position(self):
-        obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
-        # Make sure obstacle is not on agent or goal position and at least 2 fields away from the agent
-        while (obstacle_position == self.agent_position or
-               obstacle_position == self.goal_position or
-               abs(obstacle_position[0] - self.agent_position[0]) < 2 or
-               abs(obstacle_position[1] - self.agent_position[1]) < 2):
-            obstacle_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
-        return obstacle_position
+    def _generate_obstacle_block(self, shape):
+        # The shape should be a 2D binary matrix with 1's where the obstacle is
+        height, width = shape.shape
+
+        while True:
+            obstacle_position = [np.random.randint(0, self.grid_size[0] - (width - 1)),
+                                 np.random.randint(0, self.grid_size[1] - (height - 1))]
+
+            # Check all positions in the shape for any collisions
+            collision = False
+            obstacle_positions = []
+            for i in range(width):
+                for j in range(height):
+                    if shape[j, i] == 1:
+                        pos = [obstacle_position[0] + i, obstacle_position[1] + j]
+                        if (pos == self.agent_position or
+                                pos == self.goal_position or
+                                abs(pos[0] - self.agent_position[0]) < 2 or
+                                abs(pos[1] - self.agent_position[1]) < 2):
+                            collision = True
+                        obstacle_positions.append(pos)
+            if not collision:
+                return obstacle_positions
+
+    def _check_obstacle_collision(self):
+        # check if the agent hit an obstacle
+        for obstacle in self.obstacles:
+            # check if the agent is at any of the obstacle positions before moving
+            if self.agent_position in obstacle.positions:
+                self.reward = -1
+                self.done = True
+            obstacle.move(self.grid_size)
+            # check if the agent is at any of the obstacle positions after moving
+            if self.agent_position in obstacle.positions:
+                self.reward = -1
+                self.done = True
 
     def _move_agent(self, action):
         # append the current agent position to the last agent positions
@@ -179,18 +246,9 @@ class CustomEnv(gymnasium.Env):
         elif action == 3:  # right
             self.agent_position[1] = min(self.grid_size[1] - 1, self.agent_position[1] + 1)
 
-    def _check_obstacle_collision(self):
-        # check if the agent hit an obstacle
+    def _move_obstacles(self):
         for obstacle in self.obstacles:
-            # check if the agent is at the obstacle position before moving
-            if self.agent_position == obstacle.position:
-                self.reward = -1
-                self.done = True
             obstacle.move(self.grid_size)
-            # check if the agent is at the obstacle position after moving
-            if self.agent_position == obstacle.position:
-                self.reward = -1
-                self.done = True
 
     def _check_goal(self):
         # check if the agent is at the goal position
@@ -215,10 +273,6 @@ class CustomEnv(gymnasium.Env):
             self.reward = -0.05* 0.5
         else:
             self.reward = -0.025* 0.5
-
-        # punish the agent for revisiting old positions
-        if self.agent_position in self.last_agent_positions:
-            self.reward -= 0.025* 0.5
 
         # set the new distance to the old distance
         self.old_dist = new_dist
