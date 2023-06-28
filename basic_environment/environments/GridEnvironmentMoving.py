@@ -41,9 +41,9 @@ class CustomEnv(gymnasium.Env):
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
-        # define step counter and timeout as 4 times the manhattan distance between agent and goal
+        # define step counter and timeout as 6 times the manhattan distance between agent and goal
         self.steps = 0
-        self.timeout = 4 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
+        self.timeout = 6 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # Reset the frame stack with four identical frames
@@ -282,11 +282,11 @@ class CustomEnv(gymnasium.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 0.025 * 0.5
+            self.reward = 0.025 * 0.5 * 0.5
         elif new_dist == self.old_dist: #wall hit
-            self.reward = -0.05* 0.5
+            self.reward = 0
         else:
-            self.reward = -0.025* 0.5
+            self.reward = -0.025 * 0.5 * 0.5
 
         # set the new distance to the old distance
         self.old_dist = new_dist
