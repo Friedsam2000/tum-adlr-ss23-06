@@ -15,7 +15,7 @@ class CustomEnv(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(21,21), img_size=(84, 84), render_size=(420, 420), num_last_agent_pos=100, num_frames_to_stack=2):
+    def __init__(self, grid_size=(24,24), img_size=(48, 48), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=2):
         super().__init__()
         self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
