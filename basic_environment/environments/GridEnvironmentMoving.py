@@ -15,7 +15,7 @@ class CustomEnv(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=0, num_frames_to_stack=2):
+    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=2):
         super().__init__()
         self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
@@ -95,8 +95,19 @@ class CustomEnv(gymnasium.Env):
                     kernel_size = int(self.img_size[0] / self.grid_size[0])
                     color_kernel = np.ones((kernel_size, kernel_size, 3)) * np.array([255, 255, 0])
                     # Replace the corresponding area in the image with the color kernel
-                    img[scaled_old_pos[0]:scaled_old_pos[0] + kernel_size, scaled_old_pos[1]:scaled_old_pos[1] + kernel_size,
+                    img[scaled_old_pos[0]:scaled_old_pos[0] + kernel_size,
+                    scaled_old_pos[1]:scaled_old_pos[1] + kernel_size,
                     -3:] = color_kernel
+
+        # Draw the obstacles on the copied image over old agent positions
+        for obstacle in self.obstacles:
+            for pos in obstacle.positions:
+                scaled_pos = [int(pos[0] * self.img_size[0] / self.grid_size[0]),
+                              int(pos[1] * self.img_size[1] / self.grid_size[1])]
+                kernel_size = int(self.img_size[0] / self.grid_size[0])
+                color_kernel = np.ones((kernel_size, kernel_size, 3)) * np.array([0, 0, 255])  # Blue for obstacles
+                img[scaled_pos[0]:scaled_pos[0] + kernel_size, scaled_pos[1]:scaled_pos[1] + kernel_size,
+                -3:] = color_kernel
 
         # Use the newest 3 channels for displaying
         display_img = img[:, :, -3:]
