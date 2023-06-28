@@ -15,7 +15,7 @@ class CustomEnv(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(24,24), img_size=(48, 48), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=2):
+    def __init__(self, grid_size=(16,16), img_size=(48, 48), render_size=(480, 480), num_last_agent_pos=0, num_frames_to_stack=2):
         super().__init__()
         self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
@@ -41,9 +41,9 @@ class CustomEnv(gymnasium.Env):
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
-        # define step counter and timeout as 4 times the manhattan distance between agent and goal
+        # define step counter and timeout as 6 times the manhattan distance between agent and goal
         self.steps = 0
-        self.timeout = 8 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
+        self.timeout = 6 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # Reset the frame stack with four identical frames
@@ -230,7 +230,6 @@ class CustomEnv(gymnasium.Env):
             if self.agent_position in obstacle.positions:
                 self.reward = -1
                 self.done = True
-            obstacle.move(self.grid_size)
             # check if the agent is at any of the obstacle positions after moving
             if self.agent_position in obstacle.positions:
                 self.reward = -1
