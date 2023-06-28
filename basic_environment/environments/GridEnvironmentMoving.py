@@ -7,6 +7,9 @@ from utility.CheckGoalReachable import a_star_search
 from .Obstacle import Obstacle
 import random
 
+
+
+
 class CustomEnv(gymnasium.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
