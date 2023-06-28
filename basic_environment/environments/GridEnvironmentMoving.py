@@ -90,10 +90,12 @@ class CustomEnv(gymnasium.Env):
 
                 # Check if the old position is not the current position
                 if scaled_old_pos != current_pos:
-                    # Create a 2x2 kernel filled with the desired color
-                    color_kernel = np.ones((2, 2, 3)) * np.array([255, 255, 0])
+                    # Create a kernel filled with the desired color
+                    # kernel size is the multiple of the grid size and the image size
+                    kernel_size = int(self.img_size[0] / self.grid_size[0])
+                    color_kernel = np.ones((kernel_size, kernel_size, 3)) * np.array([255, 255, 0])
                     # Replace the corresponding area in the image with the color kernel
-                    img[scaled_old_pos[0]:scaled_old_pos[0] + 2, scaled_old_pos[1]:scaled_old_pos[1] + 2,
+                    img[scaled_old_pos[0]:scaled_old_pos[0] + kernel_size, scaled_old_pos[1]:scaled_old_pos[1] + kernel_size,
                     -3:] = color_kernel
 
         # Use the newest 3 channels for displaying
