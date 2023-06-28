@@ -15,7 +15,7 @@ class CustomEnv(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(24,24), img_size=(48, 48), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=2):
+    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=2):
         super().__init__()
         self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
@@ -34,15 +34,16 @@ class CustomEnv(gymnasium.Env):
             np.random.seed(seed)
 
         self.done = False
+        self.timeout_reached = False
         self._init_positions()
         self._spawn_obstacles()
 
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
-        # define step counter and timeout as 8 times the manhattan distance between agent and goal
+        # define step counter and timeout as 4 times the manhattan distance between agent and goal
         self.steps = 0
-        self.timeout = 8 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
+        self.timeout = 4 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # Reset the frame stack with four identical frames
@@ -69,7 +70,7 @@ class CustomEnv(gymnasium.Env):
         truncated = False
 
         obs = np.array(self.getImg(), dtype=np.uint8)
-        info = {"goal": self.done and self.reward == 1, "obstacle": self.done and self.reward == -1}
+        info = {"goal": self.done and self.reward == 1, "obstacle": self.done and self.reward == -1 and not self.timeout_reached, "timeout": self.timeout_reached}
 
         return obs, self.reward, terminated, truncated, info
 
@@ -103,7 +104,7 @@ class CustomEnv(gymnasium.Env):
 
         # Display the image
         cv2.imshow('image', display_img)
-        cv2.waitKey(200)
+        cv2.waitKey(100)
 
     def close(self):
         cv2.destroyAllWindows()
@@ -181,7 +182,7 @@ class CustomEnv(gymnasium.Env):
             self.obstacles = []  # Clear the old obstacles
 
             # Choose a random number of obstacles to generate
-            num_obstacles = 10
+            num_obstacles = 6
 
             for _ in range(num_obstacles):
                 # Choose a random shape
@@ -260,6 +261,7 @@ class CustomEnv(gymnasium.Env):
         # check if timeout is reached
         if self.steps >= self.timeout:
             self.reward = -1
+            self.timeout_reached = True
             self.done = True
 
     def _evaluate_reward(self):
