@@ -41,9 +41,9 @@ class CustomEnv(gymnasium.Env):
         # define last distance to goal
         self.old_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
 
-        # define step counter and timeout as 6 times the manhattan distance between agent and goal
+        # define step counter and timeout as 4 times the manhattan distance between agent and goal
         self.steps = 0
-        self.timeout = 6 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
+        self.timeout = 4 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # Reset the frame stack with four identical frames
