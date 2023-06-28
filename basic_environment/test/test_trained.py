@@ -14,7 +14,7 @@ storage_client = google.cloud.storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Get all model filenames from the bucket
-PPO_Iteration = "PPO_27_0"
+PPO_Iteration = "PPO_20_0"
 blobs = bucket.list_blobs(prefix=f"basic_environment/models/{PPO_Iteration}")
 model_filenames = []
 for blob in blobs:
@@ -56,7 +56,7 @@ while episodes < 100:
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, terminated, truncated, info = env.step(action)
 
-    # env.render()
+    env.render()
     if terminated:
         episodes += 1
         if info["goal"]:
