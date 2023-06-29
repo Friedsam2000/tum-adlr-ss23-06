@@ -15,7 +15,7 @@ class CustomEnv(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=4):
+    def __init__(self, grid_size=(21,21), img_size=(84, 84), render_size=(420, 420), num_last_agent_pos=100, num_frames_to_stack=4):
         super().__init__()
         self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
@@ -43,7 +43,7 @@ class CustomEnv(gymnasium.Env):
 
         # define step counter and timeout as 6 times the manhattan distance between agent and goal
         self.steps = 0
-        self.timeout = 6 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
+        self.timeout = 8 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # Reset the frame stack with four identical frames
@@ -278,11 +278,11 @@ class CustomEnv(gymnasium.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 0.025
+            self.reward = 0.025 * 0.5
         elif new_dist == self.old_dist: #wall hit
-            self.reward = -0.05
+            self.reward = -0.05* 0.5
         else:
-            self.reward = -0.025
+            self.reward = -0.025* 0.5
 
         # set the new distance to the old distance
         self.old_dist = new_dist
