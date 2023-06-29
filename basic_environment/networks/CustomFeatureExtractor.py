@@ -5,7 +5,7 @@ import torch
 
 
 class CustomFeatureExtractor(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 1024):
+    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 256):
         super(CustomFeatureExtractor, self).__init__(observation_space, features_dim)
 
         # Assume input has shape (img_size, img_size, 3*num_frames_to_stack)
