@@ -15,7 +15,7 @@ class CustomEnv(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(21,21), img_size=(84, 84), render_size=(420, 420), num_last_agent_pos=100, num_frames_to_stack=4):
+    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=2):
         super().__init__()
         self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
@@ -43,7 +43,7 @@ class CustomEnv(gymnasium.Env):
 
         # define step counter and timeout as 6 times the manhattan distance between agent and goal
         self.steps = 0
-        self.timeout = 8 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
+        self.timeout = 6 * (abs(self.agent_position[0] - self.goal_position[0]) + abs(
             self.agent_position[1] - self.goal_position[1])) + 1
 
         # Reset the frame stack with four identical frames
