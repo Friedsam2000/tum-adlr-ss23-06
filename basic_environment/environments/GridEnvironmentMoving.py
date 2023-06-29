@@ -59,9 +59,10 @@ class CustomEnv(gymnasium.Env):
         self.reward = 0
         self.steps += 1
         self._move_agent(action)
+        self._check_obstacle_collision()  # Check if the agent collided with an obstacle
         self._move_obstacles()  # Move obstacles here
         self._evaluate_reward()
-        self._check_obstacle_collision()
+        self._check_obstacle_collision() # Check if the agent collided with an obstacle after moving the obstacles
         self._check_goal()
         self._timeout_check()
 
@@ -237,11 +238,6 @@ class CustomEnv(gymnasium.Env):
     def _check_obstacle_collision(self):
         # check if the agent hit an obstacle
         for obstacle in self.obstacles:
-            # check if the agent is at any of the obstacle positions before moving
-            if self.agent_position in obstacle.positions:
-                self.reward = -1
-                self.done = True
-            # check if the agent is at any of the obstacle positions after moving
             if self.agent_position in obstacle.positions:
                 self.reward = -1
                 self.done = True
