@@ -1,4 +1,5 @@
 import sys
+
 sys.path.insert(0, 'environments')
 from environments.GridEnvironmentMoving import CustomEnv as GridEnvironment
 import cv2
@@ -25,14 +26,24 @@ while True:
 
     # Apply the action to the environment
     obs, reward, terminated, truncated, info = env.step(action)
-    # print(observation)
 
     # display the reward
     print(f"Reward = {reward}")
 
     # Check if the episode is done
     if terminated:
-        print('Episode finished')
-        observation = env.reset()
+        if reward == 1:
+            print("Goal reached")
+        elif reward == -1:
+            print("Obstacle hit")
+        else:
+            print("Error")
 
+    if truncated:
+        print("Timeout")
+
+    if terminated or truncated:
+        obs, info = env.reset()
+
+    # Display the image in a window
     env.render()

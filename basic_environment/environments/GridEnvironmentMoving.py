@@ -8,14 +8,12 @@ from .Obstacle import Obstacle
 import random
 
 
-
-
 class CustomEnv(gymnasium.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=2):
+    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=4):
         super().__init__()
         self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
@@ -33,8 +31,6 @@ class CustomEnv(gymnasium.Env):
         if seed is not None:
             np.random.seed(seed)
 
-        self.done = False
-        self.timeout_reached = False
         self._init_positions()
         self._spawn_obstacles()
 
@@ -51,29 +47,36 @@ class CustomEnv(gymnasium.Env):
             stacked_frames = self.getImg()
 
         initial_observation = np.array(stacked_frames, dtype=np.uint8)
-        info = {}  # Add any relevant info here
 
-        return initial_observation, info
+        return initial_observation, {}
 
     def step(self, action):
-        self.reward = 0
         self.steps += 1
+
+        # Move the agent
         self._move_agent(action)
-        self._check_obstacle_collision()  # Check if the agent collided with an obstacle
-        self._move_obstacles()  # Move obstacles here
-        self._evaluate_reward()
-        self._check_obstacle_collision() # Check if the agent collided with an obstacle after moving the obstacles
-        self._check_goal()
-        self._timeout_check()
 
-        # Determine the value of terminated and truncated
-        terminated = self.done
-        truncated = False
+        # Check if the agent hit an obstacle
+        if self._check_obstacle_collision():
+            return np.array(self.getImg(), dtype=np.uint8), -1, True, False, {}
 
-        obs = np.array(self.getImg(), dtype=np.uint8)
-        info = {"goal": self.done and self.reward == 1, "obstacle": self.done and self.reward == -1 and not self.timeout_reached, "timeout": self.timeout_reached}
+        # Move the obstacles
+        self._move_obstacles()
 
-        return obs, self.reward, terminated, truncated, info
+        # Check if an obstacle hit the agent
+        if self._check_obstacle_collision():
+            return np.array(self.getImg(), dtype=np.uint8), -1, True, False, {}
+
+        # Check if the agent reached the goal
+        if self._check_goal():
+            return np.array(self.getImg(), dtype=np.uint8), 1, True, False, {}
+
+        # Check if the agent reached the timeout
+        if self._timeout_check():
+            return np.array(self.getImg(), dtype=np.uint8), -1, False, True, {}
+
+        # Evaluate the reward if the agent did not reach the goal or a timeout or hit an obstacle
+        return np.array(self.getImg(), dtype=np.uint8), self._evaluate_reward(), False, False, {}
 
     def render(self, mode='human'):
         # Get the last frame from the deque
@@ -208,8 +211,10 @@ class CustomEnv(gymnasium.Env):
                 self.obstacles.append(Obstacle(obstacle_positions, shape, is_moving, direction))
 
             self.obstacle_positions = [position for obstacle in self.obstacles for position in obstacle.positions]
-            goal_is_reachable = self._check_goal_reachable(self.goal_position, self.agent_position,
-                                                           self.obstacle_positions)
+            # goal_is_reachable = self._check_goal_reachable(self.goal_position, self.agent_position,
+            #                                                self.obstacle_positions)
+            # Assume that the goal is reachable for moving obstacles
+            goal_is_reachable = True
 
     def _generate_obstacle_block(self, shape):
         # The shape should be a 2D binary matrix with 1's where the obstacle is
@@ -239,8 +244,8 @@ class CustomEnv(gymnasium.Env):
         # check if the agent hit an obstacle
         for obstacle in self.obstacles:
             if self.agent_position in obstacle.positions:
-                self.reward = -1
-                self.done = True
+                return True
+        return False
 
     def _move_agent(self, action):
         # append the current agent position to the last agent positions
@@ -262,15 +267,16 @@ class CustomEnv(gymnasium.Env):
     def _check_goal(self):
         # check if the agent is at the goal position
         if self.agent_position == self.goal_position:
-            self.reward = 1
-            self.done = True
+            return True
+        else:
+            return False
 
     def _timeout_check(self):
         # check if timeout is reached
         if self.steps >= self.timeout:
-            self.reward = -1
-            self.timeout_reached = True
-            self.done = True
+            return True
+        else:
+            return False
 
     def _evaluate_reward(self):
         # define new distance to goal
@@ -278,14 +284,16 @@ class CustomEnv(gymnasium.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 0.025 * 0.5
-        elif new_dist == self.old_dist: #wall hit
-            self.reward = -0.05* 0.5
+            reward = 0.025 * 0.5
+        elif new_dist == self.old_dist:  # wall hit
+            reward = -0.05 * 0.5
         else:
-            self.reward = -0.025* 0.5
+            reward = -0.025 * 0.5
 
         # set the new distance to the old distance
         self.old_dist = new_dist
+
+        return reward
 
     def _check_goal_reachable(self, goal_position, agent_position, obstacle_positions):
         obstacle_positions = set(tuple(pos) for pos in obstacle_positions)

@@ -14,7 +14,7 @@ storage_client = google.cloud.storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Get all model filenames from the bucket
-PPO_Iteration = "PPO_16_0"
+PPO_Iteration = "PPO_43_0"
 blobs = bucket.list_blobs(prefix=f"basic_environment/models/{PPO_Iteration}")
 model_filenames = []
 for blob in blobs:
@@ -50,7 +50,7 @@ env = CustomEnv()
 obs, info = env.reset()
 goals_reached = 0
 obstacles_hit = 0
-timeout = 0
+timeouts = 0
 episodes = 0
 while episodes < 500:
     action, _states = model.predict(obs, deterministic=True)
@@ -58,17 +58,20 @@ while episodes < 500:
 
     # env.render()
     if terminated:
-        episodes += 1
-        if info["goal"]:
+        if reward == 1:
             goals_reached += 1
-        if info["obstacle"]:
+        elif reward == -1:
             obstacles_hit += 1
-        if info["timeout"]:
-            timeout += 1
+
+    if truncated:
+        timeouts += 1
+
+    if terminated or truncated:
+        episodes += 1
+        obs, info = env.reset()
 
 
-        obs, info= env.reset()
 
 print(f"Succes rate: {goals_reached / episodes}")
 print(f"Obstacles hit: {obstacles_hit / episodes}")
-print(f"Timeouts: {timeout / episodes}")
+print(f"Timeouts: {timeouts / episodes}")
