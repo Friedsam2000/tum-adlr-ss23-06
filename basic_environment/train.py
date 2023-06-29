@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # Get the bucket object
     bucket = storage_client.get_bucket(bucket_name)
 
-    num_cpu = 16  # Number of processes to use
+    num_cpu = 12  # Number of processes to use
 
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(i) for i in range(num_cpu)])
