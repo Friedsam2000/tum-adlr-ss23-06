@@ -24,7 +24,7 @@ class CustomEnv(gymnasium.Env):
         self.img_size = img_size
         self.render_size = render_size
 
-        self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], 3*num_frames_to_stack), dtype=np.uint8)
+        self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], num_frames_to_stack), dtype=np.uint8)
 
     def reset(self, seed=None):
         # Reset the environment and optionally set the random seed
@@ -46,7 +46,7 @@ class CustomEnv(gymnasium.Env):
         for _ in range(self.num_frames_to_stack):
             stacked_frames = self.getImg()
 
-        initial_observation = np.array(stacked_frames, dtype=np.uint8)
+        initial_observation = np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8)
 
         return initial_observation, {}
 
@@ -58,25 +58,25 @@ class CustomEnv(gymnasium.Env):
 
         # Check if the agent hit an obstacle
         if self._check_obstacle_collision():
-            return np.array(self.getImg(), dtype=np.uint8), -1, True, False, {}
+            return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8), -1, True, False, {}
 
         # Move the obstacles
         self._move_obstacles()
 
         # Check if an obstacle hit the agent
         if self._check_obstacle_collision():
-            return np.array(self.getImg(), dtype=np.uint8), -1, True, False, {}
+            return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8), -1, True, False, {}
 
         # Check if the agent reached the goal
         if self._check_goal():
-            return np.array(self.getImg(), dtype=np.uint8), 1, True, False, {}
+            return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8), 1, True, False, {}
 
         # Check if the agent reached the timeout
         if self._timeout_check():
-            return np.array(self.getImg(), dtype=np.uint8), -1, False, True, {}
+            return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8), -1, False, True, {}
 
         # Evaluate the reward if the agent did not reach the goal or a timeout or hit an obstacle
-        return np.array(self.getImg(), dtype=np.uint8), self._evaluate_reward(), False, False, {}
+        return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8), self._evaluate_reward(), False, False, {}
 
     def render(self, mode='human'):
         # Get the last frame from the deque
@@ -113,8 +113,15 @@ class CustomEnv(gymnasium.Env):
                 img[scaled_pos[0]:scaled_pos[0] + kernel_size, scaled_pos[1]:scaled_pos[1] + kernel_size,
                 -3:] = color_kernel
 
-        # Use the newest 3 channels for displaying
-        display_img = img[:, :, -3:]
+
+        #convert rgb to greyscale
+        display_img = self.convertGreyscale(img)
+        # Use only the newest frame for visualization
+        display_img = display_img[:, :, -1:]
+
+        # uncomment to display rgb image
+        # # Use the newest 3 channels for displaying
+        # display_img = img[:, :, -3:]
 
         # Resize the image for better visualization
         display_img = cv2.resize(display_img, self.render_size, interpolation=cv2.INTER_NEAREST)
@@ -137,11 +144,11 @@ class CustomEnv(gymnasium.Env):
 
         # Draw the agent, goal and obstacles on the base image
         # assuming the agent, goal and obstacles are represented as different colors in RGB
-        base_image[self.agent_position[0], self.agent_position[1]] = [255, 0, 0]  # Red for agent
+        base_image[self.agent_position[0], self.agent_position[1]] = [255,255,255] # white for agent
         base_image[self.goal_position[0], self.goal_position[1]] = [0, 255, 0]  # Green for goal
         for obstacle in self.obstacles:
             for pos in obstacle.positions:
-                base_image[pos[0], pos[1]] = [0, 0, 255]  # Blue for obstacles
+                base_image[pos[0], pos[1]] = [0, 0, 255]  # red for obstacles
 
         # Scale the image up for the network
         scaled_image = cv2.resize(base_image, (self.img_size[0], self.img_size[1]), interpolation=cv2.INTER_AREA)
@@ -153,6 +160,29 @@ class CustomEnv(gymnasium.Env):
         stacked_frames = np.concatenate(self.frame_stack, axis=-1)
 
         # Return the stacked frames as a numpy array
+        return stacked_frames
+
+    def convertGreyscale(self, stacked_frames):
+        # Assuming the input is 96x96x12, split the frames into num_frames_to_stack frames each having 3 color channels
+        color_frames = np.split(stacked_frames, self.num_frames_to_stack, axis=2)
+
+        # Initialize an empty list for the greyscale frames
+        greyscale_frames = []
+
+        # Loop through each color frame
+        for frame in color_frames:
+            # Convert the depth of the image to 8-bit
+            frame = cv2.normalize(frame, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+
+            # Convert the frame to greyscale
+            greyscale_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            # Add the greyscale frame to the list
+            greyscale_frames.append(greyscale_frame)
+
+        # Stack the frames
+        stacked_frames = np.stack(greyscale_frames, axis=2)
+
         return stacked_frames
 
     def _assert_sizes(self, grid_size, img_size, render_size):

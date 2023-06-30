@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # Get the bucket object
     bucket = storage_client.get_bucket(bucket_name)
 
-    num_cpu = 8  # Number of processes to use
+    num_cpu = 16  # Number of processes to use
 
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(i) for i in range(num_cpu)])
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     )
 
     # Initialize PPO agent with new policy architecture
-    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, learning_rate=3e-5, n_steps=1024)
+    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, learning_rate=3e-5)
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
