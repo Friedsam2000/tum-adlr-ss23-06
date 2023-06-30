@@ -13,7 +13,7 @@ class CustomEnv(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=4, grey_scale=True, render_greyscale=True):
+    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=4, grey_scale=False, render_greyscale=False):
         super().__init__()
         self.render_greyscale = render_greyscale
         self.grey_scale = grey_scale
@@ -26,7 +26,12 @@ class CustomEnv(gymnasium.Env):
         self.img_size = img_size
         self.render_size = render_size
 
-        self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], num_frames_to_stack), dtype=np.uint8)
+        if self.grey_scale:
+            self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], num_frames_to_stack), dtype=np.uint8)
+        else:
+            self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], num_frames_to_stack*3), dtype=np.uint8)
+
+
 
     def reset(self, seed=None):
         # Reset the environment and optionally set the random seed
