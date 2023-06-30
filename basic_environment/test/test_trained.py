@@ -46,6 +46,9 @@ model = PPO.load(f"models_from_bucket/" + model_filename.split("/")[-1], custom_
 # Create the environment
 env = CustomEnv()
 
+# Print the network architecture
+print(model.policy)
+
 # Test the model
 obs, info = env.reset()
 goals_reached = 0

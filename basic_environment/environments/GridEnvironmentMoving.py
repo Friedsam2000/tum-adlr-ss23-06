@@ -53,9 +53,7 @@ class CustomEnv(gymnasium.Env):
         for _ in range(self.num_frames_to_stack):
             stacked_frames = self.getImg()
 
-        initial_observation = np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8)
-
-        return initial_observation, {}
+        return self._getObservation(), {}
 
     def step(self, action):
         self.steps += 1
