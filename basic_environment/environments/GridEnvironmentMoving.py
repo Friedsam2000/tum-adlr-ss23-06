@@ -13,8 +13,9 @@ class CustomEnv(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=4, grey_scale=True):
+    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=4, grey_scale=True, render_greyscale=True):
         super().__init__()
+        self.render_greyscale = render_greyscale
         self.grey_scale = grey_scale
         self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
@@ -123,7 +124,7 @@ class CustomEnv(gymnasium.Env):
                 img[scaled_pos[0]:scaled_pos[0] + kernel_size, scaled_pos[1]:scaled_pos[1] + kernel_size,
                 -3:] = color_kernel
 
-        if self.grey_scale:
+        if self.render_greyscale:
             #convert rgb to greyscale
             display_img = self.convertGreyscale(img)
             # Use only the newest frame for visualization

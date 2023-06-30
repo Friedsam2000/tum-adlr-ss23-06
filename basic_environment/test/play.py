@@ -4,7 +4,7 @@ sys.path.insert(0, 'environments')
 from environments.GridEnvironmentMoving import CustomEnv as GridEnvironment
 import cv2
 
-env = GridEnvironment(grey_scale=True)
+env = GridEnvironment(grey_scale=False, render_greyscale=True)
 # Display the image in a window
 observation = env.reset()
 # print(observation)
