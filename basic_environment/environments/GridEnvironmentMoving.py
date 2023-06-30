@@ -13,8 +13,9 @@ class CustomEnv(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=4):
+    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=4, grey_scale=True):
         super().__init__()
+        self.grey_scale = grey_scale
         self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
         self._assert_sizes(grid_size, img_size, render_size)
@@ -58,25 +59,34 @@ class CustomEnv(gymnasium.Env):
 
         # Check if the agent hit an obstacle
         if self._check_obstacle_collision():
-            return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8), -1, True, False, {}
+            return self._getObservation(), -1, True, False, {}
 
         # Move the obstacles
         self._move_obstacles()
 
         # Check if an obstacle hit the agent
         if self._check_obstacle_collision():
-            return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8), -1, True, False, {}
+            return self._getObservation(), -1, True, False, {}
 
         # Check if the agent reached the goal
         if self._check_goal():
-            return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8), 1, True, False, {}
+            return self._getObservation(), 1, True, False, {}
 
         # Check if the agent reached the timeout
         if self._timeout_check():
-            return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8), -1, False, True, {}
+            return self._getObservation(), -1, False, True, {}
 
         # Evaluate the reward if the agent did not reach the goal or a timeout or hit an obstacle
-        return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8), self._evaluate_reward(), False, False, {}
+        return self._getObservation(), self._evaluate_reward(), False, False, {}
+
+
+    def _getObservation(self):
+        if self.grey_scale:
+            return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8)
+        else:
+            return np.array(self.getImg(), dtype=np.uint8)
+
+
 
     def render(self, mode='human'):
         # Get the last frame from the deque
@@ -113,15 +123,14 @@ class CustomEnv(gymnasium.Env):
                 img[scaled_pos[0]:scaled_pos[0] + kernel_size, scaled_pos[1]:scaled_pos[1] + kernel_size,
                 -3:] = color_kernel
 
-
-        #convert rgb to greyscale
-        display_img = self.convertGreyscale(img)
-        # Use only the newest frame for visualization
-        display_img = display_img[:, :, -1:]
-
-        # uncomment to display rgb image
-        # # Use the newest 3 channels for displaying
-        # display_img = img[:, :, -3:]
+        if self.grey_scale:
+            #convert rgb to greyscale
+            display_img = self.convertGreyscale(img)
+            # Use only the newest frame for visualization
+            display_img = display_img[:, :, -1:]
+        else:
+            # Use the newest 3 channels for displaying
+            display_img = img[:, :, -3:]
 
         # Resize the image for better visualization
         display_img = cv2.resize(display_img, self.render_size, interpolation=cv2.INTER_NEAREST)
