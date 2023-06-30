@@ -154,7 +154,7 @@ class CustomEnv(gymnasium.Env):
 
         # Draw the agent, goal and obstacles on the base image
         # assuming the agent, goal and obstacles are represented as different colors in RGB
-        base_image[self.agent_position[0], self.agent_position[1]] = [255,255,255] # white for agent
+        base_image[self.agent_position[0], self.agent_position[1]] = [255,0,0] # blue for agent
         base_image[self.goal_position[0], self.goal_position[1]] = [0, 255, 0]  # Green for goal
         for obstacle in self.obstacles:
             for pos in obstacle.positions:
@@ -173,8 +173,8 @@ class CustomEnv(gymnasium.Env):
         return stacked_frames
 
     def convertGreyscale(self, stacked_frames):
-        # Assuming the input is 96x96x12, split the frames into num_frames_to_stack frames each having 3 color channels
-        color_frames = np.split(stacked_frames, self.num_frames_to_stack, axis=2)
+        # Assuming the input is 96x96x12, split the frames into 4 frames each having 3 color channels
+        color_frames = np.split(stacked_frames, 4, axis=2)
 
         # Initialize an empty list for the greyscale frames
         greyscale_frames = []
@@ -184,8 +184,20 @@ class CustomEnv(gymnasium.Env):
             # Convert the depth of the image to 8-bit
             frame = cv2.normalize(frame, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
 
-            # Convert the frame to greyscale
-            greyscale_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            # Split the frame into B, G, R channels
+            b, g, r = cv2.split(frame)
+
+            # Compute a weighted sum of the B, G, R channels, with conditional weighting
+            greyscale_frame = np.zeros_like(b)
+
+            # If blue is dominant
+            greyscale_frame[b > r] = 0.66 * b[b > r]
+
+            # If green is dominant
+            greyscale_frame[g > r] = 1 * g[g > r]
+
+            # If red is dominant
+            greyscale_frame[r > b] = 0.33 * r[r > b]
 
             # Add the greyscale frame to the list
             greyscale_frames.append(greyscale_frame)
