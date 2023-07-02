@@ -46,10 +46,10 @@ if __name__ == "__main__":
     )
 
     # Initialize PPO agent with new policy architecture
-    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, buffer_size=10000)
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, buffer_size=50000, learning_rate=3e-5)
 
     # Train the agent
-    model.learn(total_timesteps=int(2e5))
+    model.learn(total_timesteps=int(40000))
 
 
     # Save the agent
