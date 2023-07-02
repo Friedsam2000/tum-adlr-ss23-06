@@ -66,7 +66,7 @@ if __name__ == "__main__":
     best_reward = -np.inf
 
     # Train agent
-    TIMESTEPS_PER_SAVE = 20000
+    TIMESTEPS_PER_SAVE = 5000
     MAX_TIMESTEPS = 100000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
