@@ -59,7 +59,7 @@ if __name__ == "__main__":
                 learning_rate=3e-5, buffer_size=1024)
 
     # Train agent
-    model.learn(total_timesteps=int(1e6))
+    model.learn(total_timesteps=int(1e4))
 
     # Save the agent
     model.save("models/DQN")
