@@ -18,8 +18,8 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "MLP_2"
-    SAC_Policy = "MLP"
+    SAC_Iteration = "CNN_0"
+    SAC_Policy = "CNN"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
     print("GPU is available: ")
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # Get the bucket object
     bucket = storage_client.get_bucket(bucket_name)
 
-    num_cpu = 16  # Number of processes to use
+    num_cpu = 8  # Number of processes to use
     grid_size = (16, 16)
 
     # Create the vectorized environment
@@ -55,9 +55,9 @@ if __name__ == "__main__":
     # Check how many folders are in logs
     logs_folders = os.listdir("logs")
 
-    # Initialize SAC agent with MLP Policy
+    # Initialize SAC agent with CNN Policy
     n_steps = 256
-    model = SAC("MlpPolicy", env, verbose=1, tensorboard_log="logs", device=device, batch_size=512)
+    model = SAC("CnnPolicy", env, verbose=1, buffer_size=250000, optimize_memory_usage=True ,tensorboard_log="logs", device=device, batch_size=256)
 
     # create the folder for the model
     if not os.path.exists(f"models/SAC_{SAC_Iteration}"):
