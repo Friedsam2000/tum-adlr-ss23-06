@@ -3,7 +3,7 @@ from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from environments.GridEnvironmentMoving import CustomEnv
 import os
 from google.cloud import storage
-from stable_baselines3 import PPO
+from stable_baselines3 import DQN
 import torch
 from networks.CustomFeatureExtractor import CustomFeatureExtractor
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     )
 
     # Initialize PPO agent with new policy architecture
-    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, learning_rate=3e-5, n_steps=1024)
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, learning_rate=3e-5, )
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
