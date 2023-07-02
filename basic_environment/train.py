@@ -46,7 +46,7 @@ if __name__ == "__main__":
     )
 
     # Initialize PPO agent with new policy architecture
-    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device)
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, buffer_size=10000)
 
     # Train the agent
     model.learn(total_timesteps=int(2e5), progress_bar=True)
