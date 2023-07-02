@@ -55,8 +55,8 @@ if __name__ == "__main__":
     )
 
     # Initialize DQN agent with new policy architecture
-    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
-                learning_rate=3e-5, buffer_size=50000)
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, device=device,
+                learning_rate=3e-5, buffer_size=25000)
 
     # Train agent
     model.learn(total_timesteps=int(1e5))
