@@ -71,11 +71,4 @@ if __name__ == "__main__":
     # delete the model locally
     os.remove(f"models/DQN.zip")
 
-    # get the latest log file
-    logs = os.listdir(f"logs/DQN")
-    logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
-    latest_log = logs[-1]
-    # upload the new log file to the bucket
-    blob = bucket.blob(f"basic_environment/logs/DQN/{latest_log}")
-    blob.upload_from_filename(f"logs/DQN/{latest_log}")
 
