@@ -55,7 +55,7 @@ if __name__ == "__main__":
     )
 
     # Initialize PPO agent with new policy architecture
-    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, learning_rate=3e-5, )
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, learning_rate=3e-5, buffer_size=(1e5))
 
     # create the folder for the model
     if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
