@@ -55,20 +55,44 @@ if __name__ == "__main__":
     )
 
     # Initialize DQN agent with new policy architecture
-    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, device=device,
-                learning_rate=3e-5, buffer_size=10000, learning_starts=10000)
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, learning_rate=3e-5, buffer_size=10000, learning_starts=10000)
+
+
+
+    # create the folder for the model
+    if not os.path.exists(f"models/DQN_{len(logs_folders)}_0"):
+        os.makedirs(f"models/DQN_{len(logs_folders)}_0")
+
+    best_reward = -np.inf
 
     # Train agent
-    model.learn(total_timesteps=int(1e5))
+    TIMESTEPS_PER_SAVE = 16384
+    MAX_TIMESTEPS = 100000000
+    while model.num_timesteps < MAX_TIMESTEPS:
+        model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
+                    tb_log_name=f"DQN_{len(logs_folders)}")
 
-    # Save the agent
-    model.save("models/DQN")
+        # get the mean reward of the last 10 episodes
+        reward_mean = np.mean([ep['r'] for ep in list(model.ep_info_buffer)[-10:]])
 
-    # upload the model to the bucket
-    blob = bucket.blob(f"basic_environment/models/DQN.zip")
-    blob.upload_from_filename(f"models/DQN.zip")
-    print(f"Uploaded model DQN.zip to bucket")
-    # delete the model locally
-    os.remove(f"models/DQN.zip")
+        # if the reward mean is better than the best reward, save the model
+        if reward_mean > best_reward:
+            best_reward = reward_mean
+            print(f"Saving model with new best reward mean {reward_mean}")
+            model.save(f"models/DQN_{len(logs_folders)}_0/{model.num_timesteps}")
 
+            # upload the model to the bucket
+            blob = bucket.blob(f"basic_environment/models/DQN_{len(logs_folders)}_0/{model.num_timesteps}.zip")
+            blob.upload_from_filename(f"models/DQN_{len(logs_folders)}_0/{model.num_timesteps}.zip")
+            print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
+            # delete the model locally
+            os.remove(f"models/DQN_{len(logs_folders)}_0/{model.num_timesteps}.zip")
+
+        # get the latest log file
+        logs = os.listdir(f"logs/DQN_{len(logs_folders)}_0")
+        logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+        latest_log = logs[-1]
+        # upload the new log file to the bucket
+        blob = bucket.blob(f"basic_environment/logs/DQN_{len(logs_folders)}_0/{latest_log}")
+        blob.upload_from_filename(f"logs/DQN_{len(logs_folders)}_0/{latest_log}")
