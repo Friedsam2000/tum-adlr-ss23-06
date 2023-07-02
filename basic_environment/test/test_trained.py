@@ -2,13 +2,17 @@ import subprocess
 from stable_baselines3 import DQN
 from environments.GridEnvironmentMoving import CustomEnv
 import os
-import shutil
+import logging
+import time
 from networks.CustomFeatureExtractor import CustomFeatureExtractor
+
+logging.basicConfig(level=logging.INFO)
+
 
 # Set up the Bucket (google cloud storage)
 # Define the bucket name
 bucket_name = 'adlr_bucket'
-model_directory = "basic_environment/models/DQN_1_0"
+model_directory = "basic_environment/models/DQN_2_0"
 
 # Define the local download path
 local_path = "models_from_bucket"
@@ -32,11 +36,29 @@ local_filename = remote_filename.split("/")[-1]
 # Download the model file if it doesn't already exist locally
 if not os.path.exists(f"{local_path}/{local_filename}"):
     print(f"Downloading {remote_filename} from bucket {bucket_name} to {local_path}")
-    download_command = f"gsutil -m cp -n -r {remote_filename} {local_path}/{local_filename}"
-    subprocess.run(download_command, shell=True, check=True, stdout=subprocess.PIPE)
-    print(f"Downloaded {remote_filename} from bucket {bucket_name} to {local_path}")
+
+    # Get the total size of the file using gsutil du command
+    du_command = f"gsutil du {remote_filename}"
+    output = subprocess.check_output(du_command, shell=True).decode('utf-8')
+    total_file_size = int(output.split()[0])  # Get the first part of the output, which is the size in bytes
+
+    # Run the download command in the background
+    download_command = f"gsutil -m cp -n -r {remote_filename} {local_path}/{local_filename} &"
+    subprocess.run(download_command, shell=True, check=True)
+
+    # Monitor the .gstmp file
+    temp_filename = f"{local_path}/{local_filename}_.gstmp"
+    while not os.path.exists(f"{local_path}/{local_filename}"):  # while the actual file has not been created
+        if os.path.exists(temp_filename):  # if the temp file exists
+            temp_filesize = os.path.getsize(temp_filename)  # get the current size of the file
+            progress_percentage = (temp_filesize / total_file_size) * 100  # calculate progress as percentage
+            logging.info(f"Current file size: {temp_filesize} bytes, Download progress: {progress_percentage:.2f}%")
+        time.sleep(1)  # wait for a while before checking the size again
+
+    print(f"\nDownloaded {remote_filename} from bucket {bucket_name} to {local_path}")
 else:
     print(f"Model {remote_filename} already exists in {local_path}")
+
 
 
 # Load the model
