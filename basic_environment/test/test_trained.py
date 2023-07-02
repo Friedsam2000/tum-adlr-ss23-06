@@ -89,7 +89,7 @@ while episodes < num_episodes:
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, terminated, truncated, info = env.step(action)
 
-    # env.render()
+    env.render()
     if terminated:
         if reward == 1:
             goals_reached += 1
