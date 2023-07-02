@@ -63,22 +63,22 @@ class CustomEnv(gymnasium.Env):
 
         # Check if the agent hit an obstacle
         if self._check_obstacle_collision():
-            return self._getObservation(), -1, True, False, {}
+            return self._getObservation(), -5, True, False, {}
 
         # Move the obstacles
         self._move_obstacles()
 
         # Check if an obstacle hit the agent
         if self._check_obstacle_collision():
-            return self._getObservation(), -1, True, False, {}
+            return self._getObservation(), -5, True, False, {}
 
         # Check if the agent reached the goal
         if self._check_goal():
-            return self._getObservation(), 1, True, False, {}
+            return self._getObservation(), 5, True, False, {}
 
         # Check if the agent reached the timeout
         if self._timeout_check():
-            return self._getObservation(), -1, False, True, {}
+            return self._getObservation(), -5, False, True, {}
 
         # Evaluate the reward if the agent did not reach the goal or a timeout or hit an obstacle
         return self._getObservation(), self._evaluate_reward(), False, False, {}
@@ -339,11 +339,12 @@ class CustomEnv(gymnasium.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            reward = 0.025 *  1
+            reward = 0.025 *  2
         elif new_dist == self.old_dist:  # wall hit
-            reward = -0.05 *  1
+            reward = -0.05 *  2
         else:
-            reward = -0.025 *  1
+            reward = -0.025 *  2
+
         # set the new distance to the old distance
         self.old_dist = new_dist
 
