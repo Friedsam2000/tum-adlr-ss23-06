@@ -339,11 +339,11 @@ class CustomEnv(gymnasium.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            reward = 0.025 *  10
+            reward = 0.025 *  1
         elif new_dist == self.old_dist:  # wall hit
-            reward = -0.05 *  10
+            reward = -0.05 *  1
         else:
-            reward = -0.025 *  10
+            reward = -0.025 *  1
 
         # set the new distance to the old distance
         self.old_dist = new_dist
