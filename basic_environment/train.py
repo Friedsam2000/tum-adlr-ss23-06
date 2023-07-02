@@ -50,12 +50,12 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Define the policy kwargs
-    # policy_kwargs = dict(
-    #     features_extractor_class=CustomFeatureExtractor,
-    # )
+    policy_kwargs = dict(
+        features_extractor_class=CustomFeatureExtractor,
+    )
 
     # Initialize DQN agent with new policy architecture
-    model = DQN("CnnPolicy", env, verbose=1, tensorboard_log="logs", device=device, buffer_size=30000, learning_starts=30000)
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, buffer_size=30000, learning_starts=30000)
 
 
 
