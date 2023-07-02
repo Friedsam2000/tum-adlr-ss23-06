@@ -8,13 +8,6 @@ import torch
 from networks.CustomFeatureExtractor import CustomFeatureExtractor
 
 
-def make_env(rank):
-    def _init():
-        env = CustomEnv()
-        return env
-
-    return _init
-
 
 if __name__ == "__main__":
 
@@ -33,10 +26,8 @@ if __name__ == "__main__":
 
     num_cpu = 8  # Number of processes to use
 
-    # Create the vectorized environment
-    env = SubprocVecEnv([make_env(i) for i in range(num_cpu)])
-    # add a monitor wrapper
-    env = VecMonitor(env)
+    # Create the environment
+    env = CustomEnv()
 
     # Create logs if not existing
     if not os.path.exists("logs"):
@@ -55,11 +46,11 @@ if __name__ == "__main__":
     )
 
     # Initialize PPO agent with new policy architecture
-    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
-                learning_rate=3e-5, buffer_size=int(1e5))
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device)
 
     # Train the agent
-    model.learn(total_timesteps=int(1e6))
+    model.learn(total_timesteps=int(2e5), progress_bar=True)
+
 
     # Save the agent
     model.save("models/dqn")
