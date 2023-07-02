@@ -17,81 +17,64 @@ def make_env(rank):
 
 
 if __name__ == "__main__":
-
-    # Set up the GPU or use the CPU
     print("GPU is available: ")
     print(torch.cuda.is_available())
     device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    # Set up the bucket (google cloud storage)
-    # Define the bucket name
     bucket_name = 'adlr_bucket'
-    # Initialize a storage client
     storage_client = storage.Client()
-    # Get the bucket object
     bucket = storage_client.get_bucket(bucket_name)
-
-    num_cpu = 8  # Number of processes to use
-
-    # Create the vectorized environment
+    num_cpu = 8
     env = SubprocVecEnv([make_env(i) for i in range(num_cpu)])
-    # add a monitor wrapper
     env = VecMonitor(env)
 
-    # Create logs if not existing
     if not os.path.exists("logs"):
         os.makedirs("logs")
-
-    # Create models if not existing
     if not os.path.exists("models"):
         os.makedirs("models")
-
-    # Check how many folders are in logs
     logs_folders = os.listdir("logs")
 
-    # Define the policy kwargs
     policy_kwargs = dict(
         features_extractor_class=CustomFeatureExtractor,
     )
 
-    # Initialize PPO agent with new policy architecture
     model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
-                learning_rate=3e-5, buffer_size=int(1e5))
+                learning_rate=3e-5, buffer_size=int(1e4))
 
-    # create the folder for the model
-    if not os.path.exists(f"models/PPO_{len(logs_folders)}_0"):
-        os.makedirs(f"models/PPO_{len(logs_folders)}_0")
+    if not os.path.exists(f"models/DQN_{len(logs_folders)}_0"):
+        os.makedirs(f"models/DQN_{len(logs_folders)}_0")
 
     best_reward = -np.inf
-
-    # Train agent
     TIMESTEPS_PER_SAVE = 16384
     MAX_TIMESTEPS = 100000000
+
     while model.num_timesteps < MAX_TIMESTEPS:
-        model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
-                    tb_log_name=f"PPO_{len(logs_folders)}")
+        # Here we do not call model.learn() to learn every timestep. Instead we will call model.train() and model.update_target_net()
+        obs = env.reset()
+        done = False
+        while not done:
+            action, _states = model.predict(obs)
+            obs, rewards, done, info = env.step(action)
 
-        # get the mean reward of the last 100 episodes
+            # Store transition in the replay buffer.
+            model.replay_buffer.add(obs, action, rewards, done, info)
+
+            if model.replay_buffer.size() > model.batch_size:
+                model.train(replay_data=model.replay_buffer.sample(model.batch_size, env=env))
+                if model.num_timesteps % model.target_update_interval == 0:
+                    model.update_target_net()
+
         reward_mean = np.mean([ep['r'] for ep in list(model.ep_info_buffer)[-100:]])
-
-        # if the reward mean is better than the best reward, save the model
         if reward_mean > best_reward:
             best_reward = reward_mean
             print(f"Saving model with new best reward mean {reward_mean}")
-            model.save(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}")
-
-            # upload the model to the bucket
-            blob = bucket.blob(f"basic_environment/models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
-            blob.upload_from_filename(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
+            model.save(f"models/DQN_{len(logs_folders)}_0/{model.num_timesteps}")
+            blob = bucket.blob(f"basic_environment/models/DQN_{len(logs_folders)}_0/{model.num_timesteps}.zip")
+            blob.upload_from_filename(f"models/DQN_{len(logs_folders)}_0/{model.num_timesteps}.zip")
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
+            os.remove(f"models/DQN_{len(logs_folders)}_0/{model.num_timesteps}.zip")
 
-            # delete the model locally
-            os.remove(f"models/PPO_{len(logs_folders)}_0/{model.num_timesteps}.zip")
-
-        # get the latest log file
-        logs = os.listdir(f"logs/PPO_{len(logs_folders)}_0")
+        logs = os.listdir(f"logs/DQN_{len(logs_folders)}_0")
         logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
         latest_log = logs[-1]
-        # upload the new log file to the bucket
-        blob = bucket.blob(f"basic_environment/logs/PPO_{len(logs_folders)}_0/{latest_log}")
-        blob.upload_from_filename(f"logs/PPO_{len(logs_folders)}_0/{latest_log}")
+        blob = bucket.blob(f"basic_environment/logs/DQN_{len(logs_folders)}_0/{latest_log}")
+        blob.upload_from_filename(f"logs/DQN_{len(logs_folders)}_0/{latest_log}")
