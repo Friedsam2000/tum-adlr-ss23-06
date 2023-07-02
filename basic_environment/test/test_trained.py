@@ -1,4 +1,4 @@
-from stable_baselines3 import PPO
+from stable_baselines3 import DQN
 from environments.GridEnvironmentMoving import CustomEnv
 import os
 import google.cloud.storage
@@ -14,8 +14,8 @@ storage_client = google.cloud.storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Get all model filenames from the bucket
-PPO_Iteration = "PPO_38_0"
-blobs = bucket.list_blobs(prefix=f"basic_environment/models/{PPO_Iteration}")
+DQN_Iteration = "DQN_0_0"
+blobs = bucket.list_blobs(prefix=f"basic_environment/models/{DQN_Iteration}")
 model_filenames = []
 for blob in blobs:
     model_filenames.append(blob.name)
@@ -41,7 +41,7 @@ else:
 
 # Load the model
 custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0, "features_extractor_class": CustomFeatureExtractor}
-model = PPO.load(f"models_from_bucket/" + model_filename.split("/")[-1], custom_objects=custom_objects, verbose=1)
+model = DQN.load(f"models_from_bucket/" + model_filename.split("/")[-1], custom_objects=custom_objects, verbose=1)
 
 # Create the environment
 env = CustomEnv()
@@ -59,7 +59,7 @@ while episodes < 500:
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, terminated, truncated, info = env.step(action)
 
-    env.render()
+    # env.render()
     if terminated:
         if reward == 1:
             goals_reached += 1
