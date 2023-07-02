@@ -80,7 +80,7 @@ obstacles_hit = 0
 timeouts = 0
 episodes = 0
 # Print testing
-num_episodes = 200
+num_episodes = 500
 print("Testing the model")
 while episodes < num_episodes:
 
