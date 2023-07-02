@@ -1,47 +1,49 @@
+import subprocess
 from stable_baselines3 import DQN
 from environments.GridEnvironmentMoving import CustomEnv
 import os
-import google.cloud.storage
 import shutil
 from networks.CustomFeatureExtractor import CustomFeatureExtractor
 
 # Set up the Bucket (google cloud storage)
 # Define the bucket name
 bucket_name = 'adlr_bucket'
-# Initialize a storage client
-storage_client = google.cloud.storage.Client()
-# Get the bucket object
-bucket = storage_client.get_bucket(bucket_name)
+model_directory = "basic_environment/models/DQN_1_0"
 
-# Get all model filenames from the bucket
-DQN_Iteration = "DQN_0_0"
-blobs = bucket.list_blobs(prefix=f"basic_environment/models/{DQN_Iteration}")
-model_filenames = []
-for blob in blobs:
-    model_filenames.append(blob.name)
+# Define the local download path
+local_path = "models_from_bucket"
+
+# Make the directory if it doesn't exist
+if not os.path.exists(local_path):
+    os.makedirs(local_path)
+
+# Get the model filenames from the bucket using gsutil ls command
+list_command = f"gsutil ls gs://{bucket_name}/{model_directory}"
+output = subprocess.check_output(list_command, shell=True).decode('utf-8')
+model_filenames = output.split("\n")[:-1]
 
 # Integer sort the model filenames
 model_filenames = sorted(model_filenames, key=lambda x: int(x.split("/")[-1].split(".")[0]))
 
-# Check if the models_from_bucket directory exists
-if not os.path.exists("models_from_bucket"):
-    os.makedirs("models_from_bucket")
+# Define the filename for the most recent model
+remote_filename = model_filenames[-1]
+local_filename = remote_filename.split("/")[-1]
 
-# Check if the model is downloaded
-if not os.path.exists(f"models_from_bucket/{model_filenames[-1].split('/')[-1]}"):
-    print(f"Downloading {model_filenames[-1]} from bucket {bucket_name} to models_from_bucket directory")
-    # Download the model with the highest number of steps in the models_from_bucket directory
-    model_filename = model_filenames[-1]
-    blob = bucket.blob(model_filename)
-    blob.download_to_filename(f"models_from_bucket/" + model_filename.split("/")[-1])
-    print(f"Downloaded {model_filename} from bucket {bucket_name} to models_from_bucket directory")
+# Download the model file if it doesn't already exist locally
+if not os.path.exists(f"{local_path}/{local_filename}"):
+    print(f"Downloading {remote_filename} from bucket {bucket_name} to {local_path}")
+    download_command = f"gsutil -m cp -n -r {remote_filename} {local_path}/{local_filename}"
+    subprocess.run(download_command, shell=True, check=True, stdout=subprocess.PIPE)
+    print(f"Downloaded {remote_filename} from bucket {bucket_name} to {local_path}")
 else:
-    print(f"Model {model_filenames[-1]} already exists in models_from_bucket directory")
-    model_filename = model_filenames[-1]
+    print(f"Model {remote_filename} already exists in {local_path}")
+
 
 # Load the model
 custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0, "features_extractor_class": CustomFeatureExtractor}
-model = DQN.load(f"models_from_bucket/" + model_filename.split("/")[-1], custom_objects=custom_objects, verbose=1)
+model = DQN.load(f"{local_path}/{local_filename}", custom_objects=custom_objects, verbose=1)
+
+# Rest of the code remains the same
 
 # Create the environment
 env = CustomEnv()
@@ -55,7 +57,13 @@ goals_reached = 0
 obstacles_hit = 0
 timeouts = 0
 episodes = 0
-while episodes < 500:
+# Print testing
+num_episodes = 200
+print("Testing the model")
+while episodes < num_episodes:
+
+
+
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, terminated, truncated, info = env.step(action)
 
@@ -70,6 +78,11 @@ while episodes < 500:
         timeouts += 1
 
     if terminated or truncated:
+
+        # Print progress in %
+        if episodes % 10 == 0:
+            print(f"{episodes / num_episodes * 100}%")
+
         episodes += 1
         obs, info = env.reset()
 
