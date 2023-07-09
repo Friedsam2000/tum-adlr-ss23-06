@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     # Initialize SAC agent with CNN Policy
     n_steps = 256
-    model = SAC("CnnPolicy", env, verbose=1, buffer_size=250000, optimize_memory_usage=True ,tensorboard_log="logs", device=device, batch_size=256)
+    model = SAC("CnnPolicy", env, learning_rate=0.0003,verbose=1, buffer_size=250000, optimize_memory_usage=True ,tensorboard_log="logs", device=device, batch_size=1024)
 
     # create the folder for the model
     if not os.path.exists(f"models/SAC_{SAC_Iteration}"):

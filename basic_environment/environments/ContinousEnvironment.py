@@ -156,8 +156,8 @@ class CustomEnv(gym.Env):
 
     def render(self, mode='human'):
         # Render the environment to the screen
-        #img = cv2.resize(self.getImg(), self.render_size, interpolation=cv2.INTER_NEAREST)
         img = self.getImg()
+        #img = cv2.resize(self.getImg(), self.img_size, interpolation=cv2.INTER_NEAREST)
         cv2.imshow('image', img)
         cv2.waitKey(200)
 
