@@ -18,7 +18,7 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "CNN_0"
+    SAC_Iteration = "CNN_0.1"
     SAC_Policy = "CNN"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # Get the bucket object
     bucket = storage_client.get_bucket(bucket_name)
 
-    num_cpu = 8  # Number of processes to use
+    num_cpu = 16  # Number of processes to use
     grid_size = (16, 16)
 
     # Create the vectorized environment

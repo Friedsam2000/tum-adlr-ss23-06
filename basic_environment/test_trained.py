@@ -47,7 +47,7 @@ print(f"Loaded {model_filename} from models_from_bucket directory")
 # Create the environment
 #env = CustomEnv(grid_size=(16, 16))
 #env = CustomEnv_rc(grid_size=(16, 16))
-env = ConEnv(grid_size=(16, 16))
+env = ConEnv(grid_size=(16, 16), nr_obstacles=2)
 
 # Test the model
 obs = env.reset()

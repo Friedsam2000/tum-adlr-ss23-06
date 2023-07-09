@@ -9,7 +9,7 @@ class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, agent_size=0.2, goal_size=0.8, grid_size=(16,16), img_size=(96, 96), render_size=(960, 960), num_last_agent_pos=2, nr_obstacles=2):
+    def __init__(self, agent_size=0.2, goal_size=0.8, grid_size=(16,16), img_size=(96, 96), render_size=(960, 960), num_last_agent_pos=2, nr_obstacles=0):
 
         #Super init
         super(CustomEnv, self).__init__()
@@ -32,6 +32,9 @@ class CustomEnv(gym.Env):
         self.goal_size = goal_size
         self.scaling = ( render_size[0]/ grid_size[0], render_size[1]/ grid_size[1])
         self.nr_obstacles = nr_obstacles
+        if(nr_obstacles > 0):
+            # obstacles
+            self.obstacles = np.zeros((nr_obstacles, 3), dtype=np.single)
 
         # Define action and observation space
         self.action_space = spaces.Box(low=-1, high=1, shape=(2,), dtype=np.single)
@@ -64,9 +67,6 @@ class CustomEnv(gym.Env):
         # define step counter and timeout as 6 times the time it takes to travel from start to goal
         self.steps = 0
         self.timeout = 6 * round(self.initial_dist)
-
-        # obstacles
-        self.obstacles = np.zeros((self.nr_obstacles,3), dtype=np.single)
 
         for i in range(0, self.nr_obstacles):
             n = 0
