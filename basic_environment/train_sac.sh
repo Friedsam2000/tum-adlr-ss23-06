@@ -1,6 +1,3 @@
 #!/bin/bash
-rm -r logs
-rm -r models
-rm output.txt
-nohup bash python3 train_sac.py > output.txt 2>&1 &
+nohup bash -c 'rm -r logs && rm -r models && rm output.txt && python3 train_sac.py' > output.txt 2>&1 &
 
