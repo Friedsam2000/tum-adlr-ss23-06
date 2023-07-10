@@ -145,9 +145,9 @@ class CustomEnv(gym.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 0.025 * delta
+            self.reward = 0.1 * delta
         else:
-            self.reward = -0.025 * delta
+            self.reward = -0.1 * delta
 
         # set the new distance to the old distance
         self.old_dist = new_dist
