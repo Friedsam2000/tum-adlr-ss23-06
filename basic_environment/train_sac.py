@@ -18,7 +18,7 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "CNN_0.4"
+    SAC_Iteration = "CNN_0.5"
     SAC_Policy = "CNN"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     # Initialize SAC agent with CNN Policy
     n_steps = 256
-    model = SAC("CnnPolicy", env, learning_rate=0.00005,verbose=1, learning_starts=30000, buffer_size=250000, optimize_memory_usage=True ,tensorboard_log="logs", device=device, batch_size=512)
+    model = SAC("CnnPolicy", env, learning_rate=0.0003,verbose=1, learning_starts=30000, buffer_size=250000, optimize_memory_usage=True ,tensorboard_log="logs", device=device, batch_size=1024)
 
     # create the folder for the model
     if not os.path.exists(f"models/SAC_{SAC_Iteration}"):
