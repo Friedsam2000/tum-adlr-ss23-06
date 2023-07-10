@@ -18,7 +18,7 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "CNN_0.5"
+    SAC_Iteration = "CNN_0.6"
     SAC_Policy = "CNN"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     # Train agent
     TIMESTEPS_PER_SAVE = n_steps*num_cpu*10
-    MAX_TIMESTEPS = 7500000
+    MAX_TIMESTEPS = 3000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False, tb_log_name=f"SAC_{SAC_Policy}")
 

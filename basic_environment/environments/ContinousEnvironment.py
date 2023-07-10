@@ -111,7 +111,7 @@ class CustomEnv(gym.Env):
 
         # check if the agent is at the goal position
         if new_dist < self.goal_size:
-            self.reward = 1
+            self.reward = 100
 
             self.done = True
             # return info that goal was reached
