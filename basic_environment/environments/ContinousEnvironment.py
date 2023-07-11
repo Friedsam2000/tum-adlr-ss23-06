@@ -47,11 +47,13 @@ class CustomEnv(gym.Env):
         self.done = False
 
         # set the agent position to top left corner
-        self.agent_position = np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
-
+        #self.agent_position = np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
+        self.agent_position = np.array(
+            [4.0,4.0], dtype=np.single)
         # set the goal position to bottom right corner
-        self.goal_position =np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
-
+        #self.goal_position = np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
+        self.goal_position = np.array(
+            [10.0,10.0], dtype=np.single)
         # define last distance to goal
         self.initial_dist = np.linalg.norm(self.agent_position - self.goal_position)
 
@@ -111,7 +113,7 @@ class CustomEnv(gym.Env):
 
         # check if the agent is at the goal position
         if new_dist < self.goal_size:
-            self.reward = 100
+            self.reward = 10
 
             self.done = True
             # return info that goal was reached
@@ -145,9 +147,9 @@ class CustomEnv(gym.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            self.reward = 0.2 * delta
+            self.reward = 0.025 * delta
         else:
-            self.reward = -0.2 * delta
+            self.reward = -0.025 * delta
 
         # set the new distance to the old distance
         self.old_dist = new_dist
@@ -157,6 +159,7 @@ class CustomEnv(gym.Env):
     def render(self, mode='human'):
         # Render the environment to the screen
         img = self.getImg()
+        #img = self.get_observation()
         #img = cv2.resize(self.getImg(), self.img_size, interpolation=cv2.INTER_NEAREST)
         cv2.imshow('image', img)
         cv2.waitKey(200)
