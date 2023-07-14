@@ -53,7 +53,7 @@ class CustomEnv(gym.Env):
         self.done = False
 
         # set the agent position
-        #self.agent_position = np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
+        self.agent_position = np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
         #self.agent_position = np.array([4.0,4.0], dtype=np.single)
 
 
