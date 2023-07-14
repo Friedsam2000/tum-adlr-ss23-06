@@ -17,7 +17,7 @@ storage_client = google.cloud.storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Get all model filenames from the bucket
-PPO_Iteration = "SAC_CNN_0.7"
+PPO_Iteration = "SAC_CNN_0.8"
 blobs = bucket.list_blobs(prefix=f"data_Matthias/models/{PPO_Iteration}")
 model_filenames = []
 for blob in blobs:

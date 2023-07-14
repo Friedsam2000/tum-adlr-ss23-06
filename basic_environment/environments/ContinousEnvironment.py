@@ -9,7 +9,7 @@ class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, agent_size=0.2, goal_size=0.8, grid_size=(16,16), img_size=(96, 96), render_size=(960, 960), num_last_agent_pos=2, nr_obstacles=0):
+    def __init__(self, agent_size=0.2, goal_size=0.8, grid_size=(16,16), img_size=(96, 96), render_size=(960, 960), num_last_agent_pos=2, nr_obstacles=0, nr_goal_pos=5):
 
         #Super init
         super(CustomEnv, self).__init__()
@@ -32,13 +32,14 @@ class CustomEnv(gym.Env):
         self.goal_size = goal_size
         self.scaling = ( render_size[0]/ grid_size[0], render_size[1]/ grid_size[1])
         self.nr_obstacles = nr_obstacles
+        self.nr_goal_pos = nr_goal_pos
         if(nr_obstacles > 0):
             # obstacles
             self.obstacles = np.zeros((nr_obstacles, 3), dtype=np.single)
 
-        self.pot_goal_pos = np.zeros((15,2), dtype=np.single)
+        self.pot_goal_pos = np.zeros((nr_goal_pos,2), dtype=np.single)
 
-        for i in range(0,15):
+        for i in range(0,nr_goal_pos):
             self.pot_goal_pos[i,0] = np.random.uniform(0,self.grid_size[0])
             self.pot_goal_pos[i,1] = np.random.uniform(0,self.grid_size[1])
 
@@ -60,7 +61,7 @@ class CustomEnv(gym.Env):
         # set the goal position
         #self.goal_position = np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
         #self.goal_position = np.array([10.0,10.0], dtype=np.single)
-        goal_pos = np.random.randint(0, 14)
+        goal_pos = np.random.randint(0, nr_goal_pos)
         self.goal_position = np.array([self.pot_goal_pos[goal_pos, 0], self.pot_goal_pos[goal_pos, 1]], dtype=np.single)
 
         # define last distance to goal

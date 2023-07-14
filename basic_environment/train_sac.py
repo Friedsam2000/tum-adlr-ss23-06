@@ -18,7 +18,7 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "CNN_0.8"
+    SAC_Iteration = "CNN_0.9"
     SAC_Policy = "CNN"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
