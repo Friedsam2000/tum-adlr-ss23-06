@@ -61,7 +61,7 @@ class CustomEnv(gym.Env):
         # set the goal position
         #self.goal_position = np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
         #self.goal_position = np.array([10.0,10.0], dtype=np.single)
-        goal_pos = np.random.randint(0, nr_goal_pos)
+        goal_pos = np.random.randint(0, self.nr_goal_pos)
         self.goal_position = np.array([self.pot_goal_pos[goal_pos, 0], self.pot_goal_pos[goal_pos, 1]], dtype=np.single)
 
         # define last distance to goal
