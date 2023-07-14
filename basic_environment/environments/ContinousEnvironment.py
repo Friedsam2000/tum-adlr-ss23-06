@@ -36,6 +36,12 @@ class CustomEnv(gym.Env):
             # obstacles
             self.obstacles = np.zeros((nr_obstacles, 3), dtype=np.single)
 
+        self.pot_goal_pos = np.zeros((15,2), dtype=np.single)
+
+        for i in range(0,15):
+            self.pot_goal_pos[i,0] = np.random.uniform(0,self.grid_size[0])
+            self.pot_goal_pos[i,1] = np.random.uniform(0,self.grid_size[1])
+
         # Define action and observation space
         self.action_space = spaces.Box(low=-1, high=1, shape=(2,), dtype=np.single)
         # Vector input
@@ -46,20 +52,23 @@ class CustomEnv(gym.Env):
     def reset(self):
         self.done = False
 
-        # set the agent position to top left corner
+        # set the agent position
         #self.agent_position = np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
-        self.agent_position = np.array(
-            [4.0,4.0], dtype=np.single)
-        # set the goal position to bottom right corner
+        #self.agent_position = np.array([4.0,4.0], dtype=np.single)
+
+
+        # set the goal position
         #self.goal_position = np.array([np.random.uniform(0,self.grid_size[0]), np.random.uniform(0,self.grid_size[1])], dtype=np.single)
-        self.goal_position = np.array(
-            [10.0,10.0], dtype=np.single)
+        #self.goal_position = np.array([10.0,10.0], dtype=np.single)
+        goal_pos = np.random.randint(0, 14)
+        self.goal_position = np.array([self.pot_goal_pos[goal_pos, 0], self.pot_goal_pos[goal_pos, 1]], dtype=np.single)
+
         # define last distance to goal
         self.initial_dist = np.linalg.norm(self.agent_position - self.goal_position)
 
         # ensure that goal and start position are sufficiently far apart
         while self.initial_dist < 6 * (self.goal_size + self.agent_size):
-            self.goal_position = np.array(
+            self.agent_position = np.array(
                 [np.random.uniform(0, self.grid_size[0]), np.random.uniform(0, self.grid_size[1])], dtype=np.single)
             self.initial_dist = np.linalg.norm(self.agent_position - self.goal_position)
 
@@ -113,7 +122,7 @@ class CustomEnv(gym.Env):
 
         # check if the agent is at the goal position
         if new_dist < self.goal_size:
-            self.reward = 10
+            self.reward = 1
 
             self.done = True
             # return info that goal was reached
