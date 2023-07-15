@@ -9,7 +9,7 @@ class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, agent_size=0.2, goal_size=0.8, grid_size=(16,16), img_size=(96, 96), render_size=(960, 960), num_last_agent_pos=2, nr_obstacles=0, nr_goal_pos=5):
+    def __init__(self, agent_size=0.2, goal_size=0.8, grid_size=(16,16), img_size=(96, 96), render_size=(960, 960), num_last_agent_pos=2, nr_obstacles=0, nr_goal_pos=15):
 
         #Super init
         super(CustomEnv, self).__init__()
@@ -46,9 +46,10 @@ class CustomEnv(gym.Env):
         # Define action and observation space
         self.action_space = spaces.Box(low=-1, high=1, shape=(2,), dtype=np.single)
         # Vector input
-        #self.observation_space = spaces.Box(low=0, high=grid_size[0], shape=(6+nr_obstacles*3,), dtype=np.single)
+        self.observation_space = spaces.Box(low=0, high=grid_size[0], shape=(6+nr_obstacles*3,), dtype=np.single)
+
         # image observation_space
-        self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], 3), dtype=np.uint8)
+        #self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], 3), dtype=np.uint8)
 
     def reset(self):
         self.done = False
@@ -178,19 +179,19 @@ class CustomEnv(gym.Env):
         cv2.destroyAllWindows()
 
     def get_observation(self):
-        #observation = np.zeros((6+self.nr_obstacles*3,), dtype=np.single)
-        #observation[0] = self.agent_position[0]
-        #observation[1] = self.agent_position[1]
-        #observation[2] = self.agent_size
-        #observation[3] = self.goal_position[0]
-        #observation[4] = self.goal_position[1]
-        #observation[5] = self.goal_size
+        observation = np.zeros((6+self.nr_obstacles*3,), dtype=np.single)
+        observation[0] = self.agent_position[0]
+        observation[1] = self.agent_position[1]
+        observation[2] = self.agent_size
+        observation[3] = self.goal_position[0]
+        observation[4] = self.goal_position[1]
+        observation[5] = self.goal_size
         #for i in range(0, self.nr_obstacles):
             #observation[6+i*3]=self.obstacles[i,0]
             #observation[6+(i*3)+1]=self.obstacles[i,1]
             #observation[6+(i*3)+2]=self.obstacles[i,2]
 
-        observation = cv2.resize(self.getImg(), self.img_size, interpolation=cv2.INTER_NEAREST)
+        #observation = cv2.resize(self.getImg(), self.img_size, interpolation=cv2.INTER_NEAREST)
         return observation
 
     def getImg(self):
