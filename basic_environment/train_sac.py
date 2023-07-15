@@ -10,7 +10,7 @@ from google.cloud import storage
 
 def make_env(grid_size, rank):
     def _init():
-        env = ConEnv(grid_size=grid_size)
+        env = ConEnv(grid_size=grid_size, nr_obstacles=16)
         return env
 
     return _init
@@ -18,7 +18,7 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "MLP_3"
+    SAC_Iteration = "MLP_4.0"
     SAC_Policy = "MLP"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU

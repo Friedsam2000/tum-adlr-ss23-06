@@ -186,10 +186,10 @@ class CustomEnv(gym.Env):
         observation[3] = self.goal_position[0]
         observation[4] = self.goal_position[1]
         observation[5] = self.goal_size
-        #for i in range(0, self.nr_obstacles):
-            #observation[6+i*3]=self.obstacles[i,0]
-            #observation[6+(i*3)+1]=self.obstacles[i,1]
-            #observation[6+(i*3)+2]=self.obstacles[i,2]
+        for i in range(0, self.nr_obstacles):
+            observation[6+i*3]=self.obstacles[i,0]
+            observation[6+(i*3)+1]=self.obstacles[i,1]
+            observation[6+(i*3)+2]=self.obstacles[i,2]
 
         #observation = cv2.resize(self.getImg(), self.img_size, interpolation=cv2.INTER_NEAREST)
         return observation
