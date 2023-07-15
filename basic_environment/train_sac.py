@@ -18,7 +18,7 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "MLP_4.0"
+    SAC_Iteration = "MLP_4.1"
     SAC_Policy = "MLP"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
@@ -67,8 +67,8 @@ if __name__ == "__main__":
     log_save_counter = 0
 
     # Train agent
-    TIMESTEPS_PER_SAVE = n_steps*num_cpu*10
-    MAX_TIMESTEPS = 3000000
+    TIMESTEPS_PER_SAVE = n_steps*num_cpu*20
+    MAX_TIMESTEPS = 10000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False, tb_log_name=f"SAC_{SAC_Policy}")
 
