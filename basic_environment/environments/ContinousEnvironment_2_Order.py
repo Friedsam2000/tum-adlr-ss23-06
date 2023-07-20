@@ -169,7 +169,7 @@ class CustomEnv_2order_dyn(gym.Env):
         delta = abs(new_dist - self.old_dist)
 
         # check if the agent is at the goal position && velocity smaller than a threshold
-        if new_dist < self.goal_size && self.linalg.norm(self.agent_vel) <= self.goal_vel:
+        if new_dist < self.goal_size and self.linalg.norm(self.agent_vel) <= self.goal_vel:
             self.reward = 1
 
             self.done = True
