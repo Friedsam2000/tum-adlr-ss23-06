@@ -19,7 +19,7 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "MLP_5.3"
+    SAC_Iteration = "MLP_5.4"
     SAC_Policy = "MLP"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU

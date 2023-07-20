@@ -48,7 +48,7 @@ print(f"Loaded {model_filename} from models_from_bucket directory")
 # Create the environment
 #env = CustomEnv(grid_size=(16, 16))
 #env = CustomEnv_rc(grid_size=(16, 16))
-env = ConEnv(grid_size=(16, 16), nr_obstacles=0, nr_goal_pos=5)
+env = ConEnv(grid_size=(16, 16), nr_obstacles=0, nr_goal_pos=25)
 
 # Test the model
 obs = env.reset()
@@ -59,7 +59,7 @@ while episodes < 100:
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, done, info = env.step(action)
 
-    env.render()
+    #env.render()
     if done:
         episodes += 1
         if info["goal"]:

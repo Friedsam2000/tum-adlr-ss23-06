@@ -214,7 +214,7 @@ class CustomEnv_2order_dyn(gym.Env):
 
         # reward lowering velocity inside of goal
         if new_dist < self.goal_size:
-            self.reward += (-1) * delta_vel_norm
+            self.reward += (-0.1) * delta_vel_norm
 
         # set the new distance to the old distance
         self.old_dist = new_dist
