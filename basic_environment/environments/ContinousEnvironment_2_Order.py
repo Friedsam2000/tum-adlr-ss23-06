@@ -253,12 +253,6 @@ class CustomEnv_2order_dyn(gym.Env):
         # scale the grid to render_size
         img = cv2.resize(img, self.render_size, interpolation=cv2.INTER_NEAREST)
 
-        # plot agent
-        x_agent = round(self.agent_position[0] * self.scaling[0])
-        y_agent = round(self.agent_position[1] * self.scaling[1])
-        radius = math.ceil(self.agent_size * self.scaling[0])
-        img = cv2.circle(img, (x_agent, y_agent), radius, agent_color, -1)
-
         # plot goal
         x_goal = round(self.goal_position[0] * self.scaling[0])
         y_goal = round(self.goal_position[1] * self.scaling[1])
@@ -271,6 +265,12 @@ class CustomEnv_2order_dyn(gym.Env):
             y_obs = round(self.obstacles[i,1] * self.scaling[1])
             radius_obs = math.ceil(self.obstacles[i,2] * self.scaling[0])
             img = cv2.circle(img, (x_obs, y_obs), radius_obs, obstacle_color, -1)
+
+        # plot agent
+        x_agent = round(self.agent_position[0] * self.scaling[0])
+        y_agent = round(self.agent_position[1] * self.scaling[1])
+        radius = math.ceil(self.agent_size * self.scaling[0])
+        img = cv2.circle(img, (x_agent, y_agent), radius, agent_color, -1)
             
         return img
 
