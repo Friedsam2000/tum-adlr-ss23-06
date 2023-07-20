@@ -113,7 +113,8 @@ class CustomEnv_2order_dyn(gym.Env):
         # store old distance for reward
         self.old_dist = self.initial_dist
 
-
+        # store old velocity for velocity delta
+        self.old_agent_vel = self.agent_vel
 
         # define step counter and timeout as 6 times the time it takes to travel from start to goal
         self.steps = 0
@@ -164,14 +165,17 @@ class CustomEnv_2order_dyn(gym.Env):
         # observation
         observation = self.get_observation()
 
-        # compute distance
+        # compute distance and distance delta
         new_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
         delta = abs(new_dist - self.old_dist)
 
-        # check if the agent is at the goal position && velocity smaller than a threshold
-        if new_dist < self.goal_size and np.linalg.norm(self.agent_vel) <= self.goal_vel:
-            self.reward = 1
+        # compute velocity norm delta
+        vel_norm = np.linalg.norm(self.agent_vel)
+        delta_vel_norm = vel_norm - np.linalg.norm(self.old_agent_vel)
 
+        # check if the agent is at the goal position && velocity smaller than a threshold
+        if new_dist < self.goal_size and vel_norm <= self.goal_vel:
+            self.reward = 1
             self.done = True
             # return info that goal was reached
             return observation, self.reward, self.done, {"goal": True, "obstacle": False}
@@ -208,8 +212,13 @@ class CustomEnv_2order_dyn(gym.Env):
         #else:
             #self.reward = -0.025 * delta
 
+        # reward lowering velocity inside of goal
+        if new_dist < self.goal_size:
+            self.reward += (-1) * delta_vel_norm
+
         # set the new distance to the old distance
         self.old_dist = new_dist
+        self.old_agent_vel = self.agent_vel
 
         return observation, self.reward, self.done, {}
 
