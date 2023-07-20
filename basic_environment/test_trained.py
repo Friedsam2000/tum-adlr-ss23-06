@@ -2,7 +2,8 @@ from stable_baselines3 import PPO
 from stable_baselines3 import SAC
 from environments.GridEnvironment import CustomEnv
 from environments.GridEnvironment import CustomEnv_rc
-from environments.ContinousEnvironment import CustomEnv as ConEnv
+#from environments.ContinousEnvironment import CustomEnv as ConEnv
+from environments.ContinousEnvironment_2_Order import CustomEnv_2order_dyn as ConEnv
 import os
 import google.cloud.storage
 import shutil
@@ -17,7 +18,7 @@ storage_client = google.cloud.storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Get all model filenames from the bucket
-PPO_Iteration = "SAC_MLP_4.1"
+PPO_Iteration = "SAC_MLP_5.1"
 blobs = bucket.list_blobs(prefix=f"data_Matthias/models/{PPO_Iteration}")
 model_filenames = []
 for blob in blobs:
@@ -47,7 +48,7 @@ print(f"Loaded {model_filename} from models_from_bucket directory")
 # Create the environment
 #env = CustomEnv(grid_size=(16, 16))
 #env = CustomEnv_rc(grid_size=(16, 16))
-env = ConEnv(grid_size=(16, 16), nr_obstacles=16, nr_goal_pos=15)
+env = ConEnv(grid_size=(16, 16), nr_obstacles=0, nr_goal_pos=5)
 
 # Test the model
 obs = env.reset()

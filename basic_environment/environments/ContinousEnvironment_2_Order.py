@@ -55,6 +55,8 @@ class CustomEnv_2order_dyn(gym.Env):
 
         # max velocity
         self.max_vel = 2.0
+        #velocity delta at goal
+        self.goal_vel = 0.05
 
         #Agent Mass
         self.agent_mass = 1.0
@@ -166,8 +168,8 @@ class CustomEnv_2order_dyn(gym.Env):
         new_dist = np.linalg.norm(np.array(self.agent_position) - np.array(self.goal_position))
         delta = abs(new_dist - self.old_dist)
 
-        # check if the agent is at the goal position
-        if new_dist < self.goal_size:
+        # check if the agent is at the goal position && velocity smaller than a threshold
+        if new_dist < self.goal_size && self.linalg.norm(self.agent_vel) <= self.goal_vel:
             self.reward = 1
 
             self.done = True
