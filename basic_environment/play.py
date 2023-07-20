@@ -1,6 +1,6 @@
 import sys
 sys.path.insert(0, 'environments')
-from environments.ContinousEnvironment import CustomEnv as ConEnv
+from environments.ContinousEnvironment_2_Order import CustomEnv_2order_dyn as ConEnv
 import cv2
 
 env = ConEnv()
@@ -13,13 +13,13 @@ i = 0
 while i < 10000:
     key = cv2.waitKey(0)
     if key == 82:  # up
-        action = [0,1]
+        action = [0,0.1]
     elif key == 84:  # down
-        action = [0,-1]
+        action = [0,-0.1]
     elif key == 81:  # left
         i = 10001
     elif key == 83:  # right
-        action = [1,0]
+        action = [0.1,0]
     else:
         continue
 

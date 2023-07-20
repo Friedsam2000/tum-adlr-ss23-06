@@ -1,7 +1,8 @@
 import numpy as np
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from stable_baselines3 import SAC
-from environments.ContinousEnvironment import CustomEnv as ConEnv
+#from environments.ContinousEnvironment import CustomEnv as ConEnv
+from environments.ContinousEnvironment_2_Order import CustomEnv_2order_dyn as ConEnv
 import os
 import torch
 from google.cloud import storage
@@ -10,7 +11,7 @@ from google.cloud import storage
 
 def make_env(grid_size, rank):
     def _init():
-        env = ConEnv(grid_size=grid_size, nr_obstacles=16)
+        env = ConEnv(grid_size=grid_size, nr_obstacles=0, nr_goal_pos=5)
         return env
 
     return _init
@@ -18,7 +19,7 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "MLP_4.1"
+    SAC_Iteration = "MLP_5.1"
     SAC_Policy = "MLP"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
