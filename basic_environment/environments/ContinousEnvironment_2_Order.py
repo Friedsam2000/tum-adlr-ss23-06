@@ -175,7 +175,7 @@ class CustomEnv_2order_dyn(gym.Env):
 
         # check if the agent is at the goal position && velocity smaller than a threshold
         if new_dist < self.goal_size and vel_norm <= self.goal_vel:
-            self.reward = 1
+            self.reward = 3
             self.done = True
             # return info that goal was reached
             return observation, self.reward, self.done, {"goal": True, "obstacle": False}
