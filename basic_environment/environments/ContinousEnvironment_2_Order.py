@@ -194,7 +194,7 @@ class CustomEnv_2order_dyn(gym.Env):
 
         # check if timeout
         if self.steps >= self.timeout:
-            self.reward = -1
+            self.reward = -3
             self.done = True
             return observation, self.reward, self.done, {"goal": False, "obstacle": False}
 
@@ -215,6 +215,7 @@ class CustomEnv_2order_dyn(gym.Env):
         # reward lowering velocity inside of goal
         if new_dist < self.goal_size:
             self.reward += (-0.3) * delta_vel_norm
+            self.reward += 0.01
 
         # set the new distance to the old distance
         self.old_dist = new_dist
