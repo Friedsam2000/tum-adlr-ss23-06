@@ -181,16 +181,16 @@ class CustomEnv_2order_dyn(gym.Env):
             return observation, self.reward, self.done, {"goal": True, "obstacle": False}
 
         # check if upper or left bound of grid is hit
-        if (self.agent_position[0] <= 0.0) or (self.agent_position[1] <= 0.0):
-            self.reward = -1
-            self.done = True
-            return observation, self.reward, self.done, {"goal": False, "obstacle": True}
+        #if (self.agent_position[0] <= 0.0) or (self.agent_position[1] <= 0.0):
+         #   self.reward = -1
+          #  self.done = True
+           # return observation, self.reward, self.done, {"goal": False, "obstacle": True}
 
         # check if lower or right bound of grid is hit
-        if (self.agent_position[0] >= self.grid_size[0]) or (self.agent_position[1] >= self.grid_size[1]):
-            self.reward = -1
-            self.done = True
-            return observation, self.reward, self.done, {"goal": False, "obstacle": True}
+        #if (self.agent_position[0] >= self.grid_size[0]) or (self.agent_position[1] >= self.grid_size[1]):
+         #   self.reward = -1
+          #  self.done = True
+           # return observation, self.reward, self.done, {"goal": False, "obstacle": True}
 
         # check if timeout
         if self.steps >= self.timeout:
@@ -202,7 +202,7 @@ class CustomEnv_2order_dyn(gym.Env):
         for i in range(0, self.nr_obstacles):
             distance = np.linalg.norm(self.agent_position - self.obstacles[i,0:2])
             if distance <= self.agent_size + self.obstacles[i,2]:
-                self.reward = -1
+                self.reward = -3
                 self.done = True
                 return observation, self.reward, self.done, {"goal": False, "obstacle": True}
 
@@ -214,7 +214,7 @@ class CustomEnv_2order_dyn(gym.Env):
 
         # reward lowering velocity inside of goal
         if new_dist < self.goal_size:
-            self.reward += (-0.2) * delta_vel_norm
+            self.reward += (-0.05) * delta_vel_norm
 
 
         # set the new distance to the old distance
