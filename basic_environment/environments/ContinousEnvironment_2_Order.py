@@ -56,7 +56,7 @@ class CustomEnv_2order_dyn(gym.Env):
         # max velocity
         self.max_vel = 2.0
         #velocity delta at goal
-        self.goal_vel = 0.0
+        self.goal_vel = 0.05
 
         #Agent Mass
         self.agent_mass = 1.0
