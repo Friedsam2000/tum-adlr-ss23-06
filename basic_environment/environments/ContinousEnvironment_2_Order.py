@@ -120,6 +120,9 @@ class CustomEnv_2order_dyn(gym.Env):
         self.steps = 0
         self.timeout = 6 * round(self.initial_dist)
 
+        # boolean for punishing moving out of goal region
+        self.in_goal = False
+
         for i in range(0, self.nr_obstacles):
             n = 0
             resample = False
@@ -180,6 +183,12 @@ class CustomEnv_2order_dyn(gym.Env):
             # return info that goal was reached
             return observation, self.reward, self.done, {"goal": True, "obstacle": False}
 
+        # check if agent has moved out of goal
+        if new_dist > self.goal_size and self.in_goal:
+            self.reward = -3
+            self.done = True
+            return observation, self.reward, self.done, {"goal": False, "obstacle": True}
+
         # check if upper or left bound of grid is hit
         #if (self.agent_position[0] <= 0.0) or (self.agent_position[1] <= 0.0):
          #   self.reward = -1
@@ -216,6 +225,7 @@ class CustomEnv_2order_dyn(gym.Env):
         if new_dist < self.goal_size:
             self.reward += (-0.05) * delta_vel_norm
             #self.reward += 0.01
+            self.in_goal = True
 
 
         # set the new distance to the old distance
