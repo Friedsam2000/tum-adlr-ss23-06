@@ -185,9 +185,8 @@ class CustomEnv_2order_dyn(gym.Env):
 
         # check if agent has moved out of goal
         if new_dist > self.goal_size and self.in_goal:
-            self.reward = -3
-            self.done = True
-            return observation, self.reward, self.done, {"goal": False, "obstacle": True}
+            self.reward = -0.5
+
 
         # check if upper or left bound of grid is hit
         #if (self.agent_position[0] <= 0.0) or (self.agent_position[1] <= 0.0):
