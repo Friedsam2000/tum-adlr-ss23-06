@@ -1,6 +1,6 @@
 import subprocess
 from stable_baselines3 import DQN
-from environments.GridEnvironmentMoving import CustomEnv
+from environments.GridEnvironment import GridEnvironment
 import os
 import logging
 import time

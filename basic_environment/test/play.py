@@ -1,7 +1,7 @@
 import sys
 
 sys.path.insert(0, 'environments')
-from environments.GridEnvironmentMoving import CustomEnv as GridEnvironment
+from environments.GridEnvironment import GridEnvironment
 import cv2
 
 env = GridEnvironment()
