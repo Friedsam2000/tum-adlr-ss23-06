@@ -10,7 +10,7 @@ from networks.CustomFeatureExtractor import CustomFeatureExtractor
 
 def make_env(rank):
     def _init():
-        env = CustomEnv()
+        env = GridEnvironment()
         return env
 
     return _init

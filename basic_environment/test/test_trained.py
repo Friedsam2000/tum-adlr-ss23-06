@@ -68,7 +68,7 @@ model = DQN.load(f"{local_path}/{local_filename}", custom_objects=custom_objects
 # Rest of the code remains the same
 
 # Create the environment
-env = CustomEnv()
+env = GridEnvironment()
 
 # Print the network architecture
 print(model.policy)
