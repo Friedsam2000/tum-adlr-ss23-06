@@ -13,7 +13,9 @@ class GridEnvironment(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, draw_last_agent_pos_in_obs = False,  num_frames_to_stack=4, grey_scale=False, render_greyscale=False):
+    def __init__(self, grid_size=(24, 24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100,
+                 draw_last_agent_pos_in_obs=False, num_frames_to_stack=4, grey_scale=False, render_greyscale=False,
+                 num_obstacles=6):
         super().__init__()
         self.render_greyscale = render_greyscale
         self.grey_scale = grey_scale
@@ -21,6 +23,7 @@ class GridEnvironment(gymnasium.Env):
         self.frame_stack = deque(maxlen=num_frames_to_stack)
         self._assert_sizes(grid_size, img_size, render_size)
         self.draw_last_agent_pos_in_obs = draw_last_agent_pos_in_obs
+        self.num_obstacles = num_obstacles
 
         self.num_last_agent_pos = num_last_agent_pos
         self.grid_size = grid_size
@@ -28,11 +31,12 @@ class GridEnvironment(gymnasium.Env):
         self.render_size = render_size
 
         if self.grey_scale:
-            self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], num_frames_to_stack), dtype=np.uint8)
+            self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], num_frames_to_stack),
+                                                dtype=np.uint8)
         else:
-            self.observation_space = spaces.Box(low=0, high=255, shape=(img_size[0], img_size[1], num_frames_to_stack*3), dtype=np.uint8)
-
-
+            self.observation_space = spaces.Box(low=0, high=255,
+                                                shape=(img_size[0], img_size[1], num_frames_to_stack * 3),
+                                                dtype=np.uint8)
 
     def reset(self, seed=None):
         # Reset the environment and optionally set the random seed
@@ -84,14 +88,11 @@ class GridEnvironment(gymnasium.Env):
         # Evaluate the reward if the agent did not reach the goal or a timeout or hit an obstacle
         return self._getObservation(), self._evaluate_reward(), False, False, {}
 
-
     def _getObservation(self):
         if self.grey_scale:
             return np.array(self.convertGreyscale(self.getImg()), dtype=np.uint8)
         else:
             return np.array(self.getImg(), dtype=np.uint8)
-
-
 
     def render(self, mode='human'):
         # Get the last frame from the deque
@@ -130,7 +131,7 @@ class GridEnvironment(gymnasium.Env):
                 -3:] = color_kernel
 
         if self.render_greyscale:
-            #convert rgb to greyscale
+            # convert rgb to greyscale
             display_img = self.convertGreyscale(img)
             # Use only the newest frame for visualization
             display_img = display_img[:, :, -1:]
@@ -160,7 +161,7 @@ class GridEnvironment(gymnasium.Env):
 
         # Draw the agent, goal and obstacles on the base image
         # assuming the agent, goal and obstacles are represented as different colors in RGB
-        base_image[self.agent_position[0], self.agent_position[1]] = [255,0,0] # blue for agent
+        base_image[self.agent_position[0], self.agent_position[1]] = [255, 0, 0]  # blue for agent
         base_image[self.goal_position[0], self.goal_position[1]] = [0, 255, 0]  # Green for goal
         for obstacle in self.obstacles:
             for pos in obstacle.positions:
@@ -241,7 +242,7 @@ class GridEnvironment(gymnasium.Env):
             self.goal_position = [np.random.randint(0, self.grid_size[0]), np.random.randint(0, self.grid_size[1])]
 
     def _spawn_obstacles(self):
-        # Define your shapes here
+        # Define various obstacle shapes as 2D binary matrices
         shapes = [
             np.array([[1, 1], [1, 0]]),  # L shape
             np.array([[1]]),  # Single cell
@@ -251,48 +252,52 @@ class GridEnvironment(gymnasium.Env):
             np.array([[1, 0, 1], [0, 1, 0], [1, 0, 1]]),  # Diamond shape
             np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])  # Diagonal line
         ]
-
         goal_is_reachable = False
         while not goal_is_reachable:
-            self.obstacles = []  # Clear the old obstacles
+            self.obstacles = []  # Clear any existing obstacles
 
             # Choose a random number of obstacles to generate
-            num_obstacles = 6
+            num_obstacles = self.num_obstacles
 
             for _ in range(num_obstacles):
-                # Choose a random shape
-                shape = random.choice(shapes)  # use random.choice here instead
+                # Randomly select a shape for this obstacle
+                shape = random.choice(shapes)
+                # Generate the positions occupied by this obstacle
                 obstacle_positions = self._generate_obstacle_block(shape)
-                # Determine whether this obstacle will be moving, and in what direction
-                is_moving = True
-                direction = np.random.choice([0, 1, 2, 3])
+
+                # Check if the obstacle is within 3 grid cells of the agent
+                is_moving = not any(
+                    abs(pos[0] - self.agent_position[0]) < 2 and abs(pos[1] - self.agent_position[1]) < 3
+                    for pos in obstacle_positions
+                )
+
+                direction = np.random.choice([0, 1, 2, 3]) if is_moving else None
                 self.obstacles.append(Obstacle(obstacle_positions, shape, is_moving, direction))
 
+            # Flatten the obstacle positions into a single list
             self.obstacle_positions = [position for obstacle in self.obstacles for position in obstacle.positions]
-            # goal_is_reachable = self._check_goal_reachable(self.goal_position, self.agent_position,
-            #                                                self.obstacle_positions)
-            # Assume that the goal is reachable for moving obstacles
+
+            # Assuming the goal is reachable for moving obstacles
             goal_is_reachable = True
 
     def _generate_obstacle_block(self, shape):
-        # The shape should be a 2D binary matrix with 1's where the obstacle is
+        # Get the dimensions of the shape
         height, width = shape.shape
 
         while True:
+            # Randomly choose the top-left position of this obstacle
             obstacle_position = [np.random.randint(0, self.grid_size[0] - (width - 1)),
                                  np.random.randint(0, self.grid_size[1] - (height - 1))]
 
-            # Check all positions in the shape for any collisions
+            # Check if this obstacle collides with the agent or the goal
             collision = False
             obstacle_positions = []
             for i in range(width):
                 for j in range(height):
                     if shape[j, i] == 1:
                         pos = [obstacle_position[0] + i, obstacle_position[1] + j]
-                        if (pos == self.agent_position or
-                                pos == self.goal_position or
-                                abs(pos[0] - self.agent_position[0]) < 2 or
-                                abs(pos[1] - self.agent_position[1]) < 2):
+                        # Check collision with agent or goal
+                        if pos == self.agent_position or pos == self.goal_position:
                             collision = True
                         obstacle_positions.append(pos)
             if not collision:
@@ -342,11 +347,11 @@ class GridEnvironment(gymnasium.Env):
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
         if new_dist < self.old_dist:
-            reward = 0.025 *  1
+            reward = 0.025 * 1
         elif new_dist == self.old_dist:  # wall hit
-            reward = -0.05 *  1
+            reward = -0.05 * 1
         else:
-            reward = -0.025 *  1
+            reward = -0.025 * 1
         # set the new distance to the old distance
         self.old_dist = new_dist
 
@@ -375,22 +380,17 @@ class GridEnvironment(gymnasium.Env):
         }
 
     def get_neighboring_cells_content(self, position, distance=3):
-        neighbors_content = [['_' for _ in range(2 * distance + 1)] for _ in range(2 * distance + 1)]
+        neighbors_content = [[0 for _ in range(2 * distance + 1)] for _ in
+                             range(2 * distance + 1)]  # Initialize with 0 for 'no_obstacle'
         for dx in range(-distance, distance + 1):
             for dy in range(-distance, distance + 1):
                 x, y = position[0] + dx, position[1] + dy
                 if 0 <= x < self.grid_size[0] and 0 <= y < self.grid_size[1]:  # Check bounds
-                    # # Check if the current cell corresponds to the agent's position
-                    # if [x, y] == self.agent_position:
-                    #     content = "agent"
-                    # # Check if the current cell corresponds to the goal's position
-                    # elif [x, y] == self.goal_position:
-                    #     content = "goal"
                     # Check if the current cell corresponds to any obstacle's position
                     if any([x, y] == pos for obstacle in self.obstacles for pos in obstacle.positions):
-                        content = "obstacle"
+                        content = 1  # 'obstacle'
                     else:
-                        content = "no_obstacle"
+                        content = 0  # 'no_obstacle'
 
                     # Update the corresponding cell in the neighbors_content grid
                     neighbors_content[dx + distance][dy + distance] = content

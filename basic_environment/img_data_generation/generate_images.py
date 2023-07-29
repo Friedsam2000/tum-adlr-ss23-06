@@ -86,20 +86,20 @@ if os.path.exists("labels.csv"):
 fieldnames = ['image_name', 'agent_pos_x', 'agent_pos_y', 'goal_pos_x', 'goal_pos_y'] + [f'neighbor_{i}_{j}' for i in range(7) for j in range(7)]
 
 # Create the environment
-env = GridEnvironment()
+env = GridEnvironment(num_obstacles=50)
 
 # Reset the environment
 obs, info = env.reset()
 
 episode = 0
 timestep = 0
-while episode < 1000:
+while episode < 10000:
 
     # Open the CSV file for writing (append mode)
     with open('labels.csv', 'a', newline='') as csvfile:
 
         # randomly reset the environment sometimes after the first timestep (e.g. 10% of the time = 0.1)
-        if np.random.random() < 0.8 and timestep == 1:
+        if np.random.random() < 1 and timestep == 1:
             obs, info = env.reset()
             terminated = False
             truncated = False
@@ -139,7 +139,7 @@ while episode < 1000:
         if terminated or truncated:
 
             #Print progress as percentage
-            progress_percentage = (episode / 1000) * 100
+            progress_percentage = (episode / 10000) * 100
             logging.info(f"Current episode: {episode}, Progress: {progress_percentage:.2f}%")
 
             # Reset the environment

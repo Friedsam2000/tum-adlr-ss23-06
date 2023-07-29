@@ -4,7 +4,7 @@ sys.path.insert(0, 'environments')
 from environments.GridEnvironment import GridEnvironment
 import cv2
 
-env = GridEnvironment(draw_last_agent_pos_in_obs=False)
+env = GridEnvironment(num_obstacles=50)
 # Display the image in a window
 observation = env.reset()
 # print(observation)
