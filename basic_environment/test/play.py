@@ -4,7 +4,7 @@ sys.path.insert(0, 'environments')
 from environments.GridEnvironment import GridEnvironment
 import cv2
 
-env = GridEnvironment()
+env = GridEnvironment(draw_last_agent_pos_in_obs=False)
 # Display the image in a window
 observation = env.reset()
 # print(observation)

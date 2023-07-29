@@ -13,13 +13,14 @@ class GridEnvironment(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, num_frames_to_stack=4, grey_scale=False, render_greyscale=False):
+    def __init__(self, grid_size=(24,24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100, draw_last_agent_pos_in_obs = False,  num_frames_to_stack=4, grey_scale=False, render_greyscale=False):
         super().__init__()
         self.render_greyscale = render_greyscale
         self.grey_scale = grey_scale
         self.num_frames_to_stack = num_frames_to_stack
         self.frame_stack = deque(maxlen=num_frames_to_stack)
         self._assert_sizes(grid_size, img_size, render_size)
+        self.draw_last_agent_pos_in_obs = draw_last_agent_pos_in_obs
 
         self.num_last_agent_pos = num_last_agent_pos
         self.grid_size = grid_size
@@ -100,22 +101,23 @@ class GridEnvironment(gymnasium.Env):
         current_pos = [int(self.agent_position[0] * self.img_size[0] / self.grid_size[0]),
                        int(self.agent_position[1] * self.img_size[1] / self.grid_size[1])]
 
-        # Draw the old agent positions on the copied image
-        for old_pos in self.last_agent_positions:
-            if old_pos[0] != -1 and old_pos[1] != -1:  # only draw if it's not the initial [-1, -1]
-                scaled_old_pos = [int(old_pos[0] * self.img_size[0] / self.grid_size[0]),
-                                  int(old_pos[1] * self.img_size[1] / self.grid_size[1])]
+        # Draw the old agent positions on the copied image if they are not in the observation
+        if not self.draw_last_agent_pos_in_obs:
+            for old_pos in self.last_agent_positions:
+                if old_pos[0] != -1 and old_pos[1] != -1:  # only draw if it's not the initial [-1, -1]
+                    scaled_old_pos = [int(old_pos[0] * self.img_size[0] / self.grid_size[0]),
+                                      int(old_pos[1] * self.img_size[1] / self.grid_size[1])]
 
-                # Check if the old position is not the current position
-                if scaled_old_pos != current_pos:
-                    # Create a kernel filled with the desired color
-                    # kernel size is the multiple of the grid size and the image size
-                    kernel_size = int(self.img_size[0] / self.grid_size[0])
-                    color_kernel = np.ones((kernel_size, kernel_size, 3)) * np.array([255, 255, 0])
-                    # Replace the corresponding area in the image with the color kernel
-                    img[scaled_old_pos[0]:scaled_old_pos[0] + kernel_size,
-                    scaled_old_pos[1]:scaled_old_pos[1] + kernel_size,
-                    -3:] = color_kernel
+                    # Check if the old position is not the current position
+                    if scaled_old_pos != current_pos:
+                        # Create a kernel filled with the desired color
+                        # kernel size is the multiple of the grid size and the image size
+                        kernel_size = int(self.img_size[0] / self.grid_size[0])
+                        color_kernel = np.ones((kernel_size, kernel_size, 3)) * np.array([255, 255, 0])
+                        # Replace the corresponding area in the image with the color kernel
+                        img[scaled_old_pos[0]:scaled_old_pos[0] + kernel_size,
+                        scaled_old_pos[1]:scaled_old_pos[1] + kernel_size,
+                        -3:] = color_kernel
 
         # Draw the obstacles on the copied image over old agent positions
         for obstacle in self.obstacles:
@@ -150,10 +152,11 @@ class GridEnvironment(gymnasium.Env):
         # Create a base image to represent the grid
         base_image = np.zeros((self.grid_size[0], self.grid_size[1], 3))
 
-        # Draw the old agent positions in the observation
-        # for old_pos in self.last_agent_positions:
-        #     if old_pos[0] != -1 and old_pos[1] != -1:  # only draw if it's not the initial [-1, -1]
-        #         base_image[old_pos[0], old_pos[1]] = [255, 255, 0]  # Yellow for old agent positions
+        if self.draw_last_agent_pos_in_obs:
+            # Draw the old agent positions in the observation
+            for old_pos in self.last_agent_positions:
+                if old_pos[0] != -1 and old_pos[1] != -1:  # only draw if it's not the initial [-1, -1]
+                    base_image[old_pos[0], old_pos[1]] = [255, 255, 0]  # Yellow for old agent positions
 
         # Draw the agent, goal and obstacles on the base image
         # assuming the agent, goal and obstacles are represented as different colors in RGB
