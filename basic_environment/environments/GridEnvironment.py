@@ -360,3 +360,39 @@ class GridEnvironment(gymnasium.Env):
         # if check_goal_reachable:
         # print("Goal is reachable")
         return check_goal_reachable
+
+    def get_current_frame_info(self):
+        agent_pos = self.agent_position
+        goal_pos = self.goal_position
+
+        # Get neighboring cells
+        neighbors_content = self.get_neighboring_cells_content(agent_pos, distance=3)
+
+        return {
+            "agent_position": agent_pos,
+            "goal_position": goal_pos,
+            "neighboring_cells_content": neighbors_content
+        }
+
+    def get_neighboring_cells_content(self, position, distance=3):
+        neighbors_content = [['wall' for _ in range(2 * distance + 1)] for _ in range(2 * distance + 1)]
+        for dx in range(-distance, distance + 1):
+            for dy in range(-distance, distance + 1):
+                x, y = position[0] + dx, position[1] + dy
+                if 0 <= x < self.grid_size[0] and 0 <= y < self.grid_size[1]:  # Check bounds
+                    # Check if the current cell corresponds to the agent's position
+                    if [x, y] == self.agent_position:
+                        content = "agent"
+                    # Check if the current cell corresponds to the goal's position
+                    elif [x, y] == self.goal_position:
+                        content = "goal"
+                    # Check if the current cell corresponds to any obstacle's position
+                    elif any([x, y] == pos for obstacle in self.obstacles for pos in obstacle.positions):
+                        content = "obstacle"
+                    else:
+                        content = "empty"
+
+                    # Update the corresponding cell in the neighbors_content grid
+                    neighbors_content[dx + distance][dy + distance] = content
+
+        return neighbors_content

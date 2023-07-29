@@ -1,10 +1,13 @@
 import subprocess
+import csv
+import cv2
 from stable_baselines3 import DQN
 from environments.GridEnvironment import GridEnvironment
 import os
 import logging
 import time
 from networks.CustomFeatureExtractor import CustomFeatureExtractor
+import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 
@@ -31,7 +34,11 @@ model_filenames = sorted(model_filenames, key=lambda x: int(x.split("/")[-1].spl
 
 # Define the filename for the most recent model
 remote_filename = model_filenames[-1]
+
 local_filename = remote_filename.split("/")[-1]
+
+### For testing only: set local_filename to 500000.zip to reuse a downloaded model
+# local_filename = "500000.zip"
 
 # Download the model file if it doesn't already exist locally
 if not os.path.exists(f"{local_path}/{local_filename}"):
@@ -57,59 +64,79 @@ if not os.path.exists(f"{local_path}/{local_filename}"):
 
     print(f"\nDownloaded {remote_filename} from bucket {bucket_name} to {local_path}")
 else:
-    print(f"Model {remote_filename} already exists in {local_path}")
-
-
+    print(f"Model {local_filename} already exists in {local_path}")
 
 # Load the model
 custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0, "features_extractor_class": CustomFeatureExtractor}
 model = DQN.load(f"{local_path}/{local_filename}", custom_objects=custom_objects, verbose=1)
 
-# Rest of the code remains the same
+# clear or create test_images directory
+if os.path.exists("test_images"):
+    for file in os.listdir("test_images"):
+        os.remove(f"test_images/{file}")
+else:
+    os.mkdir("test_images")
+    
+#delete labels.csv if it exists
+if os.path.exists("labels.csv"):
+    os.remove("labels.csv")
+
+
+# Define the field names for the CSV file
+fieldnames = ['image_name', 'agent_pos_x', 'agent_pos_y', 'goal_pos_x', 'goal_pos_y'] + [f'neighbor_{i}_{j}' for i in range(7) for j in range(7)]
 
 # Create the environment
 env = GridEnvironment()
 
-# Print the network architecture
-print(model.policy)
-
-# Test the model
+# Reset the environment
 obs, info = env.reset()
-goals_reached = 0
-obstacles_hit = 0
-timeouts = 0
-episodes = 0
-# Print testing
-num_episodes = 500
-print("Testing the model")
-while episodes < num_episodes:
 
+episode = 0
+timestep = 0
+while episode < 2:
 
+    # Open the CSV file for writing (append mode)
+    with open('labels.csv', 'a', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-    action, _states = model.predict(obs, deterministic=True)
-    obs, reward, terminated, truncated, info = env.step(action)
+        # Extract the current frame info
+        current_frame_info = env.get_current_frame_info()
+        agent_pos = current_frame_info["agent_position"]
+        goal_pos = current_frame_info["goal_position"]
+        neighbors_content = current_frame_info["neighboring_cells_content"]
 
-    # env.render()
-    if terminated:
-        if reward == 1:
-            goals_reached += 1
-        elif reward == -1:
-            obstacles_hit += 1
+        # Extract the last RGB image
+        image_name = f"episode_{episode}_timestep_{timestep}.png"
+        last_rgb_image = obs[:, :, -3:]
+        cv2.imwrite(f"test_images/{image_name}", last_rgb_image)
 
-    if truncated:
-        timeouts += 1
+        # Write the data to the CSV file
+        row_data = {
+            'image_name': image_name,
+            'agent_pos_x': agent_pos[0],
+            'agent_pos_y': agent_pos[1],
+            'goal_pos_x': goal_pos[0],
+            'goal_pos_y': goal_pos[1]
+        }
+        row_data.update({f'neighbor_{i}_{j}': neighbors_content[i][j] for i in range(7) for j in range(7)})
+        writer.writerow(row_data)
 
-    if terminated or truncated:
+        # Predict the next action
+        action, state = model.predict(obs, deterministic=True)
+        # Take the action
+        obs, reward, terminated, truncated, info = env.step(action)
+        timestep += 1
 
-        # Print progress in %
-        if episodes % 10 == 0:
-            print(f"{episodes / num_episodes * 100}%")
+        if terminated or truncated:
+            # Reset the environment
+            timestep = 0
+            episode += 1
+            obs, info = env.reset()
 
-        episodes += 1
-        obs, info = env.reset()
-
-
-
-print(f"Succes rate: {goals_reached / episodes}")
-print(f"Obstacles hit: {obstacles_hit / episodes}")
-print(f"Timeouts: {timeouts / episodes}")
+# Make sure to write the header only once at the beginning of the file (outside the loop)
+with open('labels.csv', 'r') as file:
+    content = file.read()
+with open('labels.csv', 'w', newline='') as file:
+    writer = csv.DictWriter(file, fieldnames=fieldnames)
+    writer.writeheader()  # Write the header
+    file.write(content)
