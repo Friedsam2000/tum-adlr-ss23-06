@@ -93,7 +93,7 @@ obs, info = env.reset()
 
 episode = 0
 timestep = 0
-while episode < 10000:
+while episode < 1000:
 
     # Open the CSV file for writing (append mode)
     with open('labels.csv', 'a', newline='') as csvfile:
@@ -139,7 +139,7 @@ while episode < 10000:
         if terminated or truncated:
 
             #Print progress as percentage
-            progress_percentage = (episode / 10000) * 100
+            progress_percentage = (episode / 1000) * 100
             logging.info(f"Current episode: {episode}, Progress: {progress_percentage:.2f}%")
 
             # Reset the environment
