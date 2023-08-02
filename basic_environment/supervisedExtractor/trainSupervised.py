@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -37,8 +38,11 @@ transform = transforms.Compose([
     # transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
 ])
 
-# Load the entire dataset
-dataset = load_data(csv_file='/home/samuel/Desktop/ADLR/tum-adlr-ss23-06/basic_environment/img_data_generation/labels.csv', transform=transform)
+# Load the dataset
+script_dir = os.path.dirname(os.path.abspath(__file__))
+csv_file_path = os.path.join(script_dir, '../img_data_generation/labels.csv')
+images_dir_path = os.path.join(script_dir, '../img_data_generation')
+dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path, transform=transform)
 
 # Take a subset of the dataset if the size is more than num_images
 if len(dataset) > num_images:
