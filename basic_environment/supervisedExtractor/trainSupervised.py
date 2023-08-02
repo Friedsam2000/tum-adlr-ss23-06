@@ -20,7 +20,7 @@ def custom_loss(predictions, labels):
     loss_position = nn.MSELoss()(agent_goal_predictions, agent_goal_labels)
 
     # Weight for the positive class (obstacles), increased to 100
-    pos_weight = torch.full_like(grid_labels, 10)
+    pos_weight = torch.full_like(grid_labels, 1)
 
     # Compute the binary cross-entropy loss using the weighted positive class
     loss_grid = nn.BCEWithLogitsLoss(pos_weight=pos_weight)(grid_predictions, grid_labels)
@@ -28,17 +28,21 @@ def custom_loss(predictions, labels):
     return loss_position + loss_grid
 
 
-
-
+# Number of images to train on
+num_images = 1000
 
 # Define transformation for the images
 transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+    # transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
 ])
 
-# Load the dataset
+# Load the entire dataset
 dataset = load_data(csv_file='/home/samuel/Desktop/ADLR/tum-adlr-ss23-06/basic_environment/img_data_generation/labels.csv', transform=transform)
+
+# Take a subset of the dataset if the size is more than num_images
+if len(dataset) > num_images:
+    dataset, _ = torch.utils.data.random_split(dataset, [num_images, len(dataset) - num_images])
 
 # Split the data into training and validation sets
 train_size = int(0.8 * len(dataset))
@@ -52,9 +56,6 @@ val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 # Instantiate the model
 model = CNNExtractor()
 
-# Define the loss function
-loss_fn = nn.MSELoss()
-
 # Define the optimizer
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
@@ -62,7 +63,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 writer = SummaryWriter()
 
 # Training loop
-num_epochs = 10
+num_epochs = 15
 for epoch in range(num_epochs):
     model.train()
     train_loss = 0.0
