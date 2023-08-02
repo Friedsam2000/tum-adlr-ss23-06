@@ -95,7 +95,7 @@ obs, info = env.reset()
 
 episode = 0
 timestep = 0
-while episode < 1000:
+while episode < 10000: # defines how many images to generate
 
     # Open the CSV file for writing (append mode)
     with open('labels.csv', 'a', newline='') as csvfile:

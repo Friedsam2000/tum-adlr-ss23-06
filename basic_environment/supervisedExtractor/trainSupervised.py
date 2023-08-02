@@ -9,6 +9,9 @@ from dataPreprocessor import load_data
 from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 
+# Check for CUDA availability and set the device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f'Using {device} device')
 
 # Define a custom loss function to handle class imbalance
 def custom_loss(predictions, labels):
@@ -27,7 +30,6 @@ def custom_loss(predictions, labels):
     loss_grid = nn.BCEWithLogitsLoss(pos_weight=pos_weight)(grid_predictions, grid_labels)
 
     return loss_position + loss_grid
-
 
 # Number of images to train on
 num_images = 1000
@@ -59,6 +61,7 @@ val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 
 # Instantiate the model
 model = CNNExtractor()
+model.to(device) # Move the model to the device
 
 # Define the optimizer
 optimizer = optim.Adam(model.parameters(), lr=0.001)
@@ -72,8 +75,8 @@ for epoch in range(num_epochs):
     model.train()
     train_loss = 0.0
     for batch_idx, batch in enumerate(train_loader):
-        images = batch['image']
-        labels = batch['label'].clone().detach().float()
+        images = batch['image'].to(device) # Move the images to the device
+        labels = batch['label'].clone().detach().float().to(device) # Move the labels to the device
         optimizer.zero_grad()
         predictions = model(images)
         combined_loss = custom_loss(predictions, labels)
@@ -87,8 +90,8 @@ for epoch in range(num_epochs):
     val_loss = 0.0
     with torch.no_grad():
         for batch in val_loader:
-            images = batch['image']
-            labels = batch['label'].clone().detach().float()
+            images = batch['image'].to(device) # Move the images to the device
+            labels = batch['label'].clone().detach().float().to(device) # Move the labels to the device
             predictions = model(images)
             combined_loss = custom_loss(predictions, labels)
             val_loss += combined_loss.item()
