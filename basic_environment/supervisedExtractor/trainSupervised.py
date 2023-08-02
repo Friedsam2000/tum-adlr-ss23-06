@@ -66,7 +66,7 @@ for epoch in range(num_epochs):
     train_loss = 0.0
     for batch_idx, batch in enumerate(train_loader):
         images = batch['image'].to(device)
-        grid_labels = batch['label'].clone().detach().float().to(device) # Only obstacle grid
+        grid_labels = batch['label'][:, 4:].clone().detach().float().to(device) # Only obstacle grid, ignoring first 4 elements
         optimizer.zero_grad()
         predictions = model(images)
         combined_loss = custom_loss(predictions, grid_labels)
@@ -81,7 +81,7 @@ for epoch in range(num_epochs):
     with torch.no_grad():
         for batch in val_loader:
             images = batch['image'].to(device)
-            grid_labels = batch['label'].clone().detach().float().to(device) # Only obstacle grid
+            grid_labels = batch['label'][:, 4:].clone().detach().float().to(device) # Only obstacle grid, ignoring first 4 elements
             predictions = model(images)
             combined_loss = custom_loss(predictions, grid_labels)
             val_loss += combined_loss.item()
