@@ -95,7 +95,8 @@ obs, info = env.reset()
 
 episode = 0
 timestep = 0
-while episode < 10000: # defines how many images to generate
+num_images = 10000
+while episode < num_images: # defines how many images to generate
 
     # Open the CSV file for writing (append mode)
     with open('labels.csv', 'a', newline='') as csvfile:
@@ -141,7 +142,7 @@ while episode < 10000: # defines how many images to generate
         if terminated or truncated:
 
             #Print progress as percentage
-            progress_percentage = (episode / 1000) * 100
+            progress_percentage = (episode / num_images) * 100
             logging.info(f"Current episode: {episode}, Progress: {progress_percentage:.2f}%")
 
             # Reset the environment
