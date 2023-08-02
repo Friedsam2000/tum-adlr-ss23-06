@@ -21,9 +21,6 @@ def custom_loss(predictions, grid_labels):
     loss_grid = nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions, grid_labels)
     return loss_grid
 
-# Number of images to train on
-num_images = 1000
-
 # Define transformation for the images
 transform = transforms.Compose([
     transforms.ToTensor(),
@@ -34,11 +31,6 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 csv_file_path = os.path.join(script_dir, '../img_data_generation/labels.csv')
 images_dir_path = os.path.join(script_dir, '../img_data_generation')
 dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path, transform=transform)
-
-
-# Take a subset of the dataset if the size is more than num_images
-if len(dataset) > num_images:
-    dataset, _ = torch.utils.data.random_split(dataset, [num_images, len(dataset) - num_images])
 
 # Split the data into training and validation sets
 train_size = int(0.8 * len(dataset))
