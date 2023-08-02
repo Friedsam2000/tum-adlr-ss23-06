@@ -2,7 +2,9 @@ import subprocess
 import csv
 import cv2
 from stable_baselines3 import DQN
-from ..environments.GridEnvironment import GridEnvironment
+import sys
+sys.path.append("..")  # noqa: E402
+from environments.GridEnvironment import GridEnvironment
 import os
 import logging
 import time
