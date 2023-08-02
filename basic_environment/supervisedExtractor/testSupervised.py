@@ -1,3 +1,4 @@
+import os
 import torch
 from torchvision import transforms
 from cnnExtractor import CNNExtractor
@@ -16,7 +17,10 @@ plt.close('all')
 
 
 # Load the dataset
-dataset = load_data(csv_file='/home/samuel/Desktop/ADLR/tum-adlr-ss23-06/basic_environment/img_data_generation/labels.csv', transform=transform)
+script_dir = os.path.dirname(os.path.abspath(__file__))
+csv_file_path = os.path.join(script_dir, '../img_data_generation/labels.csv')
+images_dir_path = os.path.join(script_dir, '../img_data_generation')
+dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path, transform=transform)
 
 # Get a random index from the dataset
 random_index = random.randint(0, len(dataset) - 1)
@@ -40,18 +44,10 @@ with torch.no_grad():
     prediction = model(image_tensor.unsqueeze(0)).squeeze()
 
 # Extract and print the agent's position, goal position, and neighboring grid
-agent_position_x = prediction[0].item()
-agent_position_y = prediction[1].item()
-goal_position_x = prediction[2].item()
-goal_position_y = prediction[3].item()
-neighboring_grid_logits = prediction[4:].reshape(7, 7)
-neighboring_grid = torch.sigmoid(neighboring_grid_logits).tolist()
+predicted_neighboring_grid_logits = prediction.reshape(7, 7)
+predicted_neighboring_grid = torch.sigmoid(predicted_neighboring_grid_logits).tolist()
 
 # Extract the true agent's position, goal position, and neighboring grid
-true_agent_position_x = sample['label'][0].item()
-true_agent_position_y = sample['label'][1].item()
-true_goal_position_x = sample['label'][2].item()
-true_goal_position_y = sample['label'][3].item()
 true_neighboring_grid = sample['label'][4:].reshape(7, 7).tolist()
 
 # Show the image
@@ -59,11 +55,9 @@ plt.imshow(image_numpy)
 plt.axis('off') # To turn off axes
 plt.show()
 
-print(f"Predicted agent_position: {agent_position_x:.0f} {agent_position_y:.0f} vs True agent_position: {true_agent_position_x:.0f} {true_agent_position_y:.0f}")
-print(f"Predicted goal_position: {goal_position_x:.0f} {goal_position_y:.0f} vs True goal_position: {true_goal_position_x:.0f} {true_goal_position_y:.0f}")
 print("Predicted NeighborGrid:")
 threshold = 0.5
-neighboring_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for row in neighboring_grid]
+neighboring_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for row in predicted_neighboring_grid]
 for row in neighboring_grid_visual:
     print(" ".join(row))
 print("True NeighborGrid:")
