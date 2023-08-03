@@ -54,7 +54,7 @@ model = CNNExtractor()
 model.to(device) # Move the model to the device
 
 # Define the optimizer
-optimizer = optim.Adam(model.parameters(), lr=0.0001)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Create a SummaryWriter to log data to TensorBoard
 writer = SummaryWriter()
