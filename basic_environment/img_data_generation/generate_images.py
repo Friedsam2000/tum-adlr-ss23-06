@@ -99,7 +99,7 @@ env = GridEnvironment(num_obstacles=50)
 obs, info = env.reset()
 
 # Prepare for batching
-batch_size = 100000
+batch_size = 1000
 image_batch = []  # Initialize as an empty list
 csv_rows = []  # Initialize as an empty list
 batch_index = 0
@@ -111,7 +111,7 @@ with open('labels.csv', 'a', newline='') as csvfile:
 
     episode = 0
     timestep = 0
-    num_images = 1000
+    num_images = 100000
     while episode < num_images:
 
         # Reset the environment
