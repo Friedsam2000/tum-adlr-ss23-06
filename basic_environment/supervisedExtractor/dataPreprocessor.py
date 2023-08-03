@@ -1,5 +1,5 @@
 import os
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import pandas as pd
 from PIL import Image
 import torch
@@ -7,23 +7,20 @@ import torch
 class load_data(Dataset):
     def __init__(self, csv_file, images_dir, transform=None):
         self.labels = pd.read_csv(csv_file)
-        self.images_dir = images_dir
+        self.image_paths = [os.path.join(images_dir, 'test_images', img_name) for img_name in self.labels.iloc[:, 0]]
         # Convert the obstacle labels to binary
         self.labels.replace({"no_obstacle": 0, "obstacle": 1}, inplace=True)
+        self.labels_values = self.labels.iloc[:, 1:].values.astype(float) # Cached as numpy array
         self.transform = transform
 
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, idx):
-        try:
-            img_name = os.path.join(self.images_dir, 'test_images', self.labels.iloc[idx, 0])
-            image = Image.open(img_name)
-            label = self.labels.iloc[idx, 1:].values.astype(float)
-            sample = {'image': image, 'label': torch.tensor(label, dtype=torch.float32)}
-            if self.transform:
-                sample['image'] = self.transform(sample['image'])
-            return sample
-        except ValueError as e:
-            print(f"Error in row {idx}: {self.labels.iloc[idx]}")
-            raise e
+        img_name = self.image_paths[idx]
+        image = Image.open(img_name)
+        label = torch.tensor(self.labels_values[idx], dtype=torch.float32)
+        sample = {'image': image, 'label': label}
+        if self.transform:
+            sample['image'] = self.transform(sample['image'])
+        return sample
