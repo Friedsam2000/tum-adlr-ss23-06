@@ -7,6 +7,8 @@ from torchvision import transforms
 from dataPreprocessor import load_data
 from torch.utils.tensorboard import SummaryWriter
 
+import torch.nn.functional as F  # Add this line
+
 class Bottleneck(nn.Module):
     def __init__(self, in_channels, growth_rate):
         super(Bottleneck, self).__init__()
@@ -17,8 +19,8 @@ class Bottleneck(nn.Module):
         self.conv2 = nn.Conv2d(inter_channels, growth_rate, kernel_size=3, padding=1)
 
     def forward(self, x):
-        out = self.conv1(F.relu(self.bn1(x)))
-        out = self.conv2(F.relu(self.bn2(out)))
+        out = self.conv1(F.relu(self.bn1(x)))  # Correctly using F.relu
+        out = self.conv2(F.relu(self.bn2(out)))  # Correctly using F.relu
         out = torch.cat((x, out), 1)
         return out
 
