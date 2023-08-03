@@ -16,7 +16,7 @@ print(f'Using {device} device')
 # Define a custom loss function for grid prediction
 def custom_loss(predictions, grid_labels):
     # Weight for the positive class (obstacles), increased to 100
-    pos_weight = torch.full_like(grid_labels, 1)
+    pos_weight = torch.full_like(grid_labels, 10)
     # Compute the binary cross-entropy loss using the weighted positive class
     loss_grid = nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions, grid_labels)
     return loss_grid
