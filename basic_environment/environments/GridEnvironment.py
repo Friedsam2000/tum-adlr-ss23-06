@@ -382,16 +382,16 @@ class GridEnvironment(gymnasium.Env):
     def get_neighboring_cells_content(self, position, distance=3):
         neighbors_content = [[0 for _ in range(2 * distance + 1)] for _ in
                              range(2 * distance + 1)]  # Initialize with 0 for 'no_obstacle'
+
+        # Pre-calculate obstacle positions
+        obstacle_positions = {(pos[0], pos[1]) for obstacle in self.obstacles for pos in obstacle.positions}
+
         for dx in range(-distance, distance + 1):
             for dy in range(-distance, distance + 1):
                 x, y = position[0] + dx, position[1] + dy
                 if 0 <= x < self.grid_size[0] and 0 <= y < self.grid_size[1]:  # Check bounds
                     # Check if the current cell corresponds to any obstacle's position
-                    if any([x, y] == pos for obstacle in self.obstacles for pos in obstacle.positions):
-                        content = 1  # 'obstacle'
-                    else:
-                        content = 0  # 'no_obstacle'
-
+                    content = 1 if (x, y) in obstacle_positions else 0  # 'obstacle' if present else 'no_obstacle'
                     # Update the corresponding cell in the neighbors_content grid
                     neighbors_content[dx + distance][dy + distance] = content
 
