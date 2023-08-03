@@ -7,7 +7,7 @@ from torchvision import transforms
 from cnnExtractor import CNNExtractor
 from dataPreprocessor import load_data
 from torch.utils.tensorboard import SummaryWriter
-import numpy as np
+from torch.utils.data import Subset
 
 # Check for CUDA availability and set the device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -34,7 +34,7 @@ dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path, transfor
 
 # Limit the dataset to the first 10000 samples
 max_images = 10000
-dataset = dataset[:max_images]
+dataset = Subset(dataset, indices=range(max_images))
 
 # Split the data into training and validation sets
 train_size = int(0.8 * len(dataset))
