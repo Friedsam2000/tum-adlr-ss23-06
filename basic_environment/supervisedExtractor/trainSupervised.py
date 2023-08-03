@@ -16,7 +16,7 @@ print(f'Using {device} device')
 # Define a custom loss function for grid prediction
 def custom_loss(predictions, grid_labels):
     # Weight for the positive class (obstacles), increased to 100
-    pos_weight = torch.full_like(grid_labels, 10)
+    pos_weight = torch.full_like(grid_labels, 1)
     # Compute the binary cross-entropy loss using the weighted positive class
     loss_grid = nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions, grid_labels)
     return loss_grid
@@ -51,7 +51,7 @@ model = CNNExtractor()
 model.to(device) # Move the model to the device
 
 # Define the optimizer
-optimizer = optim.Adam(model.parameters(), lr=0.01)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Create a SummaryWriter to log data to TensorBoard
 writer = SummaryWriter()
