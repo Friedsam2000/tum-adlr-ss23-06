@@ -55,7 +55,6 @@ class CNNExtractor(nn.Module):
             nn.Conv2d(num_channels, 64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Dropout(0.5),
             nn.Conv2d(64, 1, kernel_size=3, stride=2),
             nn.AdaptiveAvgPool2d((7, 7))
         )
