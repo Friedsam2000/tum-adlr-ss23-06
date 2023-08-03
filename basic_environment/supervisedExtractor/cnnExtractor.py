@@ -8,44 +8,52 @@ class CNNExtractor(nn.Module):
 
         self.features = nn.Sequential(
 
-            #size is 96x96x3
+            # size is 96x96x3
             nn.Conv2d(3, 16, kernel_size=2, stride=1, padding=1),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
-            #size is 48x48x16
+            # size is 48x48x16
             nn.Conv2d(16, 32, kernel_size=2, stride=1, padding=1),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
-            #size is 24x24x32
+            # size is 24x24x32
             nn.Conv2d(32, 64, kernel_size=2, stride=1, padding=1),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
-            #size is 12x12x64
-            nn.Conv2d(64, 32, kernel_size=2, stride=1, padding=1),
+            # size is 12x12x64
+            nn.Conv2d(64, 128, kernel_size=2, stride=1, padding=1),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
+            # size is 6x6x128
+            nn.Conv2d(128, 64, kernel_size=2, stride=1, padding=1),
+            nn.ReLU(),
+            nn.AvgPool2d(kernel_size=2, stride=2),
+            nn.Dropout(0.1),
 
+            # size is 3x3x64
         )
 
 
         self.classifier = nn.Sequential(
-            # 3 fully connected layers
-            nn.Linear(32 * 6 * 6, 512),
+            # 4 fully connected layers
+            nn.Linear(64 * 3 * 3, 512),
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Linear(512, 256),
             nn.ReLU(),
             nn.Dropout(0.1),
-            nn.Linear(256, 49),
-
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(128, 49),
 
         )
 
