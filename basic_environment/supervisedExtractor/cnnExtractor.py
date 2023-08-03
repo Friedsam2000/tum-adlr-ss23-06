@@ -13,9 +13,7 @@ class Bottleneck(nn.Module):
     def __init__(self, in_channels, growth_rate):
         super(Bottleneck, self).__init__()
         inter_channels = 4 * growth_rate
-        self.bn1 = nn.BatchNorm2d(in_channels)
         self.conv1 = nn.Conv2d(in_channels, inter_channels, kernel_size=1)
-        self.bn2 = nn.BatchNorm2d(inter_channels)
         self.conv2 = nn.Conv2d(inter_channels, growth_rate, kernel_size=3, padding=1)
 
     def forward(self, x):
@@ -27,7 +25,6 @@ class Bottleneck(nn.Module):
 class Transition(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(Transition, self).__init__()
-        self.bn = nn.BatchNorm2d(in_channels)
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=1)
 
     def forward(self, x):
@@ -53,9 +50,7 @@ class CNNExtractor(nn.Module):
 
         self.fc_obstacle = nn.Sequential(
             nn.Conv2d(num_channels, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Dropout(0.5),
             nn.Conv2d(64, 1, kernel_size=3, stride=2),
             nn.AdaptiveAvgPool2d((7, 7))
         )
