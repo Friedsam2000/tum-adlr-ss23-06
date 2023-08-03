@@ -60,7 +60,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 writer = SummaryWriter()
 
 # Training loop
-num_epochs = 50
+num_epochs = 100
 for epoch in range(num_epochs):
     model.train()
     train_loss = 0.0
