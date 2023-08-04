@@ -6,11 +6,11 @@ class CNNExtractor(nn.Module):
         super(CNNExtractor, self).__init__()
 
         self.features = nn.Sequential(
-            # size is 96x96x3
+            # size is 96x96x3 (formula: (W−K+2P)/S+1)
             nn.Conv2d(3, 32, kernel_size=4, stride=4, padding=1),
             nn.ReLU(),
 
-            # size is 24x24x32 (formula: (W−K+2P)/S+1)
+            # size is 24x24x32
             nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
             nn.ReLU(),
 
@@ -22,9 +22,11 @@ class CNNExtractor(nn.Module):
             nn.Conv2d(128, 32, kernel_size=2, stride=1, padding=1),
             nn.ReLU(),
 
-            # size is 12x12x64
+            # size is 12x12x32
             nn.Conv2d(32, 8, kernel_size=2, stride=1, padding=1),
             nn.ReLU(),
+
+            # size is 12x12x8
 
 
         )
