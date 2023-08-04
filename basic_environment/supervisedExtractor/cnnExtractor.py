@@ -33,12 +33,14 @@ class CNNExtractor(nn.Module):
 
         self.classifier = nn.Sequential(
             # 4 fully connected layers
-            nn.Linear(12 * 12*8, 256), # Here, you need to match the flattened size
+            nn.Linear(12 * 12*8, 512), # Here, you need to match the flattened size
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(512, 256),
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Linear(256, 128),
             nn.ReLU(),
-            nn.Dropout(0.1),
             nn.Linear(128, 64),
             nn.ReLU(),
             nn.Dropout(0.1),
