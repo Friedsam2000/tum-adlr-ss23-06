@@ -21,41 +21,33 @@ class CNNExtractor(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=3, stride=2),
 
-            # size is 11x11x128
-            nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1),
+            # size is 11x11x128 formula: (W−K+2P)/S+1
+            nn.Conv2d(128, 128, kernel_size=2, stride=1),
             nn.ReLU(),
+            nn.Dropout2d(p=0.2),
 
-            # size is 11x11x64
-            nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1),
+            # size is 10x10x128
+            nn.Conv2d(128, 64, kernel_size=2, stride=1),
             nn.ReLU(),
+            nn.Dropout2d(p=0.2),
 
-            # size is 11x11x32
-            nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1),
+            # size is 9x9x64
+            nn.Conv2d(64, 16, kernel_size=2, stride=1),
             nn.ReLU(),
+            nn.Dropout2d(p=0.2),
 
-            # size is 11x11x16
-            nn.Conv2d(16, 8, kernel_size=3, stride=1, padding=1),
+            # size is 8x8x32
+            nn.Conv2d(16, 1, kernel_size=2, stride=1),
             nn.ReLU(),
+            nn.Dropout2d(p=0.2),
+
+            # size is 7x7x1
 
 
         )
 
-        self.classifier = nn.Sequential(
-            # 4 fully connected layers
-            nn.Linear(11 * 11*8, 256), # Here, you need to match the flattened size
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(256, 128),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(64, 49),
-        )
 
     def forward(self, x):
         x = self.features(x)
         x = torch.flatten(x, 1)
-        x = self.classifier(x)
         return x
