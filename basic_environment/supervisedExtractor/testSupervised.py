@@ -66,6 +66,20 @@ true_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for row 
 for row in true_grid_visual:
     print(" ".join(row))
 
+# Calculate false positives and false negatives
+false_positives = 0
+false_negatives = 0
+for i in range(7):
+    for j in range(7):
+        if predicted_neighboring_grid[i][j] >= threshold and true_neighboring_grid[i][j] < threshold:
+            false_positives += 1
+        if predicted_neighboring_grid[i][j] < threshold and true_neighboring_grid[i][j] >= threshold:
+            false_negatives += 1
+
+print("Number of false positives (falsely predicted obstacles):", false_positives)
+print("Number of false negatives (missed obstacles):", false_negatives)
+
+
 # Define the loss function (consistent with training)
 def custom_loss(predictions, grid_labels):
     predictions = predictions.view(predictions.size(0), -1)
