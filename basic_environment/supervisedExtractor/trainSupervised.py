@@ -36,7 +36,7 @@ images_dir_path = os.path.join(script_dir, '../img_data_generation')
 dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path, transform=transform)
 
 # Limit the dataset to the first 10000 samples
-max_images = 100000
+max_images = 10000
 dataset = Subset(dataset, indices=range(max_images))
 
 # Split the data into training and validation sets
