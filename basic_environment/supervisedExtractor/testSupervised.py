@@ -6,15 +6,13 @@ from dataPreprocessor import load_data
 import matplotlib.pyplot as plt
 import random
 
-# Define transformation for the images
+# Define transformation for the images, consistent with training script
 transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+    transforms.ToTensor()
 ])
 
 # Close all existing figure windows
 plt.close('all')
-
 
 # Load the dataset
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -30,16 +28,17 @@ model = CNNExtractor()
 
 # Load the model weights
 model.load_state_dict(torch.load('model.pth'))
+
+# Set the device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
 model.eval()
 
 # Get the random sample from the dataset
 sample = dataset[random_index]
-image_tensor = sample['image']
-image_numpy = image_tensor.permute(1, 2, 0).numpy() # Converting to a format suitable for displaying
-image_numpy = (image_numpy + 1) / 2.0 # Denormalizing the image
+image_tensor = sample['image'].to(device)
 
 # Pass the image through the model
-model.eval() # Set the model to evaluation mode
 with torch.no_grad():
     prediction = model(image_tensor.unsqueeze(0)).squeeze()
 
@@ -48,32 +47,37 @@ predicted_neighboring_grid_logits = prediction.reshape(7, 7)
 predicted_neighboring_grid = torch.sigmoid(predicted_neighboring_grid_logits).tolist()
 
 # Extract the true agent's position, goal position, and neighboring grid
-true_neighboring_grid = sample['label'][4:].reshape(7, 7).tolist()
+true_neighboring_grid = torch.Tensor(sample['label'][4:]).reshape(7, 7).tolist()
 
 # Show the image
+image_numpy = image_tensor.cpu().permute(1, 2, 0).numpy() # Convert to CPU for visualization
 plt.imshow(image_numpy)
 plt.axis('off') # To turn off axes
 plt.show()
 
-print("Predicted NeighborGrid:")
+# Visualize the predicted and true grids
 threshold = 0.5
-neighboring_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for row in predicted_neighboring_grid]
-for row in neighboring_grid_visual:
+print("Predicted NeighborGrid:")
+predicted_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for row in predicted_neighboring_grid]
+for row in predicted_grid_visual:
     print(" ".join(row))
 print("True NeighborGrid:")
-true_neighboring_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for row in true_neighboring_grid]
-for row in true_neighboring_grid_visual:
+true_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for row in true_neighboring_grid]
+for row in true_grid_visual:
     print(" ".join(row))
 
-
-# Define the loss function
-loss_function = torch.nn.BCEWithLogitsLoss() # Add pos_weight argument if needed
+# Define the loss function (consistent with training)
+def custom_loss(predictions, grid_labels):
+    predictions = predictions.view(predictions.size(0), -1)
+    pos_weight = torch.full_like(grid_labels, 1)
+    loss_grid = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions, grid_labels)
+    return loss_grid
 
 # Convert true_neighboring_grid to a tensor
-true_neighboring_grid_tensor = torch.Tensor(true_neighboring_grid)
+true_neighboring_grid_tensor = torch.Tensor(true_neighboring_grid).to(device)
 
 # Calculate the loss
-loss = loss_function(predicted_neighboring_grid_logits, true_neighboring_grid_tensor)
+loss = custom_loss(predicted_neighboring_grid_logits, true_neighboring_grid_tensor)
 
 # Print the loss
 print("Loss of the prediction:", loss.item())
