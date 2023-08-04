@@ -64,3 +64,16 @@ print("True NeighborGrid:")
 true_neighboring_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for row in true_neighboring_grid]
 for row in true_neighboring_grid_visual:
     print(" ".join(row))
+
+
+# Define the loss function
+loss_function = torch.nn.BCEWithLogitsLoss() # Add pos_weight argument if needed
+
+# Convert true_neighboring_grid to a tensor
+true_neighboring_grid_tensor = torch.Tensor(true_neighboring_grid)
+
+# Calculate the loss
+loss = loss_function(predicted_neighboring_grid_logits, true_neighboring_grid_tensor)
+
+# Print the loss
+print("Loss of the prediction:", loss.item())
