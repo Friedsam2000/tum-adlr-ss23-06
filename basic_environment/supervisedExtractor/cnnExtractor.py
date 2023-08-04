@@ -47,6 +47,6 @@ class CNNExtractor(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        x = torch.flatten(x, 1)
+        x = x.view(x.size(0), -1)  # Reshape to [batch_size, 12 * 12 * 8]
         x = self.classifier(x)
         return x
