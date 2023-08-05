@@ -57,7 +57,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 # Google Cloud Storage configurations
 bucket_name = 'adlr_bucket'
 log_dir = 'supervised/logs'
-model_dir = 'model'
+model_dir = 'supervised/model'
 storage_client = storage.Client()
 
 # Save TensorBoard logs to a new directory
