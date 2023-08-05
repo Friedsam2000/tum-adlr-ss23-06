@@ -105,6 +105,7 @@ for epoch in range(num_epochs):
         bucket = storage_client.get_bucket(bucket_name)
         blob = bucket.blob(f'{log_dir}/{current_time}')
         blob.upload_from_filename(tb_log_dir)
+        print(f"Successfully uploaded logs to {blob.public_url}")
 
 # Save the model with a new name
 model_path_local = f'{current_time}_model.pth'
@@ -113,3 +114,4 @@ torch.save(model.state_dict(), model_path_local)
 # Upload the model to Google Cloud Storage
 blob = bucket.blob(f'{model_dir}/{current_time}_model.pth')
 blob.upload_from_filename(model_path_local)
+print(f"Successfully uploaded model to {blob.public_url}")
