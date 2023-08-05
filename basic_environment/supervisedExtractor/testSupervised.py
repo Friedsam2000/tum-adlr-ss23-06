@@ -30,6 +30,8 @@ model.load_state_dict(torch.load('model.pth'))
 # Set the device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
+
+# Set model to evaluation mode
 model.eval()
 
 # Define the loss function (consistent with training)
