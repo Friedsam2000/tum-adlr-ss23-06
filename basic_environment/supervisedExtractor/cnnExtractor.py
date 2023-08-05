@@ -17,19 +17,22 @@ class CNNExtractor(nn.Module):
             # size is 24x24x64
             nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1),
             nn.ReLU(),
+            nn.Dropout2d(0.1),
 
             # size is 12x12x64
             nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
+            nn.Dropout2d(0.1),
 
             # size is 12x12x128
             nn.Conv2d(128, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
+            nn.Dropout2d(0.1),
 
             # size is 12x12x32
             nn.Conv2d(32, 8, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-
+            nn.Dropout2d(0.1),
             # size is 12x12x8
 
 
@@ -42,7 +45,7 @@ class CNNExtractor(nn.Module):
             nn.Dropout(0.1),
             nn.Linear(256, 128),
             nn.ReLU(),
-            # nn.Dropout(0.1),
+            nn.Dropout(0.1),
             nn.Linear(128, 64),
             nn.ReLU(),
             # nn.Dropout(0.1),
