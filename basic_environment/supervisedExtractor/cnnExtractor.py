@@ -15,6 +15,10 @@ class CNNExtractor(nn.Module):
             nn.ReLU(),
 
             # size is 24x24x64
+            nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+
+            # size is 24x24x64
             nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1),
             nn.ReLU(),
 
