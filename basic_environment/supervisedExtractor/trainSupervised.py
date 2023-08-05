@@ -1,22 +1,33 @@
 import os
 import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader
 from torchvision import transforms
 from cnnExtractor import CNNExtractor
 from dataPreprocessor import load_data
-import matplotlib.pyplot as plt
-import random
-import numpy as np
 from torch.utils.tensorboard import SummaryWriter
-from datetime import datetime
-import subprocess
+from torch.utils.data import Subset
 
-# Define transformation for the images, consistent with training script
+# Check for CUDA availability and set the device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f'Using {device} device')
+
+# Define a custom loss function for grid prediction
+def custom_loss(predictions, grid_labels):
+    predictions = predictions.view(predictions.size(0), -1)  # Reshaping predictions to match the target size
+    pos_weight = torch.full_like(grid_labels, 2)
+
+    loss_grid = nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions, grid_labels)
+    # Continue with your custom loss logic
+    # Weight for the positive class (obstacles), increased to 100
+    # Compute the binary cross-entropy loss using the weighted positive class
+    return loss_grid
+
+# Define transformation for the images
 transform = transforms.Compose([
-    transforms.ToTensor()
+    transforms.ToTensor(),
 ])
-
-# Close all existing figure windows
-plt.close('all')
 
 # Load the dataset
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -24,105 +35,64 @@ csv_file_path = os.path.join(script_dir, '../img_data_generation/labels.csv')
 images_dir_path = os.path.join(script_dir, '../img_data_generation')
 dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path, transform=transform)
 
+# Limit the dataset to the first 10000 samples
+max_images = 500000
+dataset = Subset(dataset, indices=range(max_images))
+
+# Split the data into training and validation sets
+train_size = int(0.8 * len(dataset))
+val_size = len(dataset) - train_size
+train_dataset, val_dataset = torch.utils.data.random_split(dataset, [train_size, val_size])
+
+# Create data loaders with multiple workers
+train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=4, pin_memory=True)
+val_loader = DataLoader(val_dataset, batch_size=128, shuffle=False, num_workers=4, pin_memory=True)
+
+
 # Instantiate the model
 model = CNNExtractor()
+model.to(device) # Move the model to the device
 
-# Load the model weights
-model.load_state_dict(torch.load('model.pth'))
+# Define the optimizer
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Set the device
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
-model.eval()
+# Create a SummaryWriter to log data to TensorBoard
+writer = SummaryWriter()
 
-# Define the loss function (consistent with training)
-def custom_loss(predictions, grid_labels):
-    predictions = predictions.view(predictions.size(0), -1)
-    pos_weight = torch.full_like(grid_labels, 1)
-    loss_grid = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions, grid_labels)
-    return loss_grid
+# Training loop
+num_epochs = 100
+for epoch in range(num_epochs):
+    model.train()
+    train_loss = 0.0
+    for batch_idx, batch in enumerate(train_loader):
+        images = batch['image'].to(device)
+        grid_labels = batch['label'][:, 4:].clone().detach().float().to(device) # Only obstacle grid, ignoring first 4 elements
+        optimizer.zero_grad()
+        predictions = model(images)
+        combined_loss = custom_loss(predictions, grid_labels)
+        combined_loss.backward()
+        optimizer.step()
+        train_loss += combined_loss.item()
+        writer.add_scalar('train_loss', combined_loss.item(), epoch * len(train_loader) + batch_idx)
 
-# Variables to hold cumulative false positives, false negatives, and loss
-cumulative_false_positives = 0
-cumulative_false_negatives = 0
-cumulative_loss = 0
-
-# Number of predictions
-num_predictions = 100
-
-# Threshold for grid classification
-threshold = 0.5
-
-# Define TensorBoard writer
-writer = SummaryWriter('gs://adlr_bucket/supervised/logs/run_name')
-
-for i in range(num_predictions):
-    # Get a random index from the dataset
-    random_index = random.randint(0, len(dataset) - 1)
-
-    # Get the random sample from the dataset
-    sample = dataset[random_index]
-    image_tensor = sample['image'].to(device)
-
-    # Pass the image through the model
+    # Evaluate on validation set
+    model.eval()
+    val_loss = 0.0
     with torch.no_grad():
-        prediction = model(image_tensor.unsqueeze(0)).squeeze()
+        for batch in val_loader:
+            images = batch['image'].to(device)
+            grid_labels = batch['label'][:, 4:].clone().detach().float().to(device) # Only obstacle grid, ignoring first 4 elements
+            predictions = model(images)
+            combined_loss = custom_loss(predictions, grid_labels)
+            val_loss += combined_loss.item()
 
-    # Extract and print the agent's position, goal position, and neighboring grid
-    predicted_neighboring_grid_logits = prediction.reshape(7, 7)
-    predicted_neighboring_grid = torch.sigmoid(predicted_neighboring_grid_logits).tolist()
+    # Log training and validation losses to TensorBoard every epoch
+    writer.add_scalar('epoch_train_loss', train_loss / len(train_loader), epoch)
+    writer.add_scalar('epoch_val_loss', val_loss / len(val_loader), epoch)
 
-    # Extract the true agent's position, goal position, and neighboring grid
-    true_neighboring_grid = torch.Tensor(sample['label'][4:]).reshape(7, 7).tolist()
+    print(f"Epoch {epoch + 1}/{num_epochs}")
+    print(f"  Train loss: {train_loss / len(train_loader)}")
+    print(f"  Validation loss: {val_loss / len(val_loader)}")
 
-    # Calculate false positives and false negatives
-    false_positives = 0
-    false_negatives = 0
-    for i in range(7):
-        for j in range(7):
-            if predicted_neighboring_grid[i][j] >= threshold and true_neighboring_grid[i][j] < threshold:
-                false_positives += 1
-            if predicted_neighboring_grid[i][j] < threshold and true_neighboring_grid[i][j] >= threshold:
-                false_negatives += 1
-
-    # Add to cumulative counts
-    cumulative_false_positives += false_positives
-    cumulative_false_negatives += false_negatives
-
-    # Convert true_neighboring_grid to a tensor
-    true_neighboring_grid_tensor = torch.Tensor(true_neighboring_grid).to(device)
-
-    # Calculate the loss
-    loss = custom_loss(predicted_neighboring_grid_logits, true_neighboring_grid_tensor)
-
-    # Add to cumulative loss
-    cumulative_loss += loss.item()
-
-    # Log loss to TensorBoard
-    writer.add_scalar('Loss/train', loss.item(), i)
-
-# Print the predicted grid of the last iteration
-print("Predicted NeighborGrid of last sample:")
-predicted_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for row in predicted_neighboring_grid]
-for row in predicted_grid_visual:
-    print(" ".join(row))
-
-# Calculate mean values
-mean_false_positives = cumulative_false_positives / num_predictions
-mean_false_negatives = cumulative_false_negatives / num_predictions
-mean_loss = cumulative_loss / num_predictions
-
-print("Mean number of false positives (falsely predicted obstacles):", mean_false_positives)
-print("Mean number of false negatives (missed obstacles):", mean_false_negatives)
-print("Mean loss of the predictions:", mean_loss)
-
-# Save the model with a unique name
-current_time = datetime.now().strftime('%Y%m%d%H%M%S')
-model_path = 'model_{}.pth'.format(current_time)
-torch.save(model.state_dict(), model_path)
-
-# Upload the model to Google Cloud Storage
-subprocess.run(['gsutil', 'cp', model_path, 'gs://adlr_bucket/supervised/models/{}'.format(model_path)])
-
-# Close the writer
-writer.close()
+# Save the model
+torch.save(model.state_dict(), 'model.pth')
