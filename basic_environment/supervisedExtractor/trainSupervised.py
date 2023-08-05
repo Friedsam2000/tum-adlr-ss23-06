@@ -121,3 +121,15 @@ torch.save(model.state_dict(), model_path_local)
 blob = bucket.blob(f'{model_dir}/{current_time}_model.pth')
 blob.upload_from_filename(model_path_local)
 print(f"Successfully uploaded model to {blob.public_url}")
+
+# Delete the local model file
+os.remove(model_path_local)
+print(f"Successfully deleted local model file {model_path_local}")
+
+# Close the TensorBoard writer
+writer.close()
+
+# Delete local TensorBoard logs
+os.system(f'rm -rf {tb_log_dir}')
+print(f"Successfully deleted local TensorBoard logs {tb_log_dir}")
+
