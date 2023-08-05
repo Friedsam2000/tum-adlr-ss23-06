@@ -16,17 +16,20 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f'Using {device} device')
 
 # Define a custom loss function for grid prediction
-def custom_loss(predictions, grid_labels):
-    predictions = predictions.view(predictions.size(0), -1)  # Reshaping predictions to match the target size
+def custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels):
+    predictions_grid = predictions_grid.view(predictions_grid.size(0), -1)  # Reshaping predictions to match the target size
     pos_weight = torch.full_like(grid_labels, 1)
+    loss_grid = nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions_grid, grid_labels)
 
-    loss_grid = nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions, grid_labels)
-    return loss_grid
+    # MSE Loss for positions
+    loss_pos = nn.MSELoss()(predictions_pos, pos_labels)
 
-# Define transformation for the images
-transform = transforms.Compose([
-    transforms.ToTensor(),
-])
+    # You can adjust the ratio of grid to position loss by using a different weight
+    grid_loss_weight = 1.0
+    pos_loss_weight = 1.0
+
+    return grid_loss_weight * loss_grid + pos_loss_weight * loss_pos
+
 
 # Load the dataset
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -72,10 +75,11 @@ for epoch in range(num_epochs):
     train_loss = 0.0
     for batch_idx, batch in enumerate(train_loader):
         images = batch['image'].to(device)
-        grid_labels = batch['label'][:, 4:].clone().detach().float().to(device) # Only obstacle grid, ignoring first 4 elements
+        grid_labels = batch['label'][:, 4:].clone().detach().float().to(device)  # Only obstacle grid, ignoring first 4 elements
+        pos_labels = batch['label'][:, :4].clone().detach().float().to(device)  # Only the positions
         optimizer.zero_grad()
-        predictions = model(images)
-        combined_loss = custom_loss(predictions, grid_labels)
+        predictions_grid, predictions_pos = model(images)
+        combined_loss = custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels)
         combined_loss.backward()
         optimizer.step()
         train_loss += combined_loss.item()
@@ -87,10 +91,12 @@ for epoch in range(num_epochs):
     with torch.no_grad():
         for batch in val_loader:
             images = batch['image'].to(device)
-            grid_labels = batch['label'][:, 4:].clone().detach().float().to(device) # Only obstacle grid, ignoring first 4 elements
-            predictions = model(images)
-            combined_loss = custom_loss(predictions, grid_labels)
+            grid_labels = batch['label'][:, 4:].clone().detach().float().to(device)  # Only obstacle grid, ignoring first 4 elements
+            pos_labels = batch['label'][:, :4].clone().detach().float().to(device)  # Only the positions
+            predictions_grid, predictions_pos = model(images)
+            combined_loss = custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels)
             val_loss += combined_loss.item()
+
 
     # Log training and validation losses to TensorBoard every epoch
     writer.add_scalar('epoch_train_loss', train_loss / len(train_loader), epoch)
