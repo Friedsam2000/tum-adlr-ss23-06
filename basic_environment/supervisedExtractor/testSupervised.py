@@ -101,7 +101,7 @@ print("Predicted NeighborGrid of last sample:")
 predicted_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for row in predicted_neighboring_grid]
 for row in predicted_grid_visual:
     print(" ".join(row))
-print("Predicted positions:", round(predicted_positions))
+print("Predicted positions:", np.round(predicted_positions))
 print("True positions:", true_positions)
 
 # Calculate mean values
