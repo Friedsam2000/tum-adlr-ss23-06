@@ -104,9 +104,13 @@ for epoch in range(num_epochs):
     if epoch % 10 == 9:
         try:
             bucket = storage_client.get_bucket(bucket_name)
-            blob = bucket.blob(f'{log_dir}/{current_time}')
-            blob.upload_from_filename(tb_log_dir)
-            print(f"Successfully uploaded logs to {blob.public_url}")
+            log_files = os.listdir(tb_log_dir)
+            for file in log_files:
+                file_path = os.path.join(tb_log_dir, file)
+                if os.path.isfile(file_path):  # Ignore subdirectories
+                    blob = bucket.blob(f'{log_dir}/{current_time}/{file}')
+                    blob.upload_from_filename(file_path)
+            print(f"Successfully uploaded logs to gs://{bucket_name}/{log_dir}/{current_time}/")
         except Exception as e:
             print(f"Failed to upload logs: {e}")
 
