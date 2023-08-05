@@ -11,32 +11,33 @@ class CNNExtractor(nn.Module):
             nn.ReLU(),
 
             # size is 24x24x32
-            nn.Conv2d(32, 64, kernel_size=2, stride=1),
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
 
-            # size is 23x23x64
-            nn.Conv2d(64, 64, kernel_size=2, stride=1),
+            # size is 24x24x64
+            nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1),
             nn.ReLU(),
 
-            # size is 22x22x64
-            nn.Conv2d(64, 128, kernel_size=2, stride=2),
+            # size is 12x12x64
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
 
-            # size is 11x11x128
-            nn.Conv2d(128, 32, kernel_size=2, stride=1),
+            # size is 12x12x128
+            nn.Conv2d(128, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
 
-            # size is 10x10x32
-            nn.Conv2d(32, 8, kernel_size=2, stride=1),
+            # size is 12x12x32
+            nn.Conv2d(32, 8, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
 
-            # size is 9x9x8
+            # size is 12x12x8
+
 
         )
 
         self.classifier = nn.Sequential(
             # 4 fully connected layers
-            nn.Linear(9*9*8, 256), # Here, you need to match the flattened size
+            nn.Linear(12 * 12*8, 256), # Here, you need to match the flattened size
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Linear(256, 128),
