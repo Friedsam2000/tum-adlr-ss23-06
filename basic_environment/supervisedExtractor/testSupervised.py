@@ -63,6 +63,10 @@ for _ in range(num_predictions):
     with torch.no_grad():
         prediction_grid, prediction_pos = model(image_tensor.unsqueeze(0))
 
+    # Squeeze prediction_pos to remove the extra dimension
+    prediction_pos = prediction_pos.squeeze()
+
+
     # Extract and print the agent's position, goal position, and neighboring grid
     predicted_neighboring_grid_logits = prediction_grid.squeeze().reshape(7, 7)
     predicted_neighboring_grid = torch.sigmoid(predicted_neighboring_grid_logits).tolist()
