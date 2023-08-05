@@ -100,14 +100,15 @@ for epoch in range(num_epochs):
     print(f"  Train loss: {train_loss / len(train_loader)}")
     print(f"  Validation loss: {val_loss / len(val_loader)}")
 
+    # Upload TensorBoard logs to Google Cloud Storage every 10 epochs
+    if (epoch + 1) % 10 == 0:
+        bucket = storage_client.get_bucket(bucket_name)
+        blob = bucket.blob(f'{log_dir}/{current_time}')
+        blob.upload_from_filename(tb_log_dir)
+
 # Save the model with a new name
 model_path_local = f'{current_time}_model.pth'
 torch.save(model.state_dict(), model_path_local)
-
-# Upload TensorBoard logs to Google Cloud Storage
-bucket = storage_client.get_bucket(bucket_name)
-blob = bucket.blob(f'{log_dir}/{current_time}')
-blob.upload_from_filename(tb_log_dir)
 
 # Upload the model to Google Cloud Storage
 blob = bucket.blob(f'{model_dir}/{current_time}_model.pth')
