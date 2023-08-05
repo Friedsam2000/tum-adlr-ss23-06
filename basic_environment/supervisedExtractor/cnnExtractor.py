@@ -18,6 +18,12 @@ class CNNExtractor(nn.Module):
             nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
 
+            nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+
+            nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+
             # size is 24x24x64
             nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1),
             nn.ReLU(),
@@ -43,13 +49,10 @@ class CNNExtractor(nn.Module):
             # 4 fully connected layers
             nn.Linear(12 * 12*8, 256), # Here, you need to match the flattened size
             nn.ReLU(),
-            # nn.Dropout(0.1),
             nn.Linear(256, 128),
             nn.ReLU(),
-            # nn.Dropout(0.1),
             nn.Linear(128, 64),
             nn.ReLU(),
-            # nn.Dropout(0.1),
             nn.Linear(64, 49),
         )
 
