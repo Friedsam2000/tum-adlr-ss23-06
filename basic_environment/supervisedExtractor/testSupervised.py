@@ -102,6 +102,7 @@ predicted_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for
 for row in predicted_grid_visual:
     print(" ".join(row))
 print("Predicted positions:", predicted_positions)
+print("True positions:", true_positions)
 
 # Calculate mean values
 mean_false_positives = cumulative_false_positives / num_predictions
