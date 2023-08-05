@@ -7,7 +7,7 @@ class CNNExtractor(nn.Module):
 
         self.features = nn.Sequential(
             # size is 96x96x3 (formula: (W−K+2P)/S+1)
-            nn.Conv2d(3, 16, kernel_size=4, stride=4, padding=1),
+            nn.Conv2d(3, 16, kernel_size=4, stride=4, padding=0),
             nn.ReLU(),
 
             # size is 24x24x16
