@@ -7,7 +7,7 @@ from dataPreprocessor import load_data
 from torch.utils.data import Subset
 from datetime import datetime
 import torch.nn as nn
-
+import numpy as np
 
 # Check for CUDA availability and set the device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -90,7 +90,7 @@ with torch.no_grad():
             print("Predicted grid:")
             print_grid(predicted_grid)
             print("True positions:", true_positions)
-            print("Predicted positions:", predicted_positions)
+            print("Predicted positions:", np.round(predicted_positions))
 
 print(f"Test loss: {test_loss / len(data_loader)}")
 print(f"Test loss has been averaged over {total_samples} samples")
