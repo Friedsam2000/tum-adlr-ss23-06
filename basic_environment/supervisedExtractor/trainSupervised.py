@@ -8,6 +8,8 @@ from cnnExtractor import CNNExtractor
 from dataPreprocessor import load_data
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import Subset
+from google.cloud import storage
+from datetime import datetime
 
 # Check for CUDA availability and set the device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -19,9 +21,6 @@ def custom_loss(predictions, grid_labels):
     pos_weight = torch.full_like(grid_labels, 2)
 
     loss_grid = nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions, grid_labels)
-    # Continue with your custom loss logic
-    # Weight for the positive class (obstacles), increased to 100
-    # Compute the binary cross-entropy loss using the weighted positive class
     return loss_grid
 
 # Define transformation for the images
@@ -36,7 +35,7 @@ images_dir_path = os.path.join(script_dir, '../img_data_generation')
 dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path, transform=transform)
 
 # Limit the dataset to the first 10000 samples
-max_images = 500000
+max_images = 10000
 dataset = Subset(dataset, indices=range(max_images))
 
 # Split the data into training and validation sets
@@ -48,7 +47,6 @@ train_dataset, val_dataset = torch.utils.data.random_split(dataset, [train_size,
 train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=4, pin_memory=True)
 val_loader = DataLoader(val_dataset, batch_size=128, shuffle=False, num_workers=4, pin_memory=True)
 
-
 # Instantiate the model
 model = CNNExtractor()
 model.to(device) # Move the model to the device
@@ -56,8 +54,16 @@ model.to(device) # Move the model to the device
 # Define the optimizer
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Create a SummaryWriter to log data to TensorBoard
-writer = SummaryWriter()
+# Google Cloud Storage configurations
+bucket_name = 'adlr_bucket'
+log_dir = 'supervised/logs'
+model_dir = 'model'
+storage_client = storage.Client()
+
+# Save TensorBoard logs to a new directory
+current_time = datetime.now().strftime('%Y%m%d-%H%M%S')
+tb_log_dir = f'{log_dir}/{current_time}'
+writer = SummaryWriter(tb_log_dir)
 
 # Training loop
 num_epochs = 100
@@ -94,5 +100,15 @@ for epoch in range(num_epochs):
     print(f"  Train loss: {train_loss / len(train_loader)}")
     print(f"  Validation loss: {val_loss / len(val_loader)}")
 
-# Save the model
-torch.save(model.state_dict(), 'model.pth')
+# Save the model with a new name
+model_path_local = f'{current_time}_model.pth'
+torch.save(model.state_dict(), model_path_local)
+
+# Upload TensorBoard logs to Google Cloud Storage
+bucket = storage_client.get_bucket(bucket_name)
+blob = bucket.blob(f'{log_dir}/{current_time}')
+blob.upload_from_filename(tb_log_dir)
+
+# Upload the model to Google Cloud Storage
+blob = bucket.blob(f'{model_dir}/{current_time}_model.pth')
+blob.upload_from_filename(model_path_local)
