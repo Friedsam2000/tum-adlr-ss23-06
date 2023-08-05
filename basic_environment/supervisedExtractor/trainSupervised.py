@@ -101,11 +101,14 @@ for epoch in range(num_epochs):
     print(f"  Validation loss: {val_loss / len(val_loader)}")
 
     # Upload TensorBoard logs to Google Cloud Storage every 10 epochs
-    if (epoch + 1) % 10 == 0:
-        bucket = storage_client.get_bucket(bucket_name)
-        blob = bucket.blob(f'{log_dir}/{current_time}')
-        blob.upload_from_filename(tb_log_dir)
-        print(f"Successfully uploaded logs to {blob.public_url}")
+    if epoch % 10 == 9:
+        try:
+            bucket = storage_client.get_bucket(bucket_name)
+            blob = bucket.blob(f'{log_dir}/{current_time}')
+            blob.upload_from_filename(tb_log_dir)
+            print(f"Successfully uploaded logs to {blob.public_url}")
+        except Exception as e:
+            print(f"Failed to upload logs: {e}")
 
 # Save the model with a new name
 model_path_local = f'{current_time}_model.pth'
