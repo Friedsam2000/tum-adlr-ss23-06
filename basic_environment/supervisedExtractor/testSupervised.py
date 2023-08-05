@@ -56,15 +56,41 @@ model.load_state_dict(torch.load(model_path))
 model.to(device)
 model.eval()
 
+# Custom function to print the grid
+def print_grid(grid):
+    for i in range(7):
+        for j in range(7):
+            print('X' if grid[i, j] == 1 else 'O', end=' ')
+        print()
+    print()
+
 # Test the model
 test_loss = 0.0
+total_samples = 0
 with torch.no_grad():
-    for batch in data_loader:
+    for batch_idx, batch in enumerate(data_loader):
         images = batch['image'].to(device)
         grid_labels = batch['label'][:, 4:].clone().detach().float().to(device)  # Only obstacle grid, ignoring first 4 elements
         pos_labels = batch['label'][:, :4].clone().detach().float().to(device)  # Only the positions
         predictions_grid, predictions_pos = model(images)
         combined_loss = custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels)
         test_loss += combined_loss.item()
+        total_samples += len(batch['image'])
+
+        # Print the first sample grid and positions in the first batch
+        if batch_idx == 0:
+            true_grid = grid_labels[0].cpu().numpy().reshape(7, 7)
+            predicted_grid = torch.sigmoid(predictions_grid[0]).cpu().numpy().reshape(7, 7)
+            predicted_grid = (predicted_grid > 0.5).astype(int)  # Convert probabilities to binary values
+            true_positions = pos_labels[0].cpu().numpy()
+            predicted_positions = predictions_pos[0].cpu().numpy()
+
+            print("True grid:")
+            print_grid(true_grid)
+            print("Predicted grid:")
+            print_grid(predicted_grid)
+            print("True positions:", true_positions)
+            print("Predicted positions:", predicted_positions)
 
 print(f"Test loss: {test_loss / len(data_loader)}")
+print(f"Test loss has been averaged over {total_samples} samples")
