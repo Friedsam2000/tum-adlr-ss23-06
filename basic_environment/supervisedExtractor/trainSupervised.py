@@ -31,6 +31,12 @@ def custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels):
     return grid_loss_weight * loss_grid + pos_loss_weight * loss_pos
 
 
+# Define transformation for the images
+transform = transforms.Compose([
+    transforms.ToTensor(),
+])
+
+
 # Load the dataset
 script_dir = os.path.dirname(os.path.abspath(__file__))
 csv_file_path = os.path.join(script_dir, '../img_data_generation/labels.csv')
