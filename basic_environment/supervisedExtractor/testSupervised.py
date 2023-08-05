@@ -35,7 +35,7 @@ model.eval()
 # Define the loss function (consistent with training)
 def custom_loss(predictions, grid_labels):
     predictions = predictions.view(predictions.size(0), -1)
-    pos_weight = torch.full_like(grid_labels, 2)
+    pos_weight = torch.full_like(grid_labels, 1)
     loss_grid = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions, grid_labels)
     return loss_grid
 
