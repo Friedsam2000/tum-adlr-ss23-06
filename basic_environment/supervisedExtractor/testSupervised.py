@@ -67,6 +67,9 @@ def print_grid(grid):
 # Test the model
 test_loss = 0.0
 total_samples = 0
+total_pos_error = 0.0
+total_fp = 0
+total_fn = 0
 with torch.no_grad():
     for batch_idx, batch in enumerate(data_loader):
         images = batch['image'].to(device)
@@ -77,11 +80,21 @@ with torch.no_grad():
         test_loss += combined_loss.item()
         total_samples += len(batch['image'])
 
+        # Calculate the mean position error
+        pos_error = torch.norm(predictions_pos - pos_labels, dim=1)
+        total_pos_error += pos_error.sum().item()
+
+        # Calculate the mean number of false positives and false negatives
+        predicted_grid_binary = (torch.sigmoid(predictions_grid) > 0.5).float()  # Convert probabilities to binary values
+        fp = (predicted_grid_binary == 1) & (grid_labels == 0)
+        fn = (predicted_grid_binary == 0) & (grid_labels == 1)
+        total_fp += fp.sum().item()
+        total_fn += fn.sum().item()
+
         # Print the first sample grid and positions in the first batch
         if batch_idx == 0:
             true_grid = grid_labels[0].cpu().numpy().reshape(7, 7)
-            predicted_grid = torch.sigmoid(predictions_grid[0]).cpu().numpy().reshape(7, 7)
-            predicted_grid = (predicted_grid > 0.5).astype(int)  # Convert probabilities to binary values
+            predicted_grid = predicted_grid_binary[0].cpu().numpy().reshape(7, 7)
             true_positions = pos_labels[0].cpu().numpy()
             predicted_positions = predictions_pos[0].cpu().numpy()
 
@@ -90,7 +103,10 @@ with torch.no_grad():
             print("Predicted grid:")
             print_grid(predicted_grid)
             print("True positions:", true_positions)
-            print("Predicted positions:", np.round(predicted_positions))
+            print("Predicted positions:", predicted_positions)
 
 print(f"Test loss: {test_loss / len(data_loader)}")
 print(f"Test loss has been averaged over {total_samples} samples")
+print(f"Mean position error: {total_pos_error / total_samples}")
+print(f"Mean number of false positives per sample: {total_fp / total_samples}")
+print(f"Mean number of false negatives per sample: {total_fn / total_samples}")
