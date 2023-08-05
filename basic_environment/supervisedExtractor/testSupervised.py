@@ -40,6 +40,11 @@ csv_file_path = os.path.join(script_dir, '../img_data_generation/labels.csv')
 images_dir_path = os.path.join(script_dir, '../img_data_generation')
 dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path, transform=transform)
 
+
+# Limit the dataset to the first 10000 samples
+max_images = 10000
+dataset = Subset(dataset, indices=range(max_images))
+
 # Create a data loader with multiple workers
 data_loader = DataLoader(dataset, batch_size=32, shuffle=False, num_workers=4, pin_memory=True)
 
