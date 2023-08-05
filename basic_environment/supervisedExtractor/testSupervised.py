@@ -1,11 +1,29 @@
 import os
 import torch
+import torch.nn as nn
 from torchvision import transforms
 from cnnExtractor import CNNExtractor
 from dataPreprocessor import load_data
 import matplotlib.pyplot as plt
 import random
 import numpy as np
+
+
+# Define the loss function (consistent with training)
+def custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels):
+    predictions_grid = predictions_grid.view(predictions_grid.size(0), -1)  # Reshaping predictions to match the target size
+    pos_weight = torch.full_like(grid_labels, 1)
+    loss_grid = nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions_grid, grid_labels)
+
+    # MSE Loss for positions
+    loss_pos = nn.MSELoss()(predictions_pos, pos_labels)
+
+    # You can adjust the ratio of grid to position loss by using a different weight
+    grid_loss_weight = 1.0
+    pos_loss_weight = 0.001
+
+    return grid_loss_weight * loss_grid + pos_loss_weight * loss_pos
+
 
 # Define transformation for the images, consistent with training script
 transform = transforms.Compose([
@@ -32,14 +50,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 model.eval()
 
-# Define the loss function (consistent with training)
-def custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels):
-    predictions_grid = predictions_grid.view(predictions_grid.size(0), -1)
-    pos_weight = torch.full_like(grid_labels, 1)
-    loss_grid = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)(predictions_grid, grid_labels)
-    loss_pos = torch.nn.MSELoss()(predictions_pos, pos_labels)
-    return loss_grid, loss_pos
-
 # Variables to hold cumulative false positives, false negatives, and loss
 cumulative_false_positives = 0
 cumulative_false_negatives = 0
@@ -61,16 +71,13 @@ for _ in range(num_predictions):
 
     # Pass the image through the model
     with torch.no_grad():
-        prediction_grid, prediction_pos = model(image_tensor.unsqueeze(0))
+        predictions_grid, predictions_pos = model(image_tensor)
 
     # Squeeze prediction_pos to remove the extra dimension
-    prediction_pos = prediction_pos.squeeze()
-
 
     # Extract and print the agent's position, goal position, and neighboring grid
-    predicted_neighboring_grid_logits = prediction_grid.squeeze().reshape(7, 7)
-    predicted_neighboring_grid = torch.sigmoid(predicted_neighboring_grid_logits).tolist()
-    predicted_positions = prediction_pos.squeeze().tolist()
+    predicted_neighboring_grid = predictions_grid.squeeze().reshape(7, 7)
+    predicted_positions = predictions_grid.squeeze().tolist()
 
     # Extract the true agent's position, goal position, and neighboring grid
     true_positions = sample['label'][:4]
@@ -95,10 +102,11 @@ for _ in range(num_predictions):
     true_positions_tensor = torch.Tensor(true_positions).to(device)
 
     # Calculate the loss
-    loss_grid, loss_pos = custom_loss(predicted_neighboring_grid_logits, prediction_pos, true_neighboring_grid_tensor, true_positions_tensor)
+    combined_loss = custom_loss(predictions_grid, predictions_pos, true_neighboring_grid_tensor, true_positions_tensor)
 
     # Add to cumulative loss
-    cumulative_loss += loss_grid.item() + loss_pos.item()
+    cumulative_loss += combined_loss.item()
+
 
 # Print the predicted grid and positions of the last iteration
 print("Predicted NeighborGrid of last sample:")
@@ -106,7 +114,13 @@ predicted_grid_visual = [['O' if cell >= threshold else 'X' for cell in row] for
 for row in predicted_grid_visual:
     print(" ".join(row))
 print("Predicted positions:", np.round(predicted_positions))
+
+print("\nTrue NeighborGrid of last sample:")
+true_grid_visual = [['O' if cell < threshold else 'X' for cell in row] for row in true_neighboring_grid]
+for row in true_grid_visual:
+    print(" ".join(row))
 print("True positions:", true_positions)
+
 
 # Calculate mean values
 mean_false_positives = cumulative_false_positives / num_predictions
