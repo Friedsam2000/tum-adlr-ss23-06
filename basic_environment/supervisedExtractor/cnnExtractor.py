@@ -39,7 +39,7 @@ class CNNExtractor(nn.Module):
             # 4 fully connected layers
             nn.Linear(12 * 12*8, 256), # Here, you need to match the flattened size
             nn.ReLU(),
-            nn.Dropout(0.1),
+            # nn.Dropout(0.1),
             nn.Linear(256, 128),
             nn.ReLU(),
             # nn.Dropout(0.1),
