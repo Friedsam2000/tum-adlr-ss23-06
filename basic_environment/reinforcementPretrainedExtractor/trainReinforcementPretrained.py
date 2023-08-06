@@ -32,9 +32,6 @@ class PretrainedFeaturesExtractor(BaseFeaturesExtractor):
         self.pretrained_model.to(device)
         self.pretrained_model.eval()
 
-        # Disable gradient computation for the pretrained model
-        for param in self.pretrained_model.parameters():
-            param.requires_grad = False
 
     def forward(self, observations: torch.Tensor) -> torch.Tensor:
         # Adjusted the method to extract only the newest frame
@@ -86,8 +83,7 @@ if __name__ == "__main__":
     policy_kwargs = dict(
         features_extractor_class=PretrainedFeaturesExtractor,
         features_extractor_kwargs=dict(features_dim=4),  # or the dimensionality of your pretrained model output
-        net_arch=[16,32,64,32,16]
-    )
+        net_arch=[16,32,4])
 
     model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
                 buffer_size=5000, learning_starts=5000)
