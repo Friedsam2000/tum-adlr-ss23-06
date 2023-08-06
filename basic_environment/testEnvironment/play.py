@@ -1,10 +1,10 @@
 import sys
 
 sys.path.insert(0, 'environments')
-from environments.GridEnvironment import GridEnvironment
+from environments.FeatureExtractedEnv import FeatureExtractedEnv
 import cv2
 
-env = GridEnvironment(num_obstacles=50)
+env = FeatureExtractedEnv()
 # Display the image in a window
 observation = env.reset()
 # print(observation)
@@ -29,6 +29,9 @@ while True:
 
     # display the reward
     print(f"Reward = {reward}")
+
+    # display the observation
+    print(f"Observation = {obs}")
 
     # Check if the episode is done
     if terminated:
