@@ -85,8 +85,8 @@ if __name__ == "__main__":
     # Define the policy kwargs
     policy_kwargs = dict(
         features_extractor_class=PretrainedFeaturesExtractor,
-        features_extractor_kwargs=dict(features_dim=4 * 4),  # or the dimensionality of your pretrained model output
-        net_arch=[32, 64, 126, 64, 32]
+        features_extractor_kwargs=dict(features_dim=4),  # or the dimensionality of your pretrained model output
+        net_arch=[16,32,64,32,16]
     )
 
     model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
