@@ -22,7 +22,7 @@ class PretrainedFeaturesExtractor(BaseFeaturesExtractor):
     """
 
     def __init__(self, observation_space: gym.spaces.Box,
-                 features_dim: int = 53 * 4):  # update with your actual features_dim
+                 features_dim: int = 4 * 4):  # update with your actual features_dim
         super(PretrainedFeaturesExtractor, self).__init__(observation_space, features_dim)
 
         # Load the model
@@ -45,8 +45,7 @@ class PretrainedFeaturesExtractor(BaseFeaturesExtractor):
             single_frame_observation = observations[:, frame * 3:(frame + 1) * 3, :,
                                        :]  # shape: [batch_size, channels, width, height]
             x_grid, x_position = self.pretrained_model(single_frame_observation)
-            features.append(
-                torch.cat((x_grid, x_position), dim=1))  # concatenate the output along the feature dimension
+            features.append(x_position)  # concatenate the output along the feature dimension
         return torch.cat(features, dim=1)  # concatenate all frames along the feature dimension
 
 
@@ -83,7 +82,7 @@ if __name__ == "__main__":
     # Define the policy kwargs
     policy_kwargs = dict(
         features_extractor_class=PretrainedFeaturesExtractor,
-        features_extractor_kwargs=dict(features_dim=53 * 4)  # or the dimensionality of your pretrained model output
+        features_extractor_kwargs=dict(features_dim=4 * 4)  # or the dimensionality of your pretrained model output
     )
 
     model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,

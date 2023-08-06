@@ -29,7 +29,7 @@ if os.path.exists("labels.csv"):
 fieldnames = ['image_name', 'agent_pos_x', 'agent_pos_y', 'goal_pos_x', 'goal_pos_y'] + [f'neighbor_{i}_{j}' for i in range(7) for j in range(7)]
 
 # Create the environment
-env = GridEnvironment(num_obstacles=50)
+env = GridEnvironment()
 
 # Reset the environment
 obs, info = env.reset()
