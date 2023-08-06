@@ -31,8 +31,8 @@ class FeatureExtractedEnv(gymnasium.Wrapper):
         predicted_grid, predicted_pos = self.pretrained_model(image)
 
         # Convert to numpy
-        predicted_pos = predicted_pos.detach().numpy()
-        predicted_grid = predicted_grid.detach().numpy()
+        predicted_pos = predicted_pos.cpu().detach().numpy()
+        predicted_grid = predicted_grid.cpu().detach().numpy()
 
         # Get true position
         frame_info = self.env.get_current_frame_info()
