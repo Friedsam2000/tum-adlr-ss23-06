@@ -99,6 +99,11 @@ if __name__ == "__main__":
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
                     tb_log_name=f"DQN_{len(logs_folders)}", log_interval=100)
 
+        #display network architecture
+        print(model.policy)
+
+
+
         reward_mean = np.mean([ep['r'] for ep in list(model.ep_info_buffer)[-100:]])
 
         if reward_mean > best_reward:
