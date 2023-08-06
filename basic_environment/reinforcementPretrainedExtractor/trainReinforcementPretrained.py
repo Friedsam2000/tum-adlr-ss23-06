@@ -86,7 +86,7 @@ if __name__ == "__main__":
         net_arch=[16,32,4])
 
     model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
-                buffer_size=5000, learning_starts=5000)
+                buffer_size=100000, learning_starts=100000)
 
     if not os.path.exists(f"models/DQN_{len(logs_folders)}_0"):
         os.makedirs(f"models/DQN_{len(logs_folders)}_0")
