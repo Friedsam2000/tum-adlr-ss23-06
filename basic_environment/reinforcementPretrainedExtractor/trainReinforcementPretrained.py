@@ -6,13 +6,25 @@ sys.path.append("..")  # noqa: E402
 from environments.GridEnvironment import GridEnvironment
 import os
 from google.cloud import storage
-from stable_baselines3 import DQN
 import torch
-import torch.nn as nn
 import gymnasium as gym
 import sys
 sys.path.append("..")  # noqa: E402
 from supervisedExtractor.cnnExtractor import CNNExtractor
+from stable_baselines3 import DQN
+from stable_baselines3.common.policies import ActorCriticPolicy
+from stable_baselines3.common.torch_layers import BaseFeaturesExtractor, NatureCNN, create_mlp
+
+class CustomPolicy(ActorCriticPolicy):
+    def __init__(self, *args, **kwargs):
+        super(CustomPolicy, self).__init__(*args, **kwargs,
+                                           features_extractor_class=PretrainedFeaturesExtractor,
+                                           features_extractor_kwargs=dict(features_dim=4 * 4),
+                                           net_arch=[32, 64, 128, 64, 32],
+                                           )
+
+    def _build_mlp_extractor(self) -> None:
+        self.mlp_extractor = create_mlp(self.features_dim, self.net_arch)
 
 
 class PretrainedFeaturesExtractor(BaseFeaturesExtractor):
@@ -85,8 +97,8 @@ if __name__ == "__main__":
         features_extractor_kwargs=dict(features_dim=4 * 4)  # or the dimensionality of your pretrained model output
     )
 
-    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
-                buffer_size=5000, learning_starts=5000)
+    model = DQN(CustomPolicy, env, verbose=1, tensorboard_log="logs", device=device, buffer_size=5000,
+                learning_starts=5000)
 
     if not os.path.exists(f"models/DQN_{len(logs_folders)}_0"):
         os.makedirs(f"models/DQN_{len(logs_folders)}_0")
