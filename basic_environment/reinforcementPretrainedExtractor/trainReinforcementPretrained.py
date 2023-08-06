@@ -1,10 +1,7 @@
 import sys
 import numpy as np
-import th as th
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
-from stable_baselines3.dqn.policies import DQNPolicy
-
 sys.path.append("..")  # noqa: E402
 from environments.GridEnvironment import GridEnvironment
 import os
@@ -16,28 +13,6 @@ import gymnasium as gym
 import sys
 sys.path.append("..")  # noqa: E402
 from supervisedExtractor.cnnExtractor import CNNExtractor
-
-
-import torch.nn.functional as F
-
-class CustomMLPExtractor(nn.Module):
-    def __init__(self, input_size):
-        super(CustomMLPExtractor, self).__init__()
-
-        self.fc1 = nn.Linear(input_size, 32)
-        self.fc2 = nn.Linear(32, 64)
-        self.fc3 = nn.Linear(64, 128)
-        self.fc4 = nn.Linear(128, 64)
-        self.fc5 = nn.Linear(64, 32)
-
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        x = F.relu(self.fc4(x))
-        x = F.relu(self.fc5(x))
-        return x
-
 
 
 class PretrainedFeaturesExtractor(BaseFeaturesExtractor):
@@ -107,22 +82,11 @@ if __name__ == "__main__":
     # Define the policy kwargs
     policy_kwargs = dict(
         features_extractor_class=PretrainedFeaturesExtractor,
-        features_extractor_kwargs=dict(features_dim=4 * 4)  # or the dimensionality of your pretrained model output
+        features_extractor_kwargs=dict(features_dim=4 * 4),  # or the dimensionality of your pretrained model output
+        net_arch=[32, 64, 126, 64, 32]
     )
 
-
-    class CustomPolicy(DQNPolicy):
-        def __init__(self, *args, **kwargs):
-            super(CustomPolicy, self).__init__(*args, **kwargs)
-
-            self.mlp = CustomMLPExtractor(self.features_dim)
-
-        def extract_features(self, obs: th.Tensor) -> th.Tensor:
-            preprocessed_obs = super().extract_features(obs)
-            return self.mlp(preprocessed_obs)
-
-
-    model = DQN(CustomPolicy, env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
                 buffer_size=5000, learning_starts=5000)
 
     if not os.path.exists(f"models/DQN_{len(logs_folders)}_0"):
