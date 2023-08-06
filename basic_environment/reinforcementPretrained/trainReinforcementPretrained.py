@@ -9,7 +9,6 @@ from google.cloud import storage
 from stable_baselines3 import DQN
 import torch
 import torch.nn as nn
-import gym
 from cnnExtractor import CNNExtractor
 
 
