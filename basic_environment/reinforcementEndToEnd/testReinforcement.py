@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 # Set up the Bucket (google cloud storage)
 # Define the bucket name
 bucket_name = 'adlr_bucket'
-model_directory = "basic_environment/models/DQN_0_0"
+model_directory = "basic_environment/reinforcementEndToEnd/DQN_0_0"
 
 # Define the local download path
 local_path = "models_from_bucket"

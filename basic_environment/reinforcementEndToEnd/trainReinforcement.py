@@ -82,7 +82,7 @@ if __name__ == "__main__":
             model.save(f"models/DQN_{len(logs_folders)}_0/{model.num_timesteps}")
 
             # upload the model to the bucket
-            blob = bucket.blob(f"basic_environment/models/DQN_{len(logs_folders)}_0/{model.num_timesteps}.zip")
+            blob = bucket.blob(f"basic_environment/reinforcementEndToEnd/models/DQN_{len(logs_folders)}_0/{model.num_timesteps}.zip")
             blob.upload_from_filename(f"models/DQN_{len(logs_folders)}_0/{model.num_timesteps}.zip")
             print(f"Uploaded model {model.num_timesteps}.zip to bucket")
 
@@ -94,5 +94,5 @@ if __name__ == "__main__":
         logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
         latest_log = logs[-1]
         # upload the new log file to the bucket
-        blob = bucket.blob(f"basic_environment/logs/DQN_{len(logs_folders)}_0/{latest_log}")
+        blob = bucket.blob(f"basic_environment/reinforcementEndToEnd/logs/DQN_{len(logs_folders)}_0/{latest_log}")
         blob.upload_from_filename(f"logs/DQN_{len(logs_folders)}_0/{latest_log}")

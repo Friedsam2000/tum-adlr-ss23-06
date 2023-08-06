@@ -1,17 +1,11 @@
-import subprocess
 import csv
 import cv2
-from stable_baselines3 import DQN
 import sys
 sys.path.append("..")  # noqa: E402
 from environments.GridEnvironment import GridEnvironment
 import os
 import logging
-import time
-import numpy as np
-import torch
 from multiprocessing import Pool
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -19,62 +13,6 @@ def write_image(image_data):
     name, img = image_data
     cv2.imwrite(f"test_images/{name}", img)
 
-
-# Set up the Bucket (google cloud storage)
-# Define the bucket name
-bucket_name = 'adlr_bucket'
-model_directory = "basic_environment/models/DQN_0_0"
-
-# Define the local download path
-local_path = "models_from_bucket"
-
-# Make the directory if it doesn't exist
-if not os.path.exists(local_path):
-    os.makedirs(local_path)
-
-# Get the model filenames from the bucket using gsutil ls command
-list_command = f"gsutil ls gs://{bucket_name}/{model_directory}"
-output = subprocess.check_output(list_command, shell=True).decode('utf-8')
-model_filenames = output.split("\n")[:-1]
-
-# Integer sort the model filenames
-model_filenames = sorted(model_filenames, key=lambda x: int(x.split("/")[-1].split(".")[0]))
-
-# Define the filename for the most recent model
-remote_filename = model_filenames[-1]
-
-local_filename = remote_filename.split("/")[-1]
-
-# Download the model file if it doesn't already exist locally
-if not os.path.exists(f"{local_path}/{local_filename}"):
-    print(f"Downloading {remote_filename} from bucket {bucket_name} to {local_path}")
-
-    # Get the total size of the file using gsutil du command
-    du_command = f"gsutil du {remote_filename}"
-    output = subprocess.check_output(du_command, shell=True).decode('utf-8')
-    total_file_size = int(output.split()[0])  # Get the first part of the output, which is the size in bytes
-
-    # Run the download command in the background
-    download_command = f"gsutil -m cp -n -r {remote_filename} {local_path}/{local_filename} &"
-    subprocess.run(download_command, shell=True, check=True)
-
-    # Monitor the .gstmp file
-    temp_filename = f"{local_path}/{local_filename}_.gstmp"
-    while not os.path.exists(f"{local_path}/{local_filename}"):  # while the actual file has not been created
-        if os.path.exists(temp_filename):  # if the temp file exists
-            temp_filesize = os.path.getsize(temp_filename)  # get the current size of the file
-            progress_percentage = (temp_filesize / total_file_size) * 100  # calculate progress as percentage
-            logging.info(f"Current file size: {temp_filesize} bytes, Download progress: {progress_percentage:.2f}%")
-        time.sleep(1)  # wait for a while before checking the size again
-
-    print(f"\nDownloaded {remote_filename} from bucket {bucket_name} to {local_path}")
-else:
-    print(f"Model {local_filename} already exists in {local_path}")
-
-# Load the model
-custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0, "features_extractor_class": CustomFeatureExtractor}
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model = DQN.load(f"{local_path}/{local_filename}", custom_objects=custom_objects, verbose=1, device=device)
 
 # clear or create test_images directory
 if os.path.exists("test_images"):
@@ -86,7 +24,6 @@ else:
 #delete labels.csv if it exists
 if os.path.exists("labels.csv"):
     os.remove("labels.csv")
-
 
 # Define the field names for the CSV file
 fieldnames = ['image_name', 'agent_pos_x', 'agent_pos_y', 'goal_pos_x', 'goal_pos_y'] + [f'neighbor_{i}_{j}' for i in range(7) for j in range(7)]
@@ -164,5 +101,3 @@ with open('labels.csv', 'a', newline='') as csvfile:
             pool.map(write_image, image_batch)
     if csv_rows:  # Check if there are any remaining rows
         writer.writerows(csv_rows)
-
-

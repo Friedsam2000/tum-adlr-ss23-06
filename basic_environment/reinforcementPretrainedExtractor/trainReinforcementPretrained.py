@@ -10,7 +10,9 @@ from stable_baselines3 import DQN
 import torch
 import torch.nn as nn
 import gymnasium as gym
-from cnnExtractor import CNNExtractor
+import sys
+sys.path.append("..")  # noqa: E402
+from supervisedExtractor.cnnExtractor import CNNExtractor
 
 
 class PretrainedFeaturesExtractor(BaseFeaturesExtractor):

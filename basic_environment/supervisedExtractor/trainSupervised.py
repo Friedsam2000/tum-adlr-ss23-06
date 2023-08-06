@@ -119,7 +119,7 @@ for epoch in range(num_epochs):
         for file in log_files:
             file_path = os.path.join(tb_log_dir, file)
             if os.path.isfile(file_path):  # Ignore subdirectories
-                blob = bucket.blob(f'{log_dir}/{current_time}/{file}')
+                blob = bucket.blob(f'basic_environment/{log_dir}/{current_time}/{file}')
                 blob.upload_from_filename(file_path)
         print(f"Successfully uploaded logs to gs://{bucket_name}/{log_dir}/{current_time}/")
     except Exception as e:
@@ -130,7 +130,7 @@ model_path_local = f'{current_time}_model.pth'
 torch.save(model.state_dict(), model_path_local)
 
 # Upload the model to Google Cloud Storage
-blob = bucket.blob(f'{model_dir}/{current_time}_model.pth')
+blob = bucket.blob(f'basic_environment/{model_dir}/{current_time}_model.pth')
 blob.upload_from_filename(model_path_local)
 print(f"Successfully uploaded model to {blob.public_url}")
 
