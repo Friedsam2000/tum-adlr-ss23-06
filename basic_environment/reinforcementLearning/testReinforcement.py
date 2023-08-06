@@ -4,7 +4,7 @@ from environments.GridEnvironment import GridEnvironment
 import os
 import logging
 import time
-from networks.CustomFeatureExtractor import CustomFeatureExtractor
+from CustomFeatureExtractor import CustomFeatureExtractor
 
 logging.basicConfig(level=logging.INFO)
 

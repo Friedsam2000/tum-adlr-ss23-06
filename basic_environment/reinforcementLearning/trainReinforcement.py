@@ -5,7 +5,7 @@ import os
 from google.cloud import storage
 from stable_baselines3 import DQN
 import torch
-from networks.CustomFeatureExtractor import CustomFeatureExtractor
+from CustomFeatureExtractor import CustomFeatureExtractor
 
 
 def make_env(rank):
