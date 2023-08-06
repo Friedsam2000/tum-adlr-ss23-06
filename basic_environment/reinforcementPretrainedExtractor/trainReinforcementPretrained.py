@@ -48,8 +48,12 @@ if __name__ == "__main__":
     # Check how many folders are in logs
     logs_folders = os.listdir("logs")
 
+    # Define custom layers for MlpPolicy
+    policy_kwargs = dict(net_arch=[64, 128, 128, 64])
+
     # Initialize DQN agent
-    model = DQN("MlpPolicy", env, verbose=1, tensorboard_log="logs", device=device, buffer_size=35000, learning_starts=30000, learning_rate=1e-5)
+    model = DQN("MlpPolicy", env, verbose=1, tensorboard_log="logs", device=device, buffer_size=35000, learning_starts=30000, learning_rate=1e-5, policy_kwargs=policy_kwargs)
+
 
     # create the folder for the model
     if not os.path.exists(f"models/DQN_{len(logs_folders)}_0"):
