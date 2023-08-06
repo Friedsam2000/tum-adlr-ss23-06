@@ -23,8 +23,18 @@ class CustomPolicy(ActorCriticPolicy):
                                            net_arch=[32, 64,128,64,32])  # This defines the size of the MLP layers. Modify as needed.
 
     def _build_mlp_extractor(self) -> None:
-        self.mlp_extractor = create_mlp(self.features_dim, self.net_arch, activation_fn=nn.ReLU)  # Add activation function
-
+        self.mlp_extractor = nn.Sequential(
+            nn.Linear(self.features_dim, 32),
+            nn.ReLU(),
+            nn.Linear(32, 64),
+            nn.ReLU(),
+            nn.Linear(64, 128),
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+        )  # Add your MLP here
 
 class PretrainedFeaturesExtractor(BaseFeaturesExtractor):
     """
