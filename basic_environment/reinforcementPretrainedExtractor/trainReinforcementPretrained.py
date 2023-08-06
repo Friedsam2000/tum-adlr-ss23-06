@@ -1,5 +1,7 @@
 import numpy as np
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
+import sys
+sys.path.append("..")  # noqa: E402
 from environments.FeatureExtractedEnv import FeatureExtractedEnv, GridEnvironment
 import os
 from google.cloud import storage
