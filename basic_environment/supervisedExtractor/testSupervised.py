@@ -5,7 +5,6 @@ from torchvision import transforms
 from cnnExtractor import CNNExtractor
 from dataPreprocessor import load_data
 from torch.utils.data import Subset
-from datetime import datetime
 import torch.nn as nn
 import numpy as np
 
@@ -52,7 +51,7 @@ data_loader = DataLoader(dataset, batch_size=32, shuffle=False, num_workers=4, p
 # Load the model
 model = CNNExtractor()
 model_path = 'model.pth'
-model.load_state_dict(torch.load(model_path))
+model.load_state_dict(torch.load(model_path, map_location=device))
 model.to(device)
 model.eval()
 
