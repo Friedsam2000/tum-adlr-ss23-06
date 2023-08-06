@@ -35,8 +35,8 @@ transform = transforms.Compose([
 
 # Load the dataset
 script_dir = os.path.dirname(os.path.abspath(__file__))
-csv_file_path = os.path.join(script_dir, '../img_data_generation/labels.csv')
-images_dir_path = os.path.join(script_dir, '../img_data_generation')
+csv_file_path = os.path.join(script_dir, '../imageDataGeneration/labels.csv')
+images_dir_path = os.path.join(script_dir, '../imageDataGeneration')
 dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path, transform=transform)
 
 
