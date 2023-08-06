@@ -1,51 +1,43 @@
 import sys
 import numpy as np
+import th as th
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
+from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
+from stable_baselines3.dqn.policies import DQNPolicy
+
 sys.path.append("..")  # noqa: E402
 from environments.GridEnvironment import GridEnvironment
 import os
 from google.cloud import storage
+from stable_baselines3 import DQN
 import torch
+import torch.nn as nn
 import gymnasium as gym
 import sys
 sys.path.append("..")  # noqa: E402
 from supervisedExtractor.cnnExtractor import CNNExtractor
-from stable_baselines3 import DQN
-from stable_baselines3.common.policies import ActorCriticPolicy
-from stable_baselines3.common.torch_layers import BaseFeaturesExtractor, create_mlp
-import torch.nn as nn
 
-class CustomMLP(nn.Module):
-    def __init__(self, feature_dim: int):
-        super(CustomMLP, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(feature_dim, 32),
-            nn.ReLU(),
-            nn.Linear(32, 64),
-            nn.ReLU(),
-            nn.Linear(64, 128),
-            nn.ReLU(),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-        )
 
-    def forward(self, x: torch.Tensor):
-        return self.network(x)
+import torch.nn.functional as F
 
-class CustomPolicy(ActorCriticPolicy):
-    def __init__(self, *args, **kwargs):
-        super(CustomPolicy, self).__init__(*args, **kwargs,
-                                           features_extractor_class=PretrainedFeaturesExtractor,
-                                           features_extractor_kwargs=dict(features_dim=4 * 4),
-                                           net_arch=[32, 64,128,64,32])  # This defines the size of the MLP layers. Modify as needed.
+class CustomMLPExtractor(nn.Module):
+    def __init__(self, input_size):
+        super(CustomMLPExtractor, self).__init__()
 
-    def _build_mlp_extractor(self) -> None:
-        self.mlp_extractor = CustomMLP(self.features_dim)
-        # These dimensions can vary according to your task
-        self.mlp_extractor.latent_dim_pi = 32
-        self.mlp_extractor.latent_dim_vf = 32
+        self.fc1 = nn.Linear(input_size, 32)
+        self.fc2 = nn.Linear(32, 64)
+        self.fc3 = nn.Linear(64, 128)
+        self.fc4 = nn.Linear(128, 64)
+        self.fc5 = nn.Linear(64, 32)
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        x = F.relu(self.fc4(x))
+        x = F.relu(self.fc5(x))
+        return x
+
 
 
 class PretrainedFeaturesExtractor(BaseFeaturesExtractor):
@@ -84,7 +76,7 @@ class PretrainedFeaturesExtractor(BaseFeaturesExtractor):
 
 def make_env(rank):
     def _init():
-        env = GridEnvironment(num_obstacles=0)
+        env = GridEnvironment()
         return env
 
     return _init
@@ -118,8 +110,20 @@ if __name__ == "__main__":
         features_extractor_kwargs=dict(features_dim=4 * 4)  # or the dimensionality of your pretrained model output
     )
 
-    model = DQN(CustomPolicy, env, verbose=1, tensorboard_log="logs", device=device, buffer_size=5000,
-                learning_starts=5000)
+
+    class CustomPolicy(DQNPolicy):
+        def __init__(self, *args, **kwargs):
+            super(CustomPolicy, self).__init__(*args, **kwargs)
+
+            self.mlp = CustomMLPExtractor(self.features_dim)
+
+        def extract_features(self, obs: th.Tensor) -> th.Tensor:
+            preprocessed_obs = super().extract_features(obs)
+            return self.mlp(preprocessed_obs)
+
+
+    model = DQN(CustomPolicy, env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
+                buffer_size=5000, learning_starts=5000)
 
     if not os.path.exists(f"models/DQN_{len(logs_folders)}_0"):
         os.makedirs(f"models/DQN_{len(logs_folders)}_0")
