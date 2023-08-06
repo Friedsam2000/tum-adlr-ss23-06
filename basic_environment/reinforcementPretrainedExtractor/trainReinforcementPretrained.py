@@ -15,16 +15,11 @@ from stable_baselines3.common.policies import ActorCriticPolicy
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor, create_mlp
 import torch.nn as nn
 
-class CustomPolicy(ActorCriticPolicy):
-    def __init__(self, *args, **kwargs):
-        super(CustomPolicy, self).__init__(*args, **kwargs,
-                                           features_extractor_class=PretrainedFeaturesExtractor,
-                                           features_extractor_kwargs=dict(features_dim=4 * 4),
-                                           net_arch=[32, 64,128,64,32])  # This defines the size of the MLP layers. Modify as needed.
-
-    def _build_mlp_extractor(self) -> None:
-        self.mlp_extractor = nn.Sequential(
-            nn.Linear(self.features_dim, 32),
+class CustomMLP(nn.Module):
+    def __init__(self, feature_dim: int):
+        super(CustomMLP, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(feature_dim, 32),
             nn.ReLU(),
             nn.Linear(32, 64),
             nn.ReLU(),
@@ -34,7 +29,24 @@ class CustomPolicy(ActorCriticPolicy):
             nn.ReLU(),
             nn.Linear(64, 32),
             nn.ReLU(),
-        )  # Add your MLP here
+        )
+
+    def forward(self, x: torch.Tensor):
+        return self.network(x)
+
+class CustomPolicy(ActorCriticPolicy):
+    def __init__(self, *args, **kwargs):
+        super(CustomPolicy, self).__init__(*args, **kwargs,
+                                           features_extractor_class=PretrainedFeaturesExtractor,
+                                           features_extractor_kwargs=dict(features_dim=4 * 4),
+                                           net_arch=[32, 64,128,64,32])  # This defines the size of the MLP layers. Modify as needed.
+
+    def _build_mlp_extractor(self) -> None:
+        self.mlp_extractor = CustomMLP(self.features_dim)
+        # These dimensions can vary according to your task
+        self.mlp_extractor.latent_dim_pi = 32
+        self.mlp_extractor.latent_dim_vf = 32
+
 
 class PretrainedFeaturesExtractor(BaseFeaturesExtractor):
     """
