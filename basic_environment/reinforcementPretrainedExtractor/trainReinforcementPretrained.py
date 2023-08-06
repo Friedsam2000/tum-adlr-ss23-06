@@ -37,15 +37,18 @@ class PretrainedFeaturesExtractor(BaseFeaturesExtractor):
             param.requires_grad = False
 
     def forward(self, observations: torch.Tensor) -> torch.Tensor:
-        # Adjusted the method to accept [batch_size, num_frames*channels, width, height]
+        # Adjusted the method to extract only the newest frame
         batch_size, _, _, _ = observations.shape
         num_frames = 4  # Update if different
         features = []
-        for frame in range(num_frames):
-            single_frame_observation = observations[:, frame * 3:(frame + 1) * 3, :,
-                                       :]  # shape: [batch_size, channels, width, height]
-            x_grid, x_position = self.pretrained_model(single_frame_observation)
-            features.append(x_position)  # concatenate the output along the feature dimension
+
+        # Here, instead of iterating through all frames, we just take the last (newest) one
+        frame = num_frames - 1
+        single_frame_observation = observations[:, frame * 3:(frame + 1) * 3, :,
+                                   :]  # shape: [batch_size, channels, width, height]
+        x_grid, x_position = self.pretrained_model(single_frame_observation)
+        features.append(x_position)  # concatenate the output along the feature dimension
+
         return torch.cat(features, dim=1)  # concatenate all frames along the feature dimension
 
 
