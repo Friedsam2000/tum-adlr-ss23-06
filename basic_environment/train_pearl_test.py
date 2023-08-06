@@ -19,8 +19,8 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
 
-    SAC_Iteration = "Test"
-    SAC_Policy = "Test"
+    SAC_Iteration = "Test_1"
+    SAC_Policy = "Test_1"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
     print("GPU is available: ")
