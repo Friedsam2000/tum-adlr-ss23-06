@@ -1,7 +1,6 @@
 import sys
 import numpy as np
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
-from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 sys.path.append("..")  # noqa: E402
 from environments.GridEnvironment import GridEnvironment
 import os
@@ -13,7 +12,8 @@ sys.path.append("..")  # noqa: E402
 from supervisedExtractor.cnnExtractor import CNNExtractor
 from stable_baselines3 import DQN
 from stable_baselines3.common.policies import ActorCriticPolicy
-from stable_baselines3.common.torch_layers import BaseFeaturesExtractor, NatureCNN, create_mlp
+from stable_baselines3.common.torch_layers import BaseFeaturesExtractor, create_mlp
+import torch.nn as nn
 
 class CustomPolicy(ActorCriticPolicy):
     def __init__(self, *args, **kwargs):
@@ -24,10 +24,6 @@ class CustomPolicy(ActorCriticPolicy):
 
     def _build_mlp_extractor(self) -> None:
         self.mlp_extractor = create_mlp(self.features_dim, self.net_arch, activation_fn=nn.ReLU)  # Add activation function
-
-
-    def _build_mlp_extractor(self) -> None:
-        self.mlp_extractor = create_mlp(self.features_dim, self.net_arch)
 
 
 class PretrainedFeaturesExtractor(BaseFeaturesExtractor):
