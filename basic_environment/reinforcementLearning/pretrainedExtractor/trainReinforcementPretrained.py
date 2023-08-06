@@ -1,7 +1,7 @@
 import numpy as np
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
-from ...environments.GridEnvironment import GridEnvironment
+from environments.GridEnvironment import GridEnvironment
 import os
 from google.cloud import storage
 from stable_baselines3 import DQN

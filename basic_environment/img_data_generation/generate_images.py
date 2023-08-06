@@ -8,7 +8,6 @@ from environments.GridEnvironment import GridEnvironment
 import os
 import logging
 import time
-from networks.CustomFeatureExtractor import CustomFeatureExtractor
 import numpy as np
 import torch
 from multiprocessing import Pool
