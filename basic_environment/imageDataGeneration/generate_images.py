@@ -29,7 +29,7 @@ if os.path.exists("labels.csv"):
 fieldnames = ['image_name', 'agent_pos_x', 'agent_pos_y', 'goal_pos_x', 'goal_pos_y'] + [f'neighbor_{i}_{j}' for i in range(7) for j in range(7)]
 
 # Create the environment
-env = GridEnvironment()
+env = GridEnvironment(num_frames_to_stack=1, num_obstacles=0)
 
 # Reset the environment
 obs, info = env.reset()
@@ -47,7 +47,7 @@ with open('labels.csv', 'a', newline='') as csvfile:
 
     episode = 0
     timestep = 0
-    num_images = 15000
+    num_images = 100000
     while episode < num_images:
 
         # Reset the environment
@@ -65,7 +65,7 @@ with open('labels.csv', 'a', newline='') as csvfile:
 
         # Extract the last RGB image
         image_name = f"episode_{episode}_timestep_{timestep}.png"
-        last_rgb_image = obs[:, :, -3:]
+        last_rgb_image = obs
         image_batch.append((image_name, last_rgb_image))  # Append to image_batch
 
         # Prepare row data for CSV

@@ -1,10 +1,11 @@
 import sys
-
 sys.path.insert(0, 'environments')
-from environments.FeatureExtractedEnv import FeatureExtractedEnv
+from environments.FeatureExtractedEnv import FeatureExtractedEnv, GridEnvironment
 import cv2
+import numpy as np
+import torch
 
-env = FeatureExtractedEnv()
+env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0,num_obstacles=0, num_frames_to_stack=1))
 # Display the image in a window
 observation = env.reset()
 # print(observation)
@@ -27,11 +28,45 @@ while True:
     # Apply the action to the environment
     obs, reward, terminated, truncated, info = env.step(action)
 
+    # Get the current frame info
+    frame_info = env.get_current_frame_info()
+
+    # Compare the true and predicted positions
+    print("predicted agent position: ", np.round(obs[0:2]))
+    print("true agent position     : ", frame_info['agent_position'])
+
+    print("predicted goal position : ", np.round(obs[2:4]))
+    print("true goal position      : ", frame_info['goal_position'])
+
+    # Get the predicted grid
+    predictions_grid = obs[4:]
+
+    # convert the predicted grid to binary
+    predicted_grid_binary = (predictions_grid > 0.5).astype(int)
+
+    # Print the predicted grid
+    print("predicted grid: ")
+    print(predicted_grid_binary.reshape(7, 7))
+
+    # Print the true grid after reshape
+    print("true grid: ")
+    true_grid = frame_info['neighboring_cells_content']
+    # list to numpy array
+    true_grid = np.array(true_grid)
+    # reshape
+    true_grid = true_grid.reshape(7, 7)
+    print(true_grid)
+
+
+    # print a line
+    print("--------------------------------------------------")
+
+
     # display the reward
-    print(f"Reward = {reward}")
+    # print(f"Reward = {reward}")
 
     # display the observation
-    print(f"Observation = {obs}")
+    # print(f"Observation = {obs}")
 
     # Check if the episode is done
     if terminated:
