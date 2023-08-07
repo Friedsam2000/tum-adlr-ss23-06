@@ -46,7 +46,7 @@ class CNNExtractor(nn.Module):
             # size 3x3x512
 
             nn.Conv2d(512, 1024, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(512),
+            nn.BatchNorm2d(1024),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
