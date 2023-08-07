@@ -78,6 +78,7 @@ class CNNExtractor(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
+        print(x.shape)  # Add this line
         x_grid = self.objectGridClassifier(x)
         x_position = self.positionClassifier(x)
         return x_grid, x_position
