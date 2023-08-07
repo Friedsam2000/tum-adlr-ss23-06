@@ -70,7 +70,7 @@ tb_log_dir = f'{log_dir}/{current_time}'
 writer = SummaryWriter(tb_log_dir)
 
 # Training loop
-num_epochs = 40
+num_epochs = 30
 for epoch in range(num_epochs):
     model.train()
     train_loss = 0.0
