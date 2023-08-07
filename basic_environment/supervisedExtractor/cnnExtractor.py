@@ -30,33 +30,34 @@ class CNNExtractor(nn.Module):
             nn.Dropout(0.1),
 
             # size 12x12x64
+            nn.Conv2d(64, 128, kernel_size=2, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout(0.1),
+
+            # size 6x6x256
             nn.Conv2d(128, 256, kernel_size=2, stride=1, padding=1),
             nn.BatchNorm2d(256),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
-            # size 6x6x256
+            # size 3x3x512
             nn.Conv2d(256, 512, kernel_size=2, stride=1, padding=1),
             nn.BatchNorm2d(512),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
-            # size 3x3x512
-
-            nn.Conv2d(512, 1024, kernel_size=2, stride=1, padding=1),
-            nn.BatchNorm2d(1024),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(0.1),
-
-            # size 1x1x1024
+            # size 1x1x512
             nn.Flatten(),
+
+            # size 512
         )
 
         self.objectGridClassifier = nn.Sequential(
-            nn.Linear(1024, 256),
+            nn.Linear(512, 256),
             nn.ReLU(),
             nn.Linear(256, 128),
             nn.ReLU(),
