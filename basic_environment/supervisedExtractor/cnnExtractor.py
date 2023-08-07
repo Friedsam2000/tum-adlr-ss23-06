@@ -6,7 +6,7 @@ class CNNExtractor(nn.Module):
 
         # Assume input has shape (img_size, img_size, 12)
         # size 96x96x3
-        self.cnn = nn.Sequential(
+        self.features = nn.Sequential(
             nn.Conv2d(3, 16, kernel_size=2, stride=1, padding=1),
             # nn.Conv2d(observation_space.shape[0], 32, kernel_size=2, stride=1, padding=1),
             nn.BatchNorm2d(16),
