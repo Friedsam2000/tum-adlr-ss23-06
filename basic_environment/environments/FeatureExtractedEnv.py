@@ -7,8 +7,9 @@ from environments.GridEnvironment import GridEnvironment
 class FeatureExtractedEnv(gymnasium.Wrapper):
     def __init__(self, env=None):
         if env is None:
-            env = GridEnvironment(num_obstacles=0, num_frames_to_stack=1)  # default environment
+            env = GridEnvironment(num_obstacles=0, num_frames_to_stack=2)  # default environment
         super().__init__(env)
+        self.num_frames_to_stack = env.num_frames_to_stack
         # Load the model
         self.pretrained_model = CNNExtractor()
         model_path = '../supervisedExtractor/model.pth'
@@ -18,33 +19,35 @@ class FeatureExtractedEnv(gymnasium.Wrapper):
         self.pretrained_model.eval()
 
         self.observation_space = gymnasium.spaces.Box(
-            low=-np.inf, high=np.inf, shape=(4+49,), dtype=np.float32)
+            low=np.full((4 + 49) * self.num_frames_to_stack, -np.inf),
+            high=np.full((4 + 49) * self.num_frames_to_stack, np.inf),
+            dtype=np.float32)
 
     def extract_features(self, observation):
+        frame_dim = observation.shape[2] // self.num_frames_to_stack
+        extracted_features_list = []
 
-        # Preprocess the observation
-        image = observation.astype('float32') / 255.0  # Convert to float and scale values to range [0, 1]
-        image = torch.from_numpy(image).permute(2, 0, 1)  # Convert to tensor and permute dimensions
-        image = image.unsqueeze(0).to(self.device)
+        for i in range(self.num_frames_to_stack):
+            current_frame = observation[:, :, i * frame_dim:(i + 1) * frame_dim]
 
-        # Extract features
-        predicted_grid, predicted_pos = self.pretrained_model(image)
+            # Preprocess the current frame
+            image = current_frame.astype('float32') / 255.0  # Convert to float and scale values to range [0, 1]
+            image = torch.from_numpy(image).permute(2, 0, 1)  # Convert to tensor and permute dimensions
+            image = image.unsqueeze(0).to(self.device)
 
-        # Convert to numpy
-        predicted_pos = predicted_pos.cpu().detach().numpy()
-        predicted_grid = predicted_grid.cpu().detach().numpy()
+            # Extract features
+            predicted_grid, predicted_pos = self.pretrained_model(image)
 
-        # Get true position
-        frame_info = self.env.get_current_frame_info()
+            # Convert to numpy
+            predicted_pos = predicted_pos.cpu().detach().numpy()
+            predicted_grid = predicted_grid.cpu().detach().numpy()
 
-        # print("predicted agent position: ", np.round(predicted_pos[0,0:2]))
-        # print("true agent position     : ", frame_info['agent_position'])
-        #
-        # print("predicted goal position : ", np.round(predicted_pos[0,2:4]))
-        # print("true goal position      : ", frame_info['goal_position'])
+            # combine observations (grid and positions)
+            extracted_frame_features = np.concatenate((predicted_pos[0], predicted_grid[0]), axis=0)
+            extracted_features_list.append(extracted_frame_features)
 
-        # combine observations (grid and positions)
-        extracted_features = np.concatenate((predicted_pos[0], predicted_grid[0]), axis=0)
+        # Stack features from all frames
+        extracted_features = np.concatenate(extracted_features_list, axis=0)
 
         return extracted_features
 
