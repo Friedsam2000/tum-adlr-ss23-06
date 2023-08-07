@@ -63,6 +63,7 @@ bucket_name = 'adlr_bucket'
 log_dir = 'supervised/logs'
 model_dir = 'supervised/model'
 storage_client = storage.Client()
+bucket = storage_client.get_bucket(bucket_name)  # Define the bucket here
 
 # Save TensorBoard logs to a new directory
 current_time = datetime.now().strftime('%Y%m%d-%H%M%S')
@@ -136,7 +137,6 @@ for epoch in range(num_epochs):
 
     # Upload TensorBoard logs to Google Cloud Storage every epoch
     try:
-        bucket = storage_client.get_bucket(bucket_name)
         log_files = os.listdir(tb_log_dir)
         for file in log_files:
             file_path = os.path.join(tb_log_dir, file)
