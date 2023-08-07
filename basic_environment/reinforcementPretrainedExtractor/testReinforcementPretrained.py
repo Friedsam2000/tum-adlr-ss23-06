@@ -1,5 +1,7 @@
 import subprocess
 from stable_baselines3 import DQN
+import sys
+sys.path.append("..")  # noqa: E402
 from environments.FeatureExtractedEnv import FeatureExtractedEnv, GridEnvironment
 import os
 import logging
