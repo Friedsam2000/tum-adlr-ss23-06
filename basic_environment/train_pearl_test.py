@@ -19,8 +19,8 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
 
-    SAC_Iteration = "Test_1"
-    SAC_Policy = "Test_1"
+    SAC_Iteration = "Test_12_z_10"
+    SAC_Policy = "Test_12_z_10"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
     print("GPU is available: ")
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
     # add a monitor wrapper
-    #env = VecMonitor(env)
+    env = VecMonitor(env)
 
     #print(env.get_attr("agent_damping_matrix"))
     #task_description = "agent_damping_matrix"
@@ -51,8 +51,8 @@ if __name__ == "__main__":
     #env.set_attr(task_description, agent_damping_matrix)
     #print(env.get_attr("agent_damping_matrix"))
 
-    tasks = [{'agent_damping_matrix': agent_damping_matrix},{'agent_damping_matrix': agent_damping_matrix},{'agent_damping_matrix': agent_damping_matrix},{'agent_damping_matrix': agent_damping_matrix}, {'agent_damping_matrix': agent_damping_matrix}]
-
+    #tasks = [{'agent_damping_matrix': agent_damping_matrix},{'agent_damping_matrix': agent_damping_matrix},{'agent_damping_matrix': agent_damping_matrix},{'agent_damping_matrix': agent_damping_matrix}, {'agent_damping_matrix': agent_damping_matrix}]
+    tasks =  [{'agent_damping_matrix': agent_damping_matrix}, {'agent_damping_matrix': agent_damping_matrix}, {'agent_damping_matrix': agent_damping_matrix}]
     #print(type(model.replay_buffer.buffers))
     #print(model.replay_buffer.buffers[0].observations[4900])
     #params = list(tasks[0].items())
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     #    print(params[j][1])
 
     ###env = ConEnv(grid_size=grid_size)
-    #
+
     # Create logs if not existing
     if not os.path.exists("logs"):
         os.makedirs("logs")
@@ -69,16 +69,19 @@ if __name__ == "__main__":
     # Create models if not existing
     if not os.path.exists("models"):
         os.makedirs("models")
-
+    
     # Check how many folders are in logs
     logs_folders = os.listdir("logs")
 
     # Initialize SAC agent with CNN Policy
     n_steps = 256
-    #model = SAC("MlpPolicy", env, learning_rate=0.0003,verbose=1, buffer_size=1000000, optimize_memory_usage=False ,tensorboard_log="logs", device=device, batch_size=1024, gamma=0.999)
+    ##model = SAC("MlpPolicy", env, learning_rate=0.0003,verbose=1, buffer_size=1000000, optimize_memory_usage=False ,tensorboard_log="logs", device=device, batch_size=1024, gamma=0.999)
+    #
+    model = SAC("MlpPolicy", env, learning_rate=0.00015, verbose=1, buffer_size=1000000, optimize_memory_usage=False,
+                tensorboard_log="logs", device=device, batch_size=512, gamma=0.99, gradient_steps=4, tau=0.01, use_pearl=True, nr_tasks=len(tasks), tasks=tasks, z_dim=10)
+    print(model.replay_buffer.buffers[0].observations.shape)
 
-    model = SAC("MlpPolicy", env, learning_rate=0.0003, verbose=1, buffer_size=1000000, optimize_memory_usage=False,
-                tensorboard_log="logs", device=device, batch_size=1024, gamma=0.999, use_pearl=True, nr_tasks=5, tasks=tasks)
+
 
 
     # create the folder for the model
@@ -96,24 +99,26 @@ if __name__ == "__main__":
 
         # get the mean reward of the last 100 episodes
         reward_mean = np.mean([ep['r'] for ep in list(model.ep_info_buffer)[-100:]])
-
+        print(reward_mean)
         # if the reward mean is better than the best reward, save the model
         if reward_mean > best_reward:
             best_reward = reward_mean
             print(f"Saving model with new best reward mean {reward_mean}")
-            model.save(f"models/SAC_{SAC_Iteration}/{model.num_timesteps}")
+            model.save(f"models/SAC_{SAC_Iteration}/{reward_mean}")
 
-            # upload the model to the bucket
-            blob = bucket.blob(f"data_Matthias/models/SAC_{SAC_Iteration}/{model.num_timesteps}.zip")
-            blob.upload_from_filename(f"models/SAC_{SAC_Iteration}/{model.num_timesteps}.zip")
-            print(f"Uploaded model {model.num_timesteps}.zip to bucket")
-        if log_save_counter%2 == 0:
-            # get the latest log file
-            logs = os.listdir(f"logs/SAC_{SAC_Policy}_0")
-            logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
-            latest_log = logs[-1]
-            # upload the new log file to the bucket
-            blob = bucket.blob(f"data_Matthias/logs/SAC_{SAC_Iteration}/{latest_log}")
-            blob.upload_from_filename(f"logs/SAC_{SAC_Policy}_0/{latest_log}")
+        #    # upload the model to the bucket
+        #    blob = bucket.blob(f"data_Matthias/models/SAC_{SAC_Iteration}/{model.num_timesteps}.zip")
+        #    blob.upload_from_filename(f"models/SAC_{SAC_Iteration}/{model.num_timesteps}.zip")
+        #    print(f"Uploaded model {model.num_timesteps}.zip to bucket")
+        #if log_save_counter%2 == 0:
+        #    # get the latest log file
+        #    logs = os.listdir(f"logs/SAC_{SAC_Policy}_0")
+        #    logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+        #    latest_log = logs[-1]
+        #    # upload the new log file to the bucket
+        #    blob = bucket.blob(f"data_Matthias/logs/SAC_{SAC_Iteration}/{latest_log}")
+        #    blob.upload_from_filename(f"logs/SAC_{SAC_Policy}_0/{latest_log}")
+        #
+        #log_save_counter = log_save_counter + 1
 
-        log_save_counter = log_save_counter + 1
+    model.print_last_obs()
