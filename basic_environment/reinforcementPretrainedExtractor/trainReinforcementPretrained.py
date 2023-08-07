@@ -10,7 +10,7 @@ import torch
 
 def make_env(rank):
     def _init():
-        env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0,num_obstacles=0, num_frames_to_stack=2))
+        env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0,num_obstacles=0, num_frames_to_stack=4))
         return env
 
     return _init
