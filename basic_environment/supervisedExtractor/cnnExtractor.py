@@ -67,7 +67,7 @@ class CNNExtractor(nn.Module):
         )
 
         self.positionClassifier = nn.Sequential(
-            nn.Linear(1024, 256),
+            nn.Linear(512, 256),
             nn.ReLU(),
             nn.Linear(256, 128),
             nn.ReLU(),
