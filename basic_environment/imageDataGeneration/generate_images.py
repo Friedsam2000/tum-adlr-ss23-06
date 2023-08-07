@@ -29,7 +29,7 @@ if os.path.exists("labels.csv"):
 fieldnames = ['image_name', 'agent_pos_x', 'agent_pos_y', 'goal_pos_x', 'goal_pos_y'] + [f'neighbor_{i}_{j}' for i in range(7) for j in range(7)]
 
 # Create the environment
-env = GridEnvironment(num_last_agent_pos=0,num_obstacles=0, num_frames_to_stack=1)
+env = GridEnvironment(num_last_agent_pos=0,num_obstacles=6, num_frames_to_stack=1)
 
 # Reset the environment
 obs, info = env.reset()
@@ -47,7 +47,7 @@ with open('labels.csv', 'a', newline='') as csvfile:
 
     episode = 0
     timestep = 0
-    num_images = 200000
+    num_images = 500000
     while episode < num_images:
 
         # Reset the environment

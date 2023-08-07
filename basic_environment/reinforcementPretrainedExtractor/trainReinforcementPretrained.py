@@ -10,7 +10,7 @@ import torch
 
 def make_env(rank):
     def _init():
-        env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0,num_obstacles=0, num_frames_to_stack=4))
+        env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0,num_obstacles=6, num_frames_to_stack=4))
         return env
 
     return _init
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     policy_kwargs = dict(net_arch=[256, 512, 256, 64])
 
     # Initialize DQN agent
-    model = DQN("MlpPolicy", env, verbose=1, tensorboard_log="logs", device=device, buffer_size=35000, learning_starts=30000, learning_rate=1e-5, policy_kwargs=policy_kwargs)
+    model = DQN("MlpPolicy", env, verbose=1, tensorboard_log="logs", device=device, buffer_size=100000, learning_starts=30000, learning_rate=1e-5, policy_kwargs=policy_kwargs)
 
 
     # create the folder for the model

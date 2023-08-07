@@ -39,7 +39,7 @@ images_dir_path = os.path.join(script_dir, '../imageDataGeneration')
 dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path)
 
 # Limit the dataset to the first 10000 samples
-max_images = 200000
+max_images = 500000
 dataset = Subset(dataset, indices=range(max_images))
 
 # Split the data into training and validation sets
@@ -69,8 +69,14 @@ current_time = datetime.now().strftime('%Y%m%d-%H%M%S')
 tb_log_dir = f'{log_dir}/{current_time}'
 writer = SummaryWriter(tb_log_dir)
 
+# Initially set min_val_loss to a very high value
+min_val_loss = float('inf')
+
+# Before the training loop
+previous_model_path = None
+
 # Training loop
-num_epochs = 30
+num_epochs = 100
 for epoch in range(num_epochs):
     model.train()
     train_loss = 0.0
@@ -108,6 +114,26 @@ for epoch in range(num_epochs):
     print(f"  Train loss: {train_loss / len(train_loader)}")
     print(f"  Validation loss: {val_loss / len(val_loader)}")
 
+    # Within the training loop, in the validation loss improvement check
+    if val_loss / len(val_loader) < min_val_loss:
+        min_val_loss = val_loss / len(val_loader)
+
+        # Save the model with a new name
+        model_path_local = f'{current_time}_model.pth'
+        torch.save(model.state_dict(), model_path_local)
+
+        # Upload the model to Google Cloud Storage
+        blob = bucket.blob(f'basic_environment/{model_dir}/{current_time}_model.pth')
+        blob.upload_from_filename(model_path_local)
+        print(f"New lowest validation loss, model saved and uploaded to {blob.public_url}")
+
+        # Remove the previous saved model if it exists
+        if previous_model_path is not None and os.path.exists(previous_model_path):
+            os.remove(previous_model_path)
+
+        # Update the previous model path
+        previous_model_path = model_path_local
+
     # Upload TensorBoard logs to Google Cloud Storage every epoch
     try:
         bucket = storage_client.get_bucket(bucket_name)
@@ -120,15 +146,6 @@ for epoch in range(num_epochs):
         print(f"Successfully uploaded logs to gs://{bucket_name}/{log_dir}/{current_time}/")
     except Exception as e:
         print(f"Failed to upload logs: {e}")
-
-# Save the model with a new name
-model_path_local = f'{current_time}_model.pth'
-torch.save(model.state_dict(), model_path_local)
-
-# Upload the model to Google Cloud Storage
-blob = bucket.blob(f'basic_environment/{model_dir}/{current_time}_model.pth')
-blob.upload_from_filename(model_path_local)
-print(f"Successfully uploaded model to {blob.public_url}")
 
 # Close the TensorBoard writer
 writer.close()

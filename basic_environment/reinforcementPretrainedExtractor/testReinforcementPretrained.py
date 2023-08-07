@@ -66,7 +66,7 @@ custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0}
 model = DQN.load(f"{local_path}/{local_filename}", custom_objects=custom_objects, verbose=1)
 
 # Create the environment for testing
-env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0, num_obstacles=0, num_frames_to_stack=4))
+env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0, num_obstacles=6, num_frames_to_stack=4))
 
 # Print the network architecture
 print(model.policy)
