@@ -35,7 +35,7 @@ dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path)
 
 
 # Limit the dataset to the first 10000 samples
-max_images = 50
+max_images = 500
 dataset = Subset(dataset, indices=range(max_images))
 
 # Create a data loader with multiple workers

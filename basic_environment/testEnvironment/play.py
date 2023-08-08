@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import torch
 
-env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0,num_obstacles=0, num_frames_to_stack=1))
+env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0,num_obstacles=6, num_frames_to_stack=1))
 # Display the image in a window
 observation = env.reset()
 # print(observation)
