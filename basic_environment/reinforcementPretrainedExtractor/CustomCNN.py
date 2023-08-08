@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch
 
 class CustomCNNExtractor(BaseFeaturesExtractor):
-    def __init__(self, observation_space, features_dim=512):
+    def __init__(self, observation_space, features_dim=128):
         super(CustomCNNExtractor, self).__init__(observation_space, features_dim)
 
 
