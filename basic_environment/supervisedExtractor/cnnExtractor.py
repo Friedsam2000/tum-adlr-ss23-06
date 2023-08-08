@@ -13,7 +13,6 @@ class CNNExtractor(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
-
             # size 48x48x16
 
             nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
@@ -28,48 +27,51 @@ class CNNExtractor(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
-
             # size 12x12x64
-            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(0.1),
 
-            # size 6x6x128
-            nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(0.1),
-
-            # size 3x3x256
-            nn.Conv2d(256, 1024, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(1024),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout(0.1),
-
-            # size 1x1x1024
-            nn.Flatten(),
-
-            # size 1024
         )
 
         self.objectGridClassifier = nn.Sequential(
-            nn.Linear(1024, 512),
+            # 3 conv layer to 11x11x1
+            # size 12x12x64
+            nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.Linear(512, 256),
+            nn.Dropout(0.1),
+
+            # size 12x12x1
+            nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(1),
             nn.ReLU(),
-            nn.Linear(256, 13*13),
+            nn.Dropout(0.1),
+
+            # size 12x12x1
+            nn.Conv2d(16, 1, kernel_size=2, stride=1),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+
+            # size 11x11x1
+
         )
 
         self.positionClassifier = nn.Sequential(
-            nn.Linear(1024, 256),
+
+            # 3 conv layer to 11x11x1
+            # size 12x12x64
+            nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.Linear(256, 128),
+            nn.Dropout(0.1),
+
+            # size 12x12x1
+            nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(16),
             nn.ReLU(),
-            nn.Linear(128, 64),
+            nn.Dropout(0.1),
+
+            nn.Linear(12*12*16, 256),
+            nn.ReLU(),
+            nn.Linear(256, 64),
             nn.ReLU(),
             nn.Linear(64, 4),
         )
