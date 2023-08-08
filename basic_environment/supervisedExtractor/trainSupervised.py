@@ -39,7 +39,7 @@ images_dir_path = os.path.join(script_dir, '../imageDataGeneration')
 dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path)
 
 # Limit the dataset to the first 10000 samples
-max_images = 500000
+max_images = 400000
 dataset = Subset(dataset, indices=range(max_images))
 
 # Split the data into training and validation sets
@@ -56,7 +56,7 @@ model = CNNExtractor()
 model.to(device)  # Move the model to the device
 
 # Define the optimizer
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=0.005)
 
 # Google Cloud Storage configurations
 bucket_name = 'adlr_bucket'
