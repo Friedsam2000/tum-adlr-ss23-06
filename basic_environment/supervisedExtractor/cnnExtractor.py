@@ -9,7 +9,7 @@ class CNNExtractor(nn.Module):
         self.objectGridClassifier = nn.Sequential(
             # size 96x96x3
             nn.Conv2d(3, 8, kernel_size=4, stride=4),
-            nn.BatchNorm2d(4),
+            nn.BatchNorm2d(8),
             nn.ReLU(),
 
             # size 24x24x32
