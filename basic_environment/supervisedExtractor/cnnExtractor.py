@@ -58,30 +58,48 @@ class CNNExtractor(nn.Module):
 
         self.positionClassifier = nn.Sequential(
 
-            # 3 conv layer to 11x11x1
-            # size 12x12x64
-            nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1),
+            # size 96x96x3
+            nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
-            # size 6x6x32
-            nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(16),
+            # size 48x48x32
+            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.1),
 
-            # size 3x3x16
+            # size 24x24x32
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+
+            # size 12x12x64
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+
+            # size 6x6x128
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+
+            # size 3x3x128
+
 
             # Flatten
             nn.Flatten(),
-            nn.Linear(3*3*16, 64),
+            nn.Linear(3*3*128, 512),
             nn.ReLU(),
-            nn.Linear(64, 32),
+            nn.Linear(512, 128),
             nn.ReLU(),
-            nn.Linear(32, 4),
+            nn.Linear(128, 4),
         )
 
     def forward(self, x):
