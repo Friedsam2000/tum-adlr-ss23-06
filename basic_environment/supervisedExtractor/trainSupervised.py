@@ -88,7 +88,6 @@ for epoch in range(num_epochs):
         pos_labels = batch['label'][:, :4].clone().detach().float().to(device)  # Only the positions
         optimizer.zero_grad()
         predictions_grid, predictions_pos = model(images)
-        print(predictions_grid.shape)
         combined_loss = custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels)
         combined_loss.backward()
         optimizer.step()
