@@ -34,17 +34,17 @@ class CNNExtractor(nn.Module):
             nn.MaxPool2d(kernel_size=2, stride=2),
 
             # size 6x6x128
-            nn.ConvTranspose2d(128, 64, kernel_size=5, stride=2, padding=2, output_padding=1),
+            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1, output_padding=1),  # produces 13x13
             nn.BatchNorm2d(64),
             nn.ReLU(),
 
-            # size 14x14x64
-            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=1, padding=1),
+            # size 13x13x64
+            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=1, padding=1),  # remains 13x13
             nn.BatchNorm2d(32),
             nn.ReLU(),
 
-            # size 14x14x32
-            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=1, padding=1),
+            # size 13x13x32
+            nn.Conv2d(32, 1, kernel_size=3, stride=1, padding=1),  # reduces to 11x11
             nn.BatchNorm2d(1),
             nn.ReLU()
 
