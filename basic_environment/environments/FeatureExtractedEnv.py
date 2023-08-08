@@ -40,6 +40,10 @@ class FeatureExtractedEnv(gymnasium.Wrapper):
 
             # Convert to numpy
             predicted_pos = predicted_pos.cpu().detach().numpy()
+
+            #Normalize the predicted position
+            predicted_pos = predicted_pos / 23.0
+
             predicted_grid = predicted_grid.cpu().detach().numpy()
 
             predicted_grid = (predicted_grid > 0.5).astype(float)

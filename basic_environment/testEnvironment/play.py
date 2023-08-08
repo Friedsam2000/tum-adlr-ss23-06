@@ -32,10 +32,10 @@ while True:
     frame_info = env.get_current_frame_info()
 
     # Compare the true and predicted positions
-    print("predicted agent position: ", np.round(obs[0:2]))
+    print("predicted agent position: ", np.round(obs[0:2]*23))
     print("true agent position     : ", frame_info['agent_position'])
 
-    print("predicted goal position : ", np.round(obs[2:4]))
+    print("predicted goal position : ", np.round(obs[2:4]*23))
     print("true goal position      : ", frame_info['goal_position'])
 
     # Get the predicted grid
