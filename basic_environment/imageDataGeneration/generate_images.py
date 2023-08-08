@@ -48,7 +48,7 @@ with open('labels.csv', 'a', newline='') as csvfile:
 
     episode = 0
     timestep = 0
-    num_images = 500000
+    num_images = 15000
     while episode < num_images:
 
         # Reset the environment

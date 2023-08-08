@@ -32,8 +32,9 @@ while True:
     obs_grid = obs[::2, :, :]
     obs_pos = obs[1::2, :, :]
 
+
     # Using the first frame since num_frames_to_stack=1
-    predicted_agent_pos_frame = obs_pos[0]*23
+    predicted_agent_pos_frame = obs_pos[0]*23.0
     predicted_grid_frame = obs_grid[0]
 
    # Both Positions are in a 2x2 grid at position (2, 2) to (3, 3)

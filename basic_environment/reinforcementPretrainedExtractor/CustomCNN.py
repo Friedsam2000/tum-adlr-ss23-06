@@ -6,6 +6,7 @@ class CustomCNN(BaseFeaturesExtractor):
     def __init__(self, observation_space, features_dim=512):
         super(CustomCNN, self).__init__(observation_space, features_dim)
 
+
         self.cnn_grid = nn.Sequential(
             nn.Conv2d(4, 32, kernel_size=3, stride=1, padding=1),   # [32, 11, 11]
             nn.ReLU(),

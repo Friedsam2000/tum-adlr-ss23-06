@@ -27,7 +27,7 @@ def custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels):
 
     # You can adjust the ratio of grid to position loss by using a different weight
     grid_loss_weight = 1
-    pos_loss_weight = 0.1
+    pos_loss_weight = 5
 
     return grid_loss_weight * loss_grid + pos_loss_weight * loss_pos
 
@@ -56,7 +56,7 @@ model = CNNExtractor()
 model.to(device)  # Move the model to the device
 
 # Define the optimizer
-optimizer = optim.Adam(model.parameters(), lr=0.0001)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Google Cloud Storage configurations
 bucket_name = 'adlr_bucket'

@@ -22,7 +22,7 @@ def custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels):
 
     # You can adjust the ratio of grid to position loss by using a different weight
     grid_loss_weight = 1
-    pos_loss_weight = 0.1
+    pos_loss_weight = 5
 
     return grid_loss_weight * loss_grid + pos_loss_weight * loss_pos
 
@@ -88,8 +88,8 @@ with torch.no_grad():
         if batch_idx == 0:
             true_grid = grid_labels[0].cpu().numpy().reshape(11,11)
             predicted_grid = predicted_grid_binary[0].cpu().numpy().reshape(11,11)
-            true_positions = pos_labels[0].cpu().numpy()
-            predicted_positions = predictions_pos[0].cpu().numpy()
+            true_positions = pos_labels[0].cpu().numpy() * 23.0
+            predicted_positions = predictions_pos[0].cpu().numpy() * 23.0
 
             print("True grid:")
             print_grid(true_grid)
