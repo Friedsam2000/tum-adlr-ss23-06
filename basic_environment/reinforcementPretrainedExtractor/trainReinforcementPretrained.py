@@ -7,7 +7,7 @@ import os
 from google.cloud import storage
 from stable_baselines3 import DQN
 import torch
-import CustomCNN
+from CustomCNN import CustomCNNExtractor
 
 def make_env(rank):
     def _init():
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     policy_kwargs = {
-        "features_extractor_class": CustomCNN,
+        "features_extractor_class": CustomCNNExtractor,
     }
 
     model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,

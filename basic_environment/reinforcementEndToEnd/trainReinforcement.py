@@ -5,7 +5,7 @@ import os
 from google.cloud import storage
 from stable_baselines3 import DQN
 import torch
-from CustomFeatureExtractor import CustomCNN
+from CustomFeatureExtractor import CustomFeatureExtractor
 
 
 def make_env(rank):
@@ -50,9 +50,9 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Define the policy kwargs
-    policy_kwargs = {
-        "features_extractor_class": CustomCNN,
-    }
+    policy_kwargs = dict(
+        features_extractor_class=CustomFeatureExtractor,
+    )
 
     # Initialize DQN agent with new policy architecture
     model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, buffer_size=35000, learning_starts=30000, learning_rate=1e-5)

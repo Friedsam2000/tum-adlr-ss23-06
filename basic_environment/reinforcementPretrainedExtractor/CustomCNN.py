@@ -2,9 +2,9 @@ from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 import torch.nn as nn
 import torch
 
-class CustomCNN(BaseFeaturesExtractor):
+class CustomCNNExtractor(BaseFeaturesExtractor):
     def __init__(self, observation_space, features_dim=512):
-        super(CustomCNN, self).__init__(observation_space, features_dim)
+        super(CustomCNNExtractor, self).__init__(observation_space, features_dim)
 
 
         self.cnn_grid = nn.Sequential(
