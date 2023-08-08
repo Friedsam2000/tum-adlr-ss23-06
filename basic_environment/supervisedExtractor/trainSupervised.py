@@ -119,21 +119,14 @@ for epoch in range(num_epochs):
     if val_loss / len(val_loader) < min_val_loss:
         min_val_loss = val_loss / len(val_loader)
 
-        # Save the model with a new name
-        model_path_local = f'{current_time}_model.pth'
+        # Save the model with a consistent name
+        model_path_local = 'model.pth'
         torch.save(model.state_dict(), model_path_local)
 
-        # Upload the model to Google Cloud Storage
+        # Upload the model to Google Cloud Storage with a unique name
         blob = bucket.blob(f'basic_environment/{model_dir}/{current_time}_model.pth')
         blob.upload_from_filename(model_path_local)
         print(f"New lowest validation loss, model saved and uploaded to {blob.public_url}")
-
-        # Remove the previous saved model if it exists
-        if previous_model_path is not None and os.path.exists(previous_model_path):
-            os.remove(previous_model_path)
-
-        # Update the previous model path
-        previous_model_path = model_path_local
 
     # Upload TensorBoard logs to Google Cloud Storage every epoch
     try:
