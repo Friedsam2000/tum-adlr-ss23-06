@@ -56,7 +56,7 @@ model = CNNExtractor()
 model.to(device)  # Move the model to the device
 
 # Define the optimizer
-optimizer = optim.Adam(model.parameters(), lr=0.005)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Google Cloud Storage configurations
 bucket_name = 'adlr_bucket'
