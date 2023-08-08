@@ -19,8 +19,9 @@ class FeatureExtractedEnv(gymnasium.Wrapper):
         self.pretrained_model.eval()
 
         self.observation_space = gymnasium.spaces.Box(
-            low=np.full((4 + 49) * self.num_frames_to_stack, -np.inf),
-            high=np.full((4 + 49) * self.num_frames_to_stack, np.inf),
+            low=-np.inf,
+            high=np.inf,
+            shape=(2*self.num_frames_to_stack, 7, 7),
             dtype=np.float32)
 
     def extract_features(self, observation):
@@ -31,8 +32,8 @@ class FeatureExtractedEnv(gymnasium.Wrapper):
             current_frame = observation[:, :, i * frame_dim:(i + 1) * frame_dim]
 
             # Preprocess the current frame
-            image = current_frame.astype('float32') / 255.0  # Convert to float and scale values to range [0, 1]
-            image = torch.from_numpy(image).permute(2, 0, 1)  # Convert to tensor and permute dimensions
+            image = current_frame.astype('float32') / 255.0
+            image = torch.from_numpy(image).permute(2, 0, 1)
             image = image.unsqueeze(0).to(self.device)
 
             # Extract features
@@ -41,15 +42,23 @@ class FeatureExtractedEnv(gymnasium.Wrapper):
             # Convert to numpy
             predicted_pos = predicted_pos.cpu().detach().numpy()
 
-            #Normalize the predicted position
+            # Normalize the predicted position
             predicted_pos = predicted_pos / 23.0
 
             predicted_grid = predicted_grid.cpu().detach().numpy()
 
+            # Convert to binary grid
             predicted_grid = (predicted_grid > 0.5).astype(float)
 
-            # combine observations (grid and positions)
-            extracted_frame_features = np.concatenate((predicted_pos[0], predicted_grid[0]), axis=0)
+            # Reshape the 2x2 predicted position to 7x7 with zeros
+            position_frame = np.zeros((7, 7))
+
+            # Assign the predicted position to the center of the frame
+            position_frame[2:4, 2:4] = predicted_pos[0].reshape(2, 2)  # Modified line
+
+            predicted_grid_reshaped = predicted_grid[0].reshape(7, 7)
+            extracted_frame_features = np.stack([predicted_grid_reshaped, position_frame], axis=0)
+
             extracted_features_list.append(extracted_frame_features)
 
         # Stack features from all frames
