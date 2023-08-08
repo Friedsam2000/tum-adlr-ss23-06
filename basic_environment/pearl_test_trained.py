@@ -46,9 +46,9 @@ agent_damping_matrix = np.zeros((2,2), dtype=np.single)
 agent_damping_matrix[0,0] = 0.5
 agent_damping_matrix[1,1] = 0.5
 custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0, "tasks": [{'agent_damping_matrix': agent_damping_matrix}, {'agent_damping_matrix': agent_damping_matrix}, {'agent_damping_matrix': agent_damping_matrix}]}
-model = SAC.load("models/SAC_Test_12_z_10/10.117532730102539", custom_objects=custom_objects, verbose=1)
+model = SAC.load("models/SAC_Test_13/-2.9359896183013916", custom_objects=custom_objects, verbose=1)
 print("Loaded Model")
-
+print(type(model.agent.context_encoder))
 # Create the environment
 #env = CustomEnv(grid_size=(16, 16))
 #env = CustomEnv_rc(grid_size=(16, 16))
@@ -64,7 +64,7 @@ while episodes < 100:
     action, _states = model.predict(np.concatenate((obs,z)), deterministic=True)
     obs, reward, done, info = env.step(action)
 
-    env.render()
+    #env.render()
     if done:
         episodes += 1
         if info["goal"]:
