@@ -42,6 +42,8 @@ class FeatureExtractedEnv(gymnasium.Wrapper):
             predicted_pos = predicted_pos.cpu().detach().numpy()
             predicted_grid = predicted_grid.cpu().detach().numpy()
 
+            predicted_grid = (predicted_grid > 0.5).astype(float)
+
             # combine observations (grid and positions)
             extracted_frame_features = np.concatenate((predicted_pos[0], predicted_grid[0]), axis=0)
             extracted_features_list.append(extracted_frame_features)

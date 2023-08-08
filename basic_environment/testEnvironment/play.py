@@ -42,11 +42,10 @@ while True:
     predictions_grid = obs[4:]
 
     # convert the predicted grid to binary
-    predicted_grid_binary = (predictions_grid > 0.5).astype(int)
 
     # Print the predicted grid
     print("predicted grid: ")
-    print(predicted_grid_binary.reshape(7, 7))
+    print(predictions_grid.reshape(7, 7))
 
     # Print the true grid after reshape
     print("true grid: ")
