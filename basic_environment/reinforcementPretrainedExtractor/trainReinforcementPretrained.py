@@ -7,10 +7,11 @@ import os
 from google.cloud import storage
 from stable_baselines3 import DQN
 import torch
+import CustomCNN
 
 def make_env(rank):
     def _init():
-        env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0,num_obstacles=6, num_frames_to_stack=1, size_grid_frame_info=7))
+        env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0,num_obstacles=6, num_frames_to_stack=4, size_grid_frame_info=13))
         return env
 
     return _init
@@ -48,12 +49,12 @@ if __name__ == "__main__":
     # Check how many folders are in logs
     logs_folders = os.listdir("logs")
 
-    # Define custom layers for MlpPolicy
-    policy_kwargs = dict(net_arch=[512, 256, 128, 32])
+    policy_kwargs = {
+        "features_extractor_class": CustomCNN,
+    }
 
-    # Initialize DQN agent
-    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, buffer_size=200000, learning_starts=30000)
-
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
+                buffer_size=100000, learning_starts=30000)
 
     # create the folder for the model
     if not os.path.exists(f"models/DQN_{len(logs_folders)}_0"):

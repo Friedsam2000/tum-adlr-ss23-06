@@ -5,13 +5,11 @@ import cv2
 import numpy as np
 import torch
 
-env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0,num_obstacles=6, num_frames_to_stack=4))
-# Display the image in a window
-observation = env.reset()
-# print(observation)
+env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0, num_obstacles=6, num_frames_to_stack=1, size_grid_frame_info=11))
+
+observation, _ = env.reset()  # Modified to account for the reset method returning a tuple of (obs, info)
 env.render()
 
-# Event looop
 while True:
     key = cv2.waitKey(0)
     if key == 82:  # up
@@ -25,55 +23,49 @@ while True:
     else:
         continue
 
-    # Apply the action to the environment
+    # Inside the while loop:
+
     obs, reward, terminated, truncated, info = env.step(action)
+    frame_info = env.get_current_frame_info()
 
-    # # Get the current frame info
-    # frame_info = env.get_current_frame_info()
-    #
-    # # Compare the true and predicted positions
-    # print("predicted agent position: ", np.round(obs[0:2]*23))
-    # print("true agent position     : ", frame_info['agent_position'])
-    #
-    # print("predicted goal position : ", np.round(obs[2:4]*23))
-    # print("true goal position      : ", frame_info['goal_position'])
+    # Extracting the obstacle grid and position from the observation
+    obs_grid = obs[::2, :, :]
+    obs_pos = obs[1::2, :, :]
 
-    #print obs
-    print(obs)
+    # Using the first frame since num_frames_to_stack=1
+    predicted_agent_pos_frame = obs_pos[0]*23
+    predicted_grid_frame = obs_grid[0]
 
+   # Both Positions are in a 2x2 grid at position (2, 2) to (3, 3)
+    predicted_agent_pos_frame = predicted_agent_pos_frame[2:4, 2:4].reshape(4)
 
-
-
-    # # Get the predicted grid
-    # predictions_grid = obs[4:]
-    #
-    # # convert the predicted grid to binary
-    #
-    # # Print the predicted grid
-    # print("predicted grid: ")
-    # print(predictions_grid.reshape(7, 7))
-    #
-    # # Print the true grid after reshape
-    # print("true grid: ")
-    # true_grid = frame_info['neighboring_cells_content']
-    # # list to numpy array
-    # true_grid = np.array(true_grid)
-    # # reshape
-    # true_grid = true_grid.reshape(7, 7)
-    # print(true_grid)
-    #
-    #
-    # # print a line
-    # print("--------------------------------------------------")
+    predicted_agent_pos = predicted_agent_pos_frame[:2]
+    predicted_goal_pos = predicted_agent_pos_frame[2:]
 
 
-    # display the reward
-    # print(f"Reward = {reward}")
 
-    # display the observation
-    # print(f"Observation = {obs}")
+    print("predicted agent position: ", np.round(np.array(predicted_agent_pos)))
+    print("true agent position     : ", frame_info['agent_position'])
 
-    # Check if the episode is done
+
+    print("predicted goal position : ", np.round(np.array(predicted_goal_pos)))
+    print("true goal position      : ", frame_info['goal_position'])
+
+    # Convert the predicted grid to binary based on a threshold
+    threshold = 0.5
+    predicted_grid_binary = np.where(predicted_grid_frame > threshold, 1, 0)
+
+    print("predicted grid: ")
+    print(predicted_grid_binary)
+
+    print("true grid: ")
+    true_grid = frame_info['neighboring_cells_content']
+    true_grid = np.array(true_grid)
+    true_grid = true_grid.reshape((13, 13))
+    print(true_grid)
+
+    print("--------------------------------------------------")
+
     if terminated:
         if reward == 1:
             print("Goal reached")
@@ -86,7 +78,6 @@ while True:
         print("Timeout")
 
     if terminated or truncated:
-        obs, info = env.reset()
+        obs, _ = env.reset()  # Modified to account for the reset method returning a tuple of (obs, info)
 
-    # Display the image in a window
     env.render()

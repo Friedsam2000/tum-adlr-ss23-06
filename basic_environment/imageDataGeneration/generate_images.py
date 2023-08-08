@@ -25,7 +25,7 @@ else:
 if os.path.exists("labels.csv"):
     os.remove("labels.csv")
 
-env = GridEnvironment(num_last_agent_pos=0,num_obstacles=6, num_frames_to_stack=1, size_grid_frame_info=7)
+env = GridEnvironment(num_last_agent_pos=0,num_obstacles=6, num_frames_to_stack=1, size_grid_frame_info=11)
 
 # Define the field names for the CSV file
 fieldnames = ['image_name', 'agent_pos_x', 'agent_pos_y', 'goal_pos_x', 'goal_pos_y'] + [f'neighbor_{i}_{j}' for i in range(env.size_grid_frame_info) for j in range(env.size_grid_frame_info)]
@@ -48,7 +48,7 @@ with open('labels.csv', 'a', newline='') as csvfile:
 
     episode = 0
     timestep = 0
-    num_images = 500000
+    num_images = 200000
     while episode < num_images:
 
         # Reset the environment

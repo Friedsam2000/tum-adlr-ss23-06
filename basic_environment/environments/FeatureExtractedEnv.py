@@ -7,7 +7,7 @@ from environments.GridEnvironment import GridEnvironment
 class FeatureExtractedEnv(gymnasium.Wrapper):
     def __init__(self, env=None):
         if env is None:
-            env = GridEnvironment(num_obstacles=0, num_frames_to_stack=4, size_grid_frame_info=7)  # default environment
+            env = GridEnvironment(num_obstacles=0, num_frames_to_stack=4, size_grid_frame_info=11)  # default environment
         super().__init__(env)
         self.num_frames_to_stack = env.num_frames_to_stack
         # Load the model
