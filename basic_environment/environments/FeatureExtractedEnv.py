@@ -54,7 +54,7 @@ class FeatureExtractedEnv(gymnasium.Wrapper):
             position_frame = np.zeros((self.env.size_grid_frame_info, self.env.size_grid_frame_info))
 
             # Assign the predicted position to the center of the frame
-            position_frame[2:4, 2:4] = predicted_pos[0].reshape(2, 2)  # Modified line
+            position_frame[4:6, 4:6] = predicted_pos[0].reshape(2, 2)
 
             predicted_grid_reshaped = predicted_grid[0].reshape(self.env.size_grid_frame_info, self.env.size_grid_frame_info)
             extracted_frame_features = np.stack([predicted_grid_reshaped, position_frame], axis=0)
