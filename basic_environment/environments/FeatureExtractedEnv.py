@@ -7,7 +7,7 @@ from environments.GridEnvironment import GridEnvironment
 class FeatureExtractedEnv(gymnasium.Wrapper):
     def __init__(self, env=None):
         if env is None:
-            env = GridEnvironment(num_obstacles=0, num_frames_to_stack=4)  # default environment
+            env = GridEnvironment(num_obstacles=0, num_frames_to_stack=4, size_grid_frame_info=7)  # default environment
         super().__init__(env)
         self.num_frames_to_stack = env.num_frames_to_stack
         # Load the model
@@ -21,7 +21,7 @@ class FeatureExtractedEnv(gymnasium.Wrapper):
         self.observation_space = gymnasium.spaces.Box(
             low=-np.inf,
             high=np.inf,
-            shape=(2*self.num_frames_to_stack, 7, 7),
+            shape=(2*self.num_frames_to_stack, env.size_grid_frame_info, env.size_grid_frame_info),
             dtype=np.float32)
 
     def extract_features(self, observation):
@@ -50,13 +50,13 @@ class FeatureExtractedEnv(gymnasium.Wrapper):
             # Convert to binary grid
             predicted_grid = (predicted_grid > 0.5).astype(float)
 
-            # Reshape the 2x2 predicted position to 7x7 with zeros
-            position_frame = np.zeros((7, 7))
+            # Reshape the 2x2 predicted position to self.env.size_grid_frame_info^2 with zeros
+            position_frame = np.zeros((self.env.size_grid_frame_info, self.env.size_grid_frame_info))
 
             # Assign the predicted position to the center of the frame
             position_frame[2:4, 2:4] = predicted_pos[0].reshape(2, 2)  # Modified line
 
-            predicted_grid_reshaped = predicted_grid[0].reshape(7, 7)
+            predicted_grid_reshaped = predicted_grid[0].reshape(self.env.size_grid_frame_info, self.env.size_grid_frame_info)
             extracted_frame_features = np.stack([predicted_grid_reshaped, position_frame], axis=0)
 
             extracted_features_list.append(extracted_frame_features)

@@ -25,11 +25,12 @@ else:
 if os.path.exists("labels.csv"):
     os.remove("labels.csv")
 
+env = GridEnvironment(num_last_agent_pos=0,num_obstacles=6, num_frames_to_stack=1, size_grid_frame_info=7)
+
 # Define the field names for the CSV file
-fieldnames = ['image_name', 'agent_pos_x', 'agent_pos_y', 'goal_pos_x', 'goal_pos_y'] + [f'neighbor_{i}_{j}' for i in range(7) for j in range(7)]
+fieldnames = ['image_name', 'agent_pos_x', 'agent_pos_y', 'goal_pos_x', 'goal_pos_y'] + [f'neighbor_{i}_{j}' for i in range(env.size_grid_frame_info) for j in range(env.size_grid_frame_info)]
 
 # Create the environment
-env = GridEnvironment(num_last_agent_pos=0,num_obstacles=6, num_frames_to_stack=1)
 
 # Reset the environment
 obs, info = env.reset()
@@ -76,7 +77,7 @@ with open('labels.csv', 'a', newline='') as csvfile:
             'goal_pos_x': goal_pos[0],
             'goal_pos_y': goal_pos[1]
         }
-        row_data.update({f'neighbor_{i}_{j}': neighbors_content[i][j] for i in range(7) for j in range(7)})
+        row_data.update({f'neighbor_{i}_{j}': neighbors_content[i][j] for i in range(env.size_grid_frame_info) for j in range(env.size_grid_frame_info)})
         csv_rows.append(row_data)  # Append to csv_rows
 
         batch_index += 1

@@ -15,7 +15,7 @@ class GridEnvironment(gymnasium.Env):
 
     def __init__(self, grid_size=(24, 24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100,
                  draw_last_agent_pos_in_obs=False, num_frames_to_stack=4, grey_scale=False, render_greyscale=False,
-                 num_obstacles=6):
+                 num_obstacles=6, size_grid_frame_info=7):
         super().__init__()
         self.render_greyscale = render_greyscale
         self.grey_scale = grey_scale
@@ -24,6 +24,8 @@ class GridEnvironment(gymnasium.Env):
         self._assert_sizes(grid_size, img_size, render_size)
         self.draw_last_agent_pos_in_obs = draw_last_agent_pos_in_obs
         self.num_obstacles = num_obstacles
+
+        self.size_grid_frame_info = size_grid_frame_info
 
         self.num_last_agent_pos = num_last_agent_pos
         self.grid_size = grid_size
@@ -371,7 +373,7 @@ class GridEnvironment(gymnasium.Env):
         goal_pos = self.goal_position
 
         # Get neighboring cells
-        neighbors_content = self.get_neighboring_cells_content(agent_pos, distance=3)
+        neighbors_content = self.get_neighboring_cells_content(agent_pos)
 
         return {
             "agent_position": agent_pos,
@@ -379,7 +381,11 @@ class GridEnvironment(gymnasium.Env):
             "neighboring_cells_content": neighbors_content
         }
 
-    def get_neighboring_cells_content(self, position, distance=3):
+    def get_neighboring_cells_content(self, position):
+
+        distance = self.size_grid_frame_info // 2 -1
+
+
         neighbors_content = [[0 for _ in range(2 * distance + 1)] for _ in
                              range(2 * distance + 1)]  # Initialize with 0 for 'no_obstacle'
 
