@@ -22,7 +22,7 @@ def custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels):
 
     # You can adjust the ratio of grid to position loss by using a different weight
     grid_loss_weight = 1
-    pos_loss_weight = 5
+    pos_loss_weight = 1
 
     return grid_loss_weight * loss_grid + pos_loss_weight * loss_pos
 
@@ -35,7 +35,7 @@ dataset = load_data(csv_file=csv_file_path, images_dir=images_dir_path)
 
 
 # Limit the dataset to the first 10000 samples
-max_images = 5000
+max_images = 500
 dataset = Subset(dataset, indices=range(max_images))
 
 # Create a data loader with multiple workers
