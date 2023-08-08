@@ -32,37 +32,38 @@ while True:
     obs_grid = obs[::2, :, :]
     obs_pos = obs[1::2, :, :]
 
+    # To tensor
+    obs_grid = torch.from_numpy(obs_grid).unsqueeze(0)
 
-    # Using the first frame since num_frames_to_stack=1
-    predicted_agent_pos_frame = obs_pos[0]*23.0
-    predicted_grid_frame = obs_grid[0]
+    predicted_pos = obs_pos[0]*23.0
+    # predicted_grid = torch.sigmoid(obs_grid[0])
 
-   # Both Positions are in a 2x2 grid at position (2, 2) to (3, 3)
-    predicted_agent_pos_frame = predicted_agent_pos_frame[2:4, 2:4].reshape(4)
+    # Convert predicted_grid tensor to numpy array
+    predicted_grid_np = obs_grid[0].detach().cpu().numpy()
 
-    predicted_agent_pos = predicted_agent_pos_frame[:2]
-    predicted_goal_pos = predicted_agent_pos_frame[2:]
+    # Both Positions are in a 2x2 grid at positions 4:6, 4:6
+    predicted_pos = predicted_pos[4:6, 4:6].reshape(4)
 
-
+    predicted_agent_pos = predicted_pos[:2]
+    predicted_goal_pos = predicted_pos[2:]
 
     print("predicted agent position: ", np.round(np.array(predicted_agent_pos)))
     print("true agent position     : ", frame_info['agent_position'])
-
 
     print("predicted goal position : ", np.round(np.array(predicted_goal_pos)))
     print("true goal position      : ", frame_info['goal_position'])
 
     # Convert the predicted grid to binary based on a threshold
     threshold = 0.5
-    predicted_grid_binary = np.where(predicted_grid_frame > threshold, 1, 0)
+    predicted_grid_np = np.where(predicted_grid_np > threshold, 1, 0)
 
     print("predicted grid: ")
-    print(predicted_grid_binary)
+    print(predicted_grid_np)
 
     print("true grid: ")
     true_grid = frame_info['neighboring_cells_content']
     true_grid = np.array(true_grid)
-    true_grid = true_grid.reshape((13, 13))
+    true_grid = true_grid.reshape((11, 11))
     print(true_grid)
 
     print("--------------------------------------------------")

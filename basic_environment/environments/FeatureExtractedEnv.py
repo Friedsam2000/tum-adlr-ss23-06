@@ -39,12 +39,17 @@ class FeatureExtractedEnv(gymnasium.Wrapper):
             # Extract features
             predicted_grid, predicted_pos = self.pretrained_model(image)
 
+            # sigmoid
+            predicted_grid = torch.sigmoid(predicted_grid)
+
             # Convert to numpy
             predicted_pos = predicted_pos.cpu().detach().numpy()
             predicted_grid = predicted_grid.cpu().detach().numpy()
 
+
+
             # Convert to binary grid
-            predicted_grid = (predicted_grid > 0.5).astype(float)
+            # predicted_grid = (predicted_grid > 0.5).astype(float)
 
             # Reshape the 2x2 predicted position to self.env.size_grid_frame_info^2 with zeros
             position_frame = np.zeros((self.env.size_grid_frame_info, self.env.size_grid_frame_info))
