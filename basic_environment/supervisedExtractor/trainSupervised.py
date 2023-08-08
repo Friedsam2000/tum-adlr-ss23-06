@@ -27,7 +27,7 @@ def custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels):
 
     # You can adjust the ratio of grid to position loss by using a different weight
     grid_loss_weight = 1
-    pos_loss_weight = 0.1
+    pos_loss_weight = 0.0
 
     return grid_loss_weight * loss_grid + pos_loss_weight * loss_pos
 
