@@ -85,7 +85,7 @@ if __name__ == "__main__":
     #
     model = SAC("MlpPolicy", env, learning_rate=0.00015, verbose=1, buffer_size=1000000, optimize_memory_usage=False,
                 tensorboard_log="logs", device=device, batch_size=512, gamma=0.99, gradient_steps=4, tau=0.01, use_pearl=True, nr_tasks=len(tasks), tasks=tasks, z_dim=2,
-                meta_batch_size=32)
+                meta_batch_size=16)
     print(model.replay_buffer.buffers[0].observations.shape)
 
 

@@ -15,4 +15,4 @@ pip install importlib-metadata==4.13.0
 
 # Install Python dependencies
 # pip install -r requirements.txt
-pip install -e ~/stable-baselines3 [docs,tests,extra]
+pip install -e ~/stable-baselines3/.[docs,tests,extra]
