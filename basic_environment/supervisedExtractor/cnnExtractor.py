@@ -63,13 +63,15 @@ class CNNExtractor(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.1),
 
-            # size 12x12x1
+            # size 12x12x32
             nn.Conv2d(32, 8, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(8),
             nn.ReLU(),
             nn.Dropout(0.1),
 
-            nn.Linear(12*12*8, 256),
+            # Flatten
+            nn.Flatten(),
+            nn.Linear(8 * 12 * 12, 256),  # Adjusted input dimension
             nn.ReLU(),
             nn.Linear(256, 64),
             nn.ReLU(),
@@ -78,7 +80,6 @@ class CNNExtractor(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        # print(x.shape)  # Add this line
         x_grid = self.objectGridClassifier(x)
         x_position = self.positionClassifier(x)
         return x_grid, x_position
