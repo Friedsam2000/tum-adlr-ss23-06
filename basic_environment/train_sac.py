@@ -11,7 +11,7 @@ from google.cloud import storage
 
 def make_env(grid_size, rank):
     def _init():
-        env = ConEnv(grid_size=grid_size, nr_obstacles=0, nr_goal_pos=5)
+        env = ConEnv(grid_size=grid_size, nr_obstacles=0, nr_goal_pos=1)
         return env
 
     return _init
@@ -19,7 +19,7 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "MLP_5.13"
+    SAC_Iteration = "MLP_D=0.1_1"
     SAC_Policy = "MLP"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     # Initialize SAC agent with CNN Policy
     n_steps = 256
-    model = SAC("MlpPolicy", env, learning_rate=0.0003,verbose=1, buffer_size=1000000, optimize_memory_usage=False ,tensorboard_log="logs", device=device, batch_size=1024, gamma=0.999)
+    model = SAC("MlpPolicy", env, learning_rate=0.00015,verbose=1, buffer_size=1000000, optimize_memory_usage=False ,tensorboard_log="logs", device=device, batch_size=512, gamma=0.99,tau=0.01)
 
     # create the folder for the model
     if not os.path.exists(f"models/SAC_{SAC_Iteration}"):
