@@ -51,8 +51,8 @@ model.eval()
 
 # Custom function to print the grid
 def print_grid(grid):
-    for i in range(13):
-        for j in range(13):
+    for i in range(11):
+        for j in range(11):
             print('X' if grid[i, j] == 1 else 'O', end=' ')
         print()
     print()
@@ -86,8 +86,8 @@ with torch.no_grad():
 
         # Print the first sample grid and positions in the first batch
         if batch_idx == 0:
-            true_grid = grid_labels[0].cpu().numpy().reshape(13,13)
-            predicted_grid = predicted_grid_binary[0].cpu().numpy().reshape(13,13)
+            true_grid = grid_labels[0].cpu().numpy().reshape(11,11)
+            predicted_grid = predicted_grid_binary[0].cpu().numpy().reshape(11,11)
             true_positions = pos_labels[0].cpu().numpy()
             predicted_positions = predictions_pos[0].cpu().numpy()
 
