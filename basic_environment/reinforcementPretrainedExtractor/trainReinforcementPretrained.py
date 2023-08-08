@@ -18,9 +18,6 @@ def make_env(rank):
 
 if __name__ == "__main__":
 
-    print("CustomCNNExtractor imported successfully!")
-    print(CustomCNNExtractor)
-
     # Set up the GPU or use the CPU
     print("GPU is available: ")
     print(torch.cuda.is_available())
