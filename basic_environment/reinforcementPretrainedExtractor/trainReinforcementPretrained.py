@@ -49,7 +49,7 @@ if __name__ == "__main__":
     logs_folders = os.listdir("logs")
 
     # Define custom layers for MlpPolicy
-    policy_kwargs = dict(net_arch=[256, 128, 64])
+    policy_kwargs = dict(net_arch=[512, 128, 32])
 
     # Initialize DQN agent
     model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, buffer_size=35000, learning_starts=30000, batch_size = 128)
