@@ -62,6 +62,10 @@ with open('labels.csv', 'a', newline='') as csvfile:
         current_frame_info = env.get_current_frame_info()
         agent_pos = current_frame_info["agent_position"]
         goal_pos = current_frame_info["goal_position"]
+        #normalize agent and goal pos by dividing by 23.0
+        agent_pos = (agent_pos[0]/23.0, agent_pos[1]/23.0)
+        goal_pos = (goal_pos[0]/23.0, goal_pos[1]/23.0)
+
         neighbors_content = current_frame_info["neighboring_cells_content"]
 
         # Extract the last RGB image

@@ -68,8 +68,6 @@ with torch.no_grad():
         images = batch['image'].to(device)
         grid_labels = batch['label'][:, 4:].clone().detach().float().to(device)  # Only obstacle grid, ignoring first 4 elements
         pos_labels = batch['label'][:, :4].clone().detach().float().to(device)  # Only the positions
-        #normalize the positions 23 --> 1 0 --> 0
-        pos_labels = pos_labels / 23.0
         predictions_grid, predictions_pos = model(images)
         combined_loss = custom_loss(predictions_grid, predictions_pos, grid_labels, pos_labels)
         test_loss += combined_loss.item()
