@@ -1,11 +1,14 @@
 import numpy as np
+from CustomFeatureExtractor import CustomFeatureExtractor
+import sys
+sys.path.append("..")
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from environments.GridEnvironment import GridEnvironment
 import os
 from google.cloud import storage
 from stable_baselines3 import DQN
 import torch
-from CustomFeatureExtractor import CustomFeatureExtractor
+
 
 
 def make_env(rank):
