@@ -10,7 +10,7 @@ from CustomFeatureExtractor import CustomFeatureExtractor
 
 def make_env(rank):
     def _init():
-        env = GridEnvironment()
+        env = GridEnvironment(num_obstacles=9)
         return env
 
     return _init
