@@ -19,7 +19,7 @@ def make_env(grid_size, damping_matrices, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "MLP_D~1.5_Sp_Tvel0.5_1"
+    SAC_Iteration = "MLP_D~1.5_Sp_Tvel0.5_2"
     SAC_Policy = "MLP"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     grid_size = (16, 16)
 
     damping_matrices=[]
-    for i in range(5):
+    for i in range(6):
         damping_matrix = np.zeros((2, 2), dtype=np.single)
         for j in range(2):
             while not (damping_matrix[j, j] > 0):
