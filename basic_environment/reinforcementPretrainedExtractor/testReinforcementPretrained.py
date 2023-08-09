@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 # Set up the Bucket (google cloud storage)
 # Define the bucket name
 bucket_name = 'adlr_bucket'
-model_directory = "basic_environment/reinforcementPretrained/models/DQN_10_0"
+model_directory = "basic_environment/reinforcementPretrained/models/DQN_1_0"
 
 # Define the local download path
 local_path = "models_from_bucket"
@@ -78,7 +78,7 @@ obstacles_hit = 0
 timeouts = 0
 episodes = 0
 # Print testing
-num_episodes = 1000
+num_episodes = 50
 print("Testing the model")
 while episodes < num_episodes:
 

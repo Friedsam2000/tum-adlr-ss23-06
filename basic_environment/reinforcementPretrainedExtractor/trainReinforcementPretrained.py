@@ -53,7 +53,7 @@ if __name__ == "__main__":
         "features_extractor_class": CustomCNNExtractor,
     }
 
-    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, learning_rate=1e-5)
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, learning_rate=1e-5, buffer_size=200000, learning_starts=20000)
 
     # create the folder for the model
     if not os.path.exists(f"models/DQN_{len(logs_folders)}_0"):
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     # Train agent
     TIMESTEPS_PER_SAVE = 5000
-    MAX_TIMESTEPS = 100000000
+    MAX_TIMESTEPS = 1000000000
     while model.num_timesteps < MAX_TIMESTEPS:
         model.learn(total_timesteps=TIMESTEPS_PER_SAVE, reset_num_timesteps=False,
                     tb_log_name=f"DQN_{len(logs_folders)}", log_interval = 100)
