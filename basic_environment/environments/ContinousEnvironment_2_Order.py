@@ -9,7 +9,17 @@ class CustomEnv_2order_dyn(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, agent_size=0.2, goal_size=0.8, grid_size=(16,16), img_size=(96, 96), render_size=(960, 960), num_last_agent_pos=2, nr_obstacles=0, nr_goal_pos=15, train=True):
+    def __init__(self,
+                 agent_size=0.2,
+                 goal_size=0.8,
+                 grid_size=(16,16),
+                 img_size=(96, 96),
+                 render_size=(960, 960),
+                 num_last_agent_pos=2,
+                 nr_obstacles=0,
+                 nr_goal_pos=15,
+                 train=True,
+                 damping_matrices=[np.zeros((2,2))]):
 
         #Super init
         super(CustomEnv_2order_dyn, self).__init__()
@@ -70,16 +80,7 @@ class CustomEnv_2order_dyn(gym.Env):
         self.agent_damping_matrix = np.zeros((2,2), dtype=np.single)
         self.agent_damping_matrix[0,0] = 0.1
         self.agent_damping_matrix[1,1] = 0.1
-        self.damping_matrices = []
-        for i in range(3):
-            damping_matrix = np.zeros((2,2), dtype=np.single)
-            for j in range(2):
-                while not(damping_matrix[j,j] > 0):
-                   damping_matrix[j,j] =  np.random.normal(0.1, 0.05)
-            self.damping_matrices.append(damping_matrix)
-
-        for i in range(len(self.damping_matrices)):
-            print(self.damping_matrices[i])
+        self.damping_matrices = damping_matrices
 
 
         # Number of simulation steps per call of self.step()

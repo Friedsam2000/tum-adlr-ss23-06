@@ -9,9 +9,9 @@ from google.cloud import storage
 
 
 
-def make_env(grid_size, rank):
+def make_env(grid_size, damping_matrices, rank):
     def _init():
-        env = ConEnv(grid_size=grid_size, nr_obstacles=0, nr_goal_pos=1)
+        env = ConEnv(grid_size=grid_size, nr_obstacles=0, nr_goal_pos=1, damping_matrices=damping_matrices)
         return env
 
     return _init
@@ -19,7 +19,7 @@ def make_env(grid_size, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "MLP_D~0.1_1"
+    SAC_Iteration = "MLP_D~0.1_2"
     SAC_Policy = "MLP"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
@@ -38,8 +38,17 @@ if __name__ == "__main__":
     num_cpu = 16  # Number of processes to use
     grid_size = (16, 16)
 
+    damping_matrices=[]
+    for i in range(3):
+        damping_matrix = np.zeros((2, 2), dtype=np.single)
+        for j in range(2):
+            while not (damping_matrix[j, j] > 0):
+                damping_matrix[j, j] = np.random.normal(0.1, 0.05)
+        damping_matrices.append(damping_matrix)
+    print(damping_matrices)
+
     # Create the vectorized environment
-    env = SubprocVecEnv([make_env(grid_size, i) for i in range(num_cpu)])
+    env = SubprocVecEnv([make_env(grid_size, damping_matrices, i) for i in range(num_cpu)])
     # add a monitor wrapper
     env = VecMonitor(env)
 
@@ -55,6 +64,7 @@ if __name__ == "__main__":
 
     # Check how many folders are in logs
     logs_folders = os.listdir("logs")
+
 
     # Initialize SAC agent with CNN Policy
     n_steps = 256
