@@ -39,11 +39,15 @@ if __name__ == "__main__":
     grid_size = (16, 16)
 
     damping_matrices=[]
-    for i in range(6):
+    for i in range(5):
         damping_matrix = np.zeros((2, 2), dtype=np.single)
         for j in range(2):
             while not (damping_matrix[j, j] > 0):
                 damping_matrix[j, j] = np.random.normal(1.5, 1)
+                if damping_matrix[j,j] > 3:
+                    damping_matrix[j,j] = 3
+                if damping_matrix[j,j] < 0.1:
+                    damping_matrix[j,j] = 0.1
         damping_matrices.append(damping_matrix)
     print(damping_matrices)
 

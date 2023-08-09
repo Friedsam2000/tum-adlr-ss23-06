@@ -103,7 +103,6 @@ class CustomEnv_2order_dyn(gym.Env):
         if self.train:
             ind = np.random.randint(0, len(self.damping_matrices))
             self.agent_damping_matrix = self.damping_matrices[ind]
-
         # agent velocity
         self.agent_vel = np.zeros((2,), dtype=np.single)
         self.agent_acc = np.zeros((2,), dtype=np.single)
@@ -234,10 +233,10 @@ class CustomEnv_2order_dyn(gym.Env):
                 return observation, self.reward, self.done, {"goal": False, "obstacle": True}
 
         # if the agent is moving towards the goal, give a positive reward, if not, give a negative reward
-        #if new_dist < self.old_dist:
-        #    self.reward = 0.025 * delta
-        #else:
-        #    self.reward = -0.025 * delta
+        if new_dist < self.old_dist:
+            self.reward = 0.025 * delta
+        else:
+            self.reward = -0.025 * delta
 
         # reward lowering velocity inside of goal 
         if new_dist < self.goal_size:
