@@ -144,9 +144,18 @@ class GridEnvironment(gymnasium.Env):
         # Resize the image for better visualization
         display_img = cv2.resize(display_img, self.render_size, interpolation=cv2.INTER_NEAREST)
 
+        # Plot symbols at the end of each rendered episode
+        if self._check_goal():
+            self.draw_checkmark(display_img)
+            cv2.waitKey(200)
+        elif self._timeout_check() or self._check_obstacle_collision():
+            self.draw_cross(display_img)
+            cv2.waitKey(200)
+
+
         # Display the image
         cv2.imshow('image', display_img)
-        cv2.waitKey(100)
+        cv2.waitKey(80)
 
     def close(self):
         cv2.destroyAllWindows()
@@ -402,3 +411,32 @@ class GridEnvironment(gymnasium.Env):
                     neighbors_content[dx + distance][dy + distance] = content
 
         return neighbors_content
+
+    def draw_checkmark(self, img):
+        # Define the points for the checkmark
+        # You can adjust these points to get the desired size and position
+        point1 = (int(img.shape[1] * 0.3), int(img.shape[0] * 0.5))
+        point2 = (int(img.shape[1] * 0.5), int(img.shape[0] * 0.7))
+        point3 = (int(img.shape[1] * 0.8), int(img.shape[0] * 0.3))
+        thickness = 10
+        color = (0, 255, 0)  # Green
+
+        cv2.line(img, point1, point2, color, thickness)
+        cv2.line(img, point2, point3, color, thickness)
+
+    def draw_cross(self, img):
+        # Define the points for the cross
+        # Adjust these points for desired size and position
+        point1 = (int(img.shape[1] * 0.3), int(img.shape[0] * 0.3))
+        point2 = (int(img.shape[1] * 0.8), int(img.shape[0] * 0.7))
+        point3 = (int(img.shape[1] * 0.8), int(img.shape[0] * 0.3))
+        point4 = (int(img.shape[1] * 0.3), int(img.shape[0] * 0.7))
+        thickness = 10
+        # make the color pink
+        color = (255, 0, 255)  # Pink
+
+        cv2.line(img, point1, point2, color, thickness)
+        cv2.line(img, point3, point4, color, thickness)
+
+
+
