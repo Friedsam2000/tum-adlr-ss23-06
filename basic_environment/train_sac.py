@@ -19,7 +19,7 @@ def make_env(grid_size, damping_matrices, rank):
 
 if __name__ == "__main__":
     
-    SAC_Iteration = "MLP_D~0.1_2"
+    SAC_Iteration = "MLP_D~0.1_3"
     SAC_Policy = "MLP"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
