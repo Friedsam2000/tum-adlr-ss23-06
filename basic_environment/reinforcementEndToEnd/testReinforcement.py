@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 # Set up the Bucket (google cloud storage)
 # Define the bucket name
 bucket_name = 'adlr_bucket'
-model_directory = "basic_environment/reinforcementEndToEnd/DQN_0_0"
+model_directory = "basic_environment/reinforcementEndToEnd/models/DQN_0_0"
 
 # Define the local download path
 local_path = "models_from_bucket"
@@ -68,7 +68,7 @@ model = DQN.load(f"{local_path}/{local_filename}", custom_objects=custom_objects
 # Rest of the code remains the same
 
 # Create the environment
-env = GridEnvironment()
+env = GridEnvironment(num_obstacles=6)
 
 # Print the network architecture
 print(model.policy)
@@ -80,7 +80,7 @@ obstacles_hit = 0
 timeouts = 0
 episodes = 0
 # Print testing
-num_episodes = 500
+num_episodes = 100
 print("Testing the model")
 while episodes < num_episodes:
 
