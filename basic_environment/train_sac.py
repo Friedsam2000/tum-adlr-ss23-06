@@ -39,11 +39,11 @@ if __name__ == "__main__":
     grid_size = (16, 16)
 
     damping_matrices=[]
-    for i in range(3):
+    for i in range(6):
         damping_matrix = np.zeros((2, 2), dtype=np.single)
         for j in range(2):
             while not (damping_matrix[j, j] > 0):
-                damping_matrix[j, j] = np.random.normal(0.1, 0.05)
+                damping_matrix[j, j] = np.random.normal(1.5, 1)
         damping_matrices.append(damping_matrix)
     print(damping_matrices)
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     # Initialize SAC agent with CNN Policy
     n_steps = 256
-    model = SAC("MlpPolicy", env, learning_rate=0.00015,verbose=1, buffer_size=1000000, optimize_memory_usage=False ,tensorboard_log="logs", device=device, batch_size=512, gamma=0.99,tau=0.01)
+    model = SAC("MlpPolicy", env, learning_rate=0.0003,verbose=1, buffer_size=1000000, optimize_memory_usage=False ,tensorboard_log="logs", device=device, batch_size=512, gamma=0.99,tau=0.01)
 
     # create the folder for the model
     if not os.path.exists(f"models/SAC_{SAC_Iteration}"):

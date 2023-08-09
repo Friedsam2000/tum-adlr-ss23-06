@@ -18,7 +18,7 @@ storage_client = google.cloud.storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Get all model filenames from the bucket
-PPO_Iteration = "SAC_MLP_5.13"
+PPO_Iteration = "SAC_MLP_D=0.1_1"
 blobs = bucket.list_blobs(prefix=f"data_Matthias/models/{PPO_Iteration}")
 model_filenames = []
 for blob in blobs:
@@ -48,7 +48,7 @@ print(f"Loaded {model_filename} from models_from_bucket directory")
 # Create the environment
 #env = CustomEnv(grid_size=(16, 16))
 #env = CustomEnv_rc(grid_size=(16, 16))
-env = ConEnv(grid_size=(16, 16), nr_obstacles=0, nr_goal_pos=5)
+env = ConEnv(grid_size=(16, 16), nr_obstacles=0, nr_goal_pos=1, train=False)
 
 # Test the model
 obs = env.reset()
