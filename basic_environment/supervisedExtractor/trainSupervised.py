@@ -74,14 +74,7 @@ writer = SummaryWriter(tb_log_dir)
 min_val_loss = float('inf')
 
 # Before the training loop
-previous_losses_train = [float('inf')] * 5  # Last 5 training losses
-previous_losses_val = [float('inf')] * 5  # Last 5 validation losses
 previous_model_path = None
-
-# Function to calculate allowed change based on previous loss values
-def allowed_change(losses):
-    diffs = [losses[i] - losses[i-1] for i in range(1, len(losses))]
-    return 2 * torch.std(torch.tensor(diffs))
 
 # Training loop
 num_epochs = 150
@@ -134,28 +127,6 @@ for epoch in range(num_epochs):
         blob = bucket.blob(f'basic_environment/{model_dir}/{current_time}_model.pth')
         blob.upload_from_filename(model_path_local)
         print(f"New lowest validation loss, model saved and uploaded to {blob.public_url}")
-
-    # Update previous loss lists and check if the change is within the allowed limit
-    train_avg_loss = train_loss / len(train_loader)
-    val_avg_loss = val_loss / len(val_loader)
-
-    train_change_exceeded = abs(train_avg_loss - previous_losses_train[-1]) > allowed_change(previous_losses_train)
-    val_change_exceeded = abs(val_avg_loss - previous_losses_val[-1]) > allowed_change(previous_losses_val)
-
-    # Update the loss lists
-    previous_losses_train.pop(0)
-    previous_losses_train.append(train_avg_loss)
-    previous_losses_val.pop(0)
-    previous_losses_val.append(val_avg_loss)
-
-    if train_change_exceeded:
-        # Here, take corrective action if the change in training loss exceeds the allowed limit.
-        # For this example, I'm printing a warning, but you might want to do more.
-        print(f"Warning: Training loss change exceeded allowed limit in epoch {epoch + 1}. Consider corrective action.")
-    if val_change_exceeded:
-        # Same corrective action for validation loss
-        print(
-            f"Warning: Validation loss change exceeded allowed limit in epoch {epoch + 1}. Consider corrective action.")
 
     # Upload TensorBoard logs to Google Cloud Storage every epoch
     try:
