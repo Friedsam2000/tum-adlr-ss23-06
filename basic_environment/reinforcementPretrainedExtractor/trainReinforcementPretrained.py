@@ -53,8 +53,7 @@ if __name__ == "__main__":
         "features_extractor_class": CustomCNNExtractor,
     }
 
-    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device,
-                buffer_size=100000, learning_starts=30000)
+    model = DQN("MlpPolicy", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="logs", device=device, learning_rate=1e-5)
 
     # create the folder for the model
     if not os.path.exists(f"models/DQN_{len(logs_folders)}_0"):

@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 # Set up the Bucket (google cloud storage)
 # Define the bucket name
 bucket_name = 'adlr_bucket'
-model_directory = "basic_environment/reinforcementPretrained/models/DQN_1_0"
+model_directory = "basic_environment/reinforcementPretrained/models/DQN_10_0"
 
 # Define the local download path
 local_path = "models_from_bucket"
@@ -66,7 +66,7 @@ custom_objects = {"lr_schedule": lambda _: 0.0, "clip_range": lambda _: 0.0}
 model = DQN.load(f"{local_path}/{local_filename}", custom_objects=custom_objects, verbose=1)
 
 # Create the environment for testing
-env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0, num_obstacles=6, num_frames_to_stack=4, size_grid_frame_info=13))
+env = FeatureExtractedEnv(GridEnvironment(num_last_agent_pos=0, num_obstacles=6, num_frames_to_stack=4, size_grid_frame_info=11))
 
 # Print the network architecture
 print(model.policy)
@@ -78,7 +78,7 @@ obstacles_hit = 0
 timeouts = 0
 episodes = 0
 # Print testing
-num_episodes = 100
+num_episodes = 1000
 print("Testing the model")
 while episodes < num_episodes:
 
