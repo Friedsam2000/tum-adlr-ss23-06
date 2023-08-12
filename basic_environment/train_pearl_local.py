@@ -18,22 +18,14 @@ def make_env(grid_size, rank):
 
 
 if __name__ == "__main__":
-
-    SAC_Iteration = "Test_13"
-    SAC_Policy = "Test_13"
+    #Name Run
+    SAC_Iteration = "Test_17_7"
+    SAC_Policy = "Test_17_7"
     print(SAC_Iteration)
     # Set up the GPU or use the CPU
     print("GPU is available: ")
     print(torch.cuda.is_available())
     device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    # Set up the bucket (google cloud storage)
-    # Define the bucket name
-    bucket_name = 'adlr_bucket'
-    # Initialize a storage client
-    storage_client = storage.Client()
-    # Get the bucket object
-    bucket = storage_client.get_bucket(bucket_name)
 
     num_cpu = 16  # Number of processes to use
     grid_size = (16, 16)
@@ -43,30 +35,39 @@ if __name__ == "__main__":
     # add a monitor wrapper
     env = VecMonitor(env)
 
-    #print(env.get_attr("agent_damping_matrix"))
-    #task_description = "agent_damping_matrix"
-    agent_damping_matrix = np.zeros((2,2), dtype=np.single)
-    agent_damping_matrix[0,0] = 0
-    agent_damping_matrix[1,1] = 0
-    #env.set_attr(task_description, agent_damping_matrix)
-    #print(env.get_attr("agent_damping_matrix"))
 
     #tasks = [{'agent_damping_matrix': agent_damping_matrix},{'agent_damping_matrix': agent_damping_matrix},{'agent_damping_matrix': agent_damping_matrix},{'agent_damping_matrix': agent_damping_matrix}, {'agent_damping_matrix': agent_damping_matrix}]
-    tasks =  [{'agent_damping_matrix': np.zeros((2,2), dtype=np.single)}, {'agent_damping_matrix': np.zeros((2,2), dtype=np.single)}, {'agent_damping_matrix': np.zeros((2,2), dtype=np.single)}]
+    tasks =  [{'agent_damping_matrix': np.zeros((2,2), dtype=np.single), 'S': None, 'inv_S': None},
+              {'agent_damping_matrix': np.zeros((2,2), dtype=np.single), 'S': None, 'inv_S': None},
+              {'agent_damping_matrix': np.zeros((2,2), dtype=np.single), 'S': None, 'inv_S': None},
+              {'agent_damping_matrix': np.zeros((2,2), dtype=np.single), 'S': None, 'inv_S': None},
+              {'agent_damping_matrix': np.zeros((2,2), dtype=np.single), 'S': None, 'inv_S': None},
+              {'agent_damping_matrix': np.zeros((2,2), dtype=np.single), 'S': None, 'inv_S': None}]
+    agent_mass_matrix = np.zeros((2, 2), dtype=np.single)
+    agent_mass_matrix[0, 0] = 1.0
+    agent_mass_matrix[1, 1] = 1.0
     for i in range(len(tasks)):
         for j in range(2):
             while not(tasks[i]['agent_damping_matrix'][j,j] > 0):
-                tasks[i]['agent_damping_matrix'][j,j] = 0.5 + np.random.normal(0., 0.2)
-        print(tasks[i]['agent_damping_matrix'])
+                tasks[i]['agent_damping_matrix'][j,j] =  np.random.normal(1.5, 1)
+        #When changing the Damping the Newmark Parameters have to be changed aswell TODO: get Values from env
+        #self.S = self.agent_mass_matrix + self.beta * self.delta_t * self.agent_damping_matrix
+        #self.inv_S = np.linalg.inv(self.S)
+        S = agent_mass_matrix + 0.25 * 1 * tasks[i]['agent_damping_matrix']
+        inv_S = np.linalg.inv(S)
+        tasks[i]['S'] = S
+        tasks[i]['inv_S'] = inv_S
 
-    #print(type(model.replay_buffer.buffers))
-    #print(model.replay_buffer.buffers[0].observations[4900])
-    #params = list(tasks[0].items())
-    #for j in range(len(params)):
-    #    print(params[j][0])
-    #    print(params[j][1])
+    tasks_vel = [{'goal_vel': 0},
+             {'goal_vel': 0},
+             {'goal_vel': 0},
+             {'goal_vel': 0},
+             {'goal_vel': 0}]
 
-    ###env = ConEnv(grid_size=grid_size)
+    for i in range(len(tasks_vel)):
+        while not(tasks_vel[i]['goal_vel'] > 0.5):
+            tasks_vel[i]['goal_vel'] =  np.random.normal(2, 2)
+        #print(tasks_vel[i]['goal_vel'])
 
     # Create logs if not existing
     if not os.path.exists("logs"):
@@ -79,17 +80,11 @@ if __name__ == "__main__":
     # Check how many folders are in logs
     logs_folders = os.listdir("logs")
 
-    # Initialize SAC agent with CNN Policy
+    # Initialize SAC agent with MLP Policy and Pearl
     n_steps = 256
-    ##model = SAC("MlpPolicy", env, learning_rate=0.0003,verbose=1, buffer_size=1000000, optimize_memory_usage=False ,tensorboard_log="logs", device=device, batch_size=1024, gamma=0.999)
-    #
-    model = SAC("MlpPolicy", env, learning_rate=0.00015, verbose=1, buffer_size=1000000, optimize_memory_usage=False,
-                tensorboard_log="logs", device=device, batch_size=512, gamma=0.99, gradient_steps=4, tau=0.01, use_pearl=True, nr_tasks=len(tasks), tasks=tasks, z_dim=2,
-                meta_batch_size=16)
-    print(model.replay_buffer.buffers[0].observations.shape)
-
-
-
+    model = SAC("MlpPolicy", env, learning_rate=0.0003, verbose=1, buffer_size=1000000, optimize_memory_usage=False,
+                tensorboard_log="logs", device=device, batch_size=512, gamma=0.99, gradient_steps=8, tau=0.01, use_pearl=True, nr_tasks=len(tasks), tasks=tasks, z_dim=8,
+                meta_batch_size=4, history=32)
 
     # create the folder for the model
     if not os.path.exists(f"models/SAC_{SAC_Iteration}"):
@@ -113,19 +108,4 @@ if __name__ == "__main__":
             print(f"Saving model with new best reward mean {reward_mean}")
             model.save(f"models/SAC_{SAC_Iteration}/{reward_mean}")
 
-        #    # upload the model to the bucket
-        #    blob = bucket.blob(f"data_Matthias/models/SAC_{SAC_Iteration}/{model.num_timesteps}.zip")
-        #    blob.upload_from_filename(f"models/SAC_{SAC_Iteration}/{model.num_timesteps}.zip")
-        #    print(f"Uploaded model {model.num_timesteps}.zip to bucket")
-        #if log_save_counter%2 == 0:
-        #    # get the latest log file
-        #    logs = os.listdir(f"logs/SAC_{SAC_Policy}_0")
-        #    logs.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
-        #    latest_log = logs[-1]
-        #    # upload the new log file to the bucket
-        #    blob = bucket.blob(f"data_Matthias/logs/SAC_{SAC_Iteration}/{latest_log}")
-        #    blob.upload_from_filename(f"logs/SAC_{SAC_Policy}_0/{latest_log}")
-        #
-        #log_save_counter = log_save_counter + 1
 
-    model.print_last_obs()

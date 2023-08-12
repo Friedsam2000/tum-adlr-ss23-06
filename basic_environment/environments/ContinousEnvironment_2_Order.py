@@ -9,7 +9,7 @@ class CustomEnv_2order_dyn(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, agent_size=0.2, goal_size=0.8, grid_size=(16,16), img_size=(96, 96), render_size=(960, 960), num_last_agent_pos=2, nr_obstacles=0, nr_goal_pos=15):
+    def __init__(self, agent_size=0.2, goal_size=0.8, grid_size=(16,16), img_size=(96, 96), render_size=(960, 960), num_last_agent_pos=2, nr_obstacles=0, nr_goal_pos=15, test=True):
 
         #Super init
         super(CustomEnv_2order_dyn, self).__init__()
@@ -33,6 +33,7 @@ class CustomEnv_2order_dyn(gym.Env):
         self.scaling = ( render_size[0]/ grid_size[0], render_size[1]/ grid_size[1])
         self.nr_obstacles = nr_obstacles
         self.nr_goal_pos = nr_goal_pos
+        self.test = test
         if(nr_obstacles > 0):
             # obstacles
             self.obstacles = np.zeros((nr_obstacles, 3), dtype=np.single)
@@ -56,7 +57,7 @@ class CustomEnv_2order_dyn(gym.Env):
         # max velocity
         self.max_vel = 2.0
         #velocity delta at goal
-        self.goal_vel = 10.0
+        self.goal_vel = 0.01
 
         #Agent Mass
         self.agent_mass = 1.0
@@ -66,8 +67,8 @@ class CustomEnv_2order_dyn(gym.Env):
 
         #Agent Damping Matrix
         self.agent_damping_matrix = np.zeros((2,2), dtype=np.single)
-        self.agent_damping_matrix[0,0] = 0.1
-        self.agent_damping_matrix[1,1] = 0.1
+        self.agent_damping_matrix[0,0] = 1
+        self.agent_damping_matrix[1,1] = 1
 
         # Number of simulation steps per call of self.step()
         self.nr_sim_steps = 1
@@ -100,6 +101,10 @@ class CustomEnv_2order_dyn(gym.Env):
         #self.goal_position = np.array([10.0,10.0], dtype=np.single)
         goal_pos = np.random.randint(0, self.nr_goal_pos)
         self.goal_position = np.array([self.pot_goal_pos[goal_pos, 0], self.pot_goal_pos[goal_pos, 1]], dtype=np.single)
+
+        if self.test:
+            self.goal_position[0] = np.random.uniform(0,self.grid_size[0])
+            self.goal_position[1] = np.random.uniform(0,self.grid_size[1])
 
         # define last distance to goal
         self.initial_dist = np.linalg.norm(self.agent_position - self.goal_position)
