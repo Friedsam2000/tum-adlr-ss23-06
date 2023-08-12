@@ -19,7 +19,9 @@ class CustomEnv_2order_dyn(gym.Env):
                  nr_obstacles=0,
                  nr_goal_pos=15,
                  train=True,
-                 damping_matrices=[np.zeros((2,2))]):
+                 damping_matrices=[np.zeros((2,2))],
+                 goal_vel_change=False,
+                 test=False):
 
         #Super init
         super(CustomEnv_2order_dyn, self).__init__()
@@ -44,6 +46,8 @@ class CustomEnv_2order_dyn(gym.Env):
         self.nr_obstacles = nr_obstacles
         self.nr_goal_pos = nr_goal_pos
         self.train = train
+        self.goal_vel_change=goal_vel_change
+        self.test = test
 
         if(nr_obstacles > 0):
             # obstacles
@@ -68,7 +72,8 @@ class CustomEnv_2order_dyn(gym.Env):
         # max velocity
         self.max_vel = 2.0
         #velocity delta at goal
-        self.goal_vel = 0.5
+        self.goal_vel = 0.05
+        self.goal_vels = [4.988697341780815, 0.8778088237618369, 3.5358431495166327, 2.495213623078803, 5.277548938229918]
 
         #Agent Mass
         self.agent_mass = 1.0
@@ -78,8 +83,8 @@ class CustomEnv_2order_dyn(gym.Env):
 
         #Agent Damping Matrix
         self.agent_damping_matrix = np.zeros((2,2), dtype=np.single)
-        self.agent_damping_matrix[0,0] = 0.1
-        self.agent_damping_matrix[1,1] = 0.1
+        self.agent_damping_matrix[0,0] = 0.3
+        self.agent_damping_matrix[1,1] = 0.3
         self.damping_matrices = damping_matrices
 
 
@@ -103,6 +108,15 @@ class CustomEnv_2order_dyn(gym.Env):
         if self.train:
             ind = np.random.randint(0, len(self.damping_matrices))
             self.agent_damping_matrix = self.damping_matrices[ind]
+            self.S = self.agent_mass_matrix + self.beta * self.delta_t * self.agent_damping_matrix
+            self.inv_S = np.linalg.inv(self.S)
+
+        if self.goal_vel_change:
+            ind = np.random.randint(0, len(self.goal_vels))
+            self.goal_vel = self.goal_vels[ind]
+            
+        
+
         # agent velocity
         self.agent_vel = np.zeros((2,), dtype=np.single)
         self.agent_acc = np.zeros((2,), dtype=np.single)
@@ -117,7 +131,11 @@ class CustomEnv_2order_dyn(gym.Env):
         #self.goal_position = np.array([10.0,10.0], dtype=np.single)
         goal_pos = np.random.randint(0, self.nr_goal_pos)
         self.goal_position = np.array([self.pot_goal_pos[goal_pos, 0], self.pot_goal_pos[goal_pos, 1]], dtype=np.single)
-
+        
+        if self.test:
+            self.goal_position[0] = np.random.uniform(0,self.grid_size[0])
+            self.goal_position[1] = np.random.uniform(0,self.grid_size[1])
+        
         # define last distance to goal
         self.initial_dist = np.linalg.norm(self.agent_position - self.goal_position)
 
@@ -201,9 +219,9 @@ class CustomEnv_2order_dyn(gym.Env):
             return observation, self.reward, self.done, {"goal": True, "obstacle": False}
 
         # check if agent has moved out of goal
-        if new_dist > self.goal_size and self.in_goal:
-            self.reward = -0.5
-            self.in_goal = False
+        #if new_dist > self.goal_size and self.in_goal:
+        #    self.reward = -0.5
+        #    self.in_goal = False
 
 
         # check if upper or left bound of grid is hit
