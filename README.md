@@ -2,8 +2,8 @@
 ## Repository for ADLR for Matthias Kreiner and Samuel Zeitler
 
 
-<p> Clone via  
-```
-git clone --recurse-submodules
-```
+Clone via  
+
+  git clone --recurse-submodules
+
 
