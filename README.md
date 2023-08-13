@@ -32,7 +32,7 @@
     python3 test_trained.py
 
 ### PEARL
-<p> Code for the continuous environment including the source code for implemented PEARL algorithm in the SB3 fork</p>
+<p> Code for the continuous environment including the source code for implementation of the PEARL algorithm (Submodule/ SB3 fork)</p>
 <p> For creation of a virtual environment and installation of SB3 and requirements, run: </p>
 
     source ./install.sh
