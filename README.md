@@ -18,7 +18,7 @@
     source ./init.sh
 
 <p> Configuration of the training can be done in <strong>train_sac.py</strong> </p>
-
+<p> Training is configured to be run locally. To run on the Google Compute Engine in combination with a storage bucket comment in the last section inside train_sac.py</p>
 <p> To train models without CLI output run: </p>
 
     source ./train_sac.sh
@@ -42,7 +42,7 @@
     source ./init.sh
 
 <p> Configuration of the training can be done in <strong>train_pearl_gce/local.py</strong> </p>
-
+<p> Training is configured to be run on the Google Compute Engine in combination with a storage bucket</p>
 <p> To train models without CLI output run: </p>
 
     source ./train_pearl.sh
@@ -50,6 +50,10 @@
 <p> To train models with CLI output run: </p>
 
     source ./wo_train_pearl.sh
+
+<p> To train models locally run: </p>
+
+    python3 train_pearl_local.py
 
 <p> To test models run:  </p>
 
