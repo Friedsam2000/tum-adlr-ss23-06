@@ -1,0 +1,7 @@
+stable-baselines3
+torch==1.8.1
+tensorflow==2.11.0
+google-cloud-storage
+tensorboard
+opencv-python
+numpy

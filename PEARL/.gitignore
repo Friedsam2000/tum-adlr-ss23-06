@@ -1,0 +1,6 @@
+.idea
+venv/
+models_from_bucket/
+__pycache__/
+models/
+logs/
