@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "rechenmaschine-project",
+  "private_key_id": "3d4892108192d9bfe34d1a689dd15532605062f3",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCjytk4yd5cwOc1\nTjFjhde6QGlagT/XDuq9LdP0Nk+YuIwPQrPh+1zZBubc/DfauOrDym77rYhbLIDU\novOzr4O8GGNs1yoA9rZ6OGIFgrLE+QXWwTAwxexGm7sLy2SfSvQoCBiJttlT1mAW\nVZomJvyXsjOaRi2MeQETa35xMuUgVp/ov7SHOENbD5uRGvKCdEMtWvQhI8poB8i8\noVK3mHndLuYTpZW5qcA4RVKl6/G9nH9EBAOBXawMF1XP0GCqSGiDTkXEGBhZ2thP\nBa8RE/E8LXPoL27LP9EUax468OgUpQLRCTnN81GqnVGqA6Qrsm8Fmz5lKHtZ5uad\njFVhXEYDAgMBAAECggEAHw6G6qQoRAkVrf9SEQ9fTMMK1uzb+ICtFMrcPhmQNSKE\n+B3LMuWxALu0yaEPTCs05IP9UD5itPr2wJrXP7JfdapgK9KOddlR11HakDXshLm9\nGC/QXechem/r4vwha6zQJ8kFMhOYGLP0yzdW/7XzviW9cBqvZ0vIXvDKbFdcp6lH\ndMpYbr+2r1b9sQQkDH9DDaOU+cqOrEhaV/3QuRdleS9aCihsQLZh8+BN71baSEcW\nAuAvyZ4Jxq1+pMrm3ZHCOZYbONtc8NeOWHeJvwbHh06OS3KAOuVt0P2mKMe4yWJn\nM3cw8uSze2hPRGZsUhNEY5glCBS5Wku6DIwvfTv+sQKBgQDWD6HXjEE/I30ItrKs\nfeYeD6Re/qP2QnCJU7OVUmxYKjboKe2HAdVRE9/cQMusutnCHST63ozg6V8Iodct\nhFzFOV/ngqC4ve1eKe8Sg2g9kJWwDRW6fCKF6e3JT2SW2q+d9yIw+DNArcRJLpeG\nSzwzbTaNOKDJCJeppZUzxjg0swKBgQDD4fVohSojubTP5Og0iO6GvzPlmvwAtdwq\ni0xjJ2Mau/b3q63vEmunQ773zvK6bz+9mHY422PQ0SzQm+EqUjXY7VJ7vJj3wSoN\nB85jzmYhc7NBU7bGJtiizgruNvC/Fw5sLXaAqONhF8xhZG1zhAh126+teK1I4W70\n8P9RyI5xcQKBgFSAYUQkstEI4l/hN1FOddviEuIJJZKeEay0ZQ0KN4jqSTiG7KRB\n/gJ+lP1ueriaHkI5nRKHbhePKJvQv4/RU4nrp0dN0sJ6/0wPw7eMNkcvX1fbInu2\nay5v9RVmCPBgLblvCIlKQXlD31uAUAKMipxGfaVr+FTD1pL6sZZ5plBvAoGAQ2V6\nf5TZ0+LwgFs9Pd4jW79rxsNVk5T/BLBa/v6tTaSAq+So+sn2ul1H1pGg2F6wqrZL\nbvKlXFKsPbZ0eZBBsLqvF53jb9NJeaRG8fYxE69wbLi1+WWiQhnsjtveZ5EySCw4\nSrpRSbXbf2MDeaxjENIeluwfiyTtfV9yKZx8zjECgYAuKDMtcujPKOHDQa13fZMJ\n1dw+FO/y+qBrcFf/siby3KeJFR8aT/zUVolt6Krd6XpesVl1rxdjsZidwlL/j2Ay\ngnVCG3sN3uo3f4yu+/+84Y5T+AQkvhI0B4oMAFIMa2XF/1Dr2JjDbU5ysS2IvCfj\nmr0/lec0VZZ4GLVMucoBTA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "serice-account@rechenmaschine-project.iam.gserviceaccount.com",
+  "client_id": "106927713700012756370",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/serice-account%40rechenmaschine-project.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
