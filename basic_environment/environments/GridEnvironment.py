@@ -13,9 +13,9 @@ class GridEnvironment(gymnasium.Env):
     metadata = {'render.modes': ['human']}
     action_space = spaces.Discrete(4)
 
-    def __init__(self, grid_size=(24, 24), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100,
+    def __init__(self, grid_size=(8, 8), img_size=(96, 96), render_size=(480, 480), num_last_agent_pos=100,
                  draw_last_agent_pos_in_obs=False, num_frames_to_stack=4, grey_scale=False, render_greyscale=False,
-                 num_obstacles=6, size_grid_frame_info=11):
+                 num_obstacles=0, size_grid_frame_info=11):
         super().__init__()
         self.render_greyscale = render_greyscale
         self.grey_scale = grey_scale
