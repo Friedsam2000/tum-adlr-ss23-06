@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     # Set up the bucket (google cloud storage)
     # Define the bucket name
-    bucket_name = 'adlr_bucket'
+    bucket_name = 'test_bucket_samuelzeitler2000'
     # Initialize a storage client
     storage_client = storage.Client()
     # Get the bucket object
